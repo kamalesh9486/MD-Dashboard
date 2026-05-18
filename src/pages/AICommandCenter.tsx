@@ -154,7 +154,7 @@ export default function AICommandCenter() {
             Power BI dashboards powering DEWA's AI Centre of Excellence — analytics, adoption and performance in one place.
           </p>
         </div>
-        <DataSourceBadge type="live" title="Live Dataverse data" />
+        <DataSourceBadge type="live" title="Live Dataverse data" lastUpdated="15 May 2026" />
       </div>
 
       {/* ── Status KPIs ─────────────────────────────────── */}

@@ -4,6 +4,7 @@
  */
 
 // Models
+export * as Ai_coe_toolsesModel from './models/Ai_coe_toolsesModel';
 export * as CommonModels from './models/CommonModels';
 export * as Cr978_coe_aiincidentsModel from './models/Cr978_coe_aiincidentsModel';
 export * as Cr978_coe_approlesModel from './models/Cr978_coe_approlesModel';
@@ -17,6 +18,7 @@ export * as Cr978_powerbidashboardsModel from './models/Cr978_powerbidashboardsM
 export * as MicrosoftCopilotStudioModel from './models/MicrosoftCopilotStudioModel';
 
 // Services
+export * from './services/Ai_coe_toolsesService';
 export * from './services/Cr978_coe_aiincidentsService';
 export * from './services/Cr978_coe_approlesService';
 export * from './services/Cr978_coe_departmentsService';

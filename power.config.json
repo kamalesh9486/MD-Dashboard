@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "appId": "3589989d-2273-49e0-9d30-9dac0fde63d3",
-  "appDisplayName": "Ai CoE-R03",
+  "appId": "806f7431-4402-4d2f-9434-7db2dbd58778",
+  "appDisplayName": "Ai CoE-R03-V1-1",
   "region": "prod",
   "environmentId": "07da6342-8cc4-e81c-95fa-9ce24e7c2f46",
   "description": " ",
@@ -57,6 +57,10 @@
         "coe_discoveries": {
           "entitySetName": "cr978_coe_discoveries",
           "logicalName": "cr978_coe_discovery"
+        },
+        "coe_tools": {
+          "entitySetName": "ai_coe_toolses",
+          "logicalName": "ai_coe_tools"
         }
       },
       "environmentVariableName": ""

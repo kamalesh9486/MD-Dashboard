@@ -372,3 +372,36 @@
   .es-page { padding: 22px 0 56px; }
   .es-grid { gap: 20px; }
 }
+
+/* ── KPI mini-chart tooltips ── */
+.es-kpi-mini-tip {
+  position: fixed;
+  z-index: 9999;
+  background: rgba(28, 28, 30, 0.93);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translateY(-100%);
+  font-family: 'Dubai', 'Segoe UI', system-ui, sans-serif;
+}
+.es-kpi-mini-tip-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+.es-kpi-mini-tip-val {
+  font-weight: 600;
+  font-size: 12px;
+  color: #fff;
+}
+.es-kpi-mini-tip-val + .es-kpi-mini-tip-val {
+  margin-top: 1px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+}

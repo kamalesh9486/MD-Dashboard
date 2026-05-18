@@ -1001,7 +1001,7 @@ export default function AlHasbah() {
           <h1 style={{ padding: '5px' }}>AL Hasbah</h1>
           <p>Live AI Use Cases Across Dewa's Division and Department</p>
         </div>
-        <DataSourceBadge type="simulated" title="Dummy data" />
+        <DataSourceBadge type="simulated" title="Dummy data" lastUpdated="3 May 2026" />
       </div>
 
       {/* ── KPI Row ── */}

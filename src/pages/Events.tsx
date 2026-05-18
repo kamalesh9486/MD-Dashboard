@@ -483,16 +483,7 @@ function EventDetailPanel({ event: ev, onClose }: { event: AppEvent; onClose: ()
     <>
       <div className="ev2-overlay" onClick={onClose} />
       <div className="ev2-panel">
-        <div className="ev2-panel-head" style={{ background: cover }}>
-          <div className="ev2-panel-head-badges">
-            <TypeBadge type={ev.type} />
-            <StatusBadge status={ev.status} />
-          </div>
-          <button className="ev2-panel-close" onClick={onClose} aria-label="Close">
-            <Icon name="bi-x-lg" />
-          </button>
-          <div className="ev2-panel-head-title">{ev.title}</div>
-        </div>
+        <div className="ev2-panel-head" style={{ background: cover }} />
 
         <div className="ev2-panel-body">
           {/* Prominent type + status pills in body */}
@@ -864,7 +855,7 @@ export default function Events({ fromProgram, onBackToPrograms }: EventsProps = 
             <h1>Events</h1>
             <p>Workshops, seminars, hackathons and webinars across all AI programmes</p>
           </div>
-          <DataSourceBadge type="simulated" title="Manually seeded data" />
+          <DataSourceBadge type="simulated" title="Manually seeded data" lastUpdated="14 May 2026" />
         </div>
       )}
 

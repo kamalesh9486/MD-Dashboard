@@ -68,6 +68,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "ai_coe_toolses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_coe_toolsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "microsoftcopilotstudio": {
     "tableId": "",
     "version": "",

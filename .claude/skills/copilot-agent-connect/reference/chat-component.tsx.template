@@ -1,0 +1,445 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
+import './{{PASCAL_NAME}}Chat.css'
+import { MicrosoftCopilotStudioService } from '../generated/services/MicrosoftCopilotStudioService'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type AcRole = 'user' | 'ai'
+
+interface AcMessage {
+  id: string
+  role: AcRole
+  text: string
+  time: Date
+  done: boolean
+}
+
+interface AcQuickPrompt {
+  label: string
+  query: string
+}
+
+// ─── Agent Config ─────────────────────────────────────────────────────────────
+
+const AC_AGENT_NAME   = '{{AGENT_LOGICAL_NAME}}'
+const AC_DISPLAY_NAME = '{{AGENT_DISPLAY_NAME}}'
+const AC_DESCRIPTION  = '{{AGENT_DESCRIPTION}}'
+
+// ─── Quick Prompts ────────────────────────────────────────────────────────────
+
+const AC_QUICK_PROMPTS: AcQuickPrompt[] = {{QUICK_PROMPTS_ARRAY}}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function acFmtTime(d: Date): string {
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+function acBuildGreeting(): string {
+  const h = new Date().getHours()
+  const part = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
+  return `${part}. I'm **${AC_DISPLAY_NAME}** — ${AC_DESCRIPTION}. How can I help you today?`
+}
+
+function acParseMarkdown(text: string): string {
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+  return escaped
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br/>')
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function {{PASCAL_NAME}}Chat() {
+  const [open, setOpen]               = useState(false)
+  const [fullscreen, setFullscreen]   = useState(false)
+  const [messages, setMessages]       = useState<AcMessage[]>([])
+  const [input, setInput]             = useState('')
+  const [thinking, setThinking]       = useState(false)
+  const [unread, setUnread]           = useState(0)
+  const [copiedId, setCopiedId]       = useState<string | null>(null)
+  const [greetText, setGreetText]     = useState('')
+  const [greetDone, setGreetDone]     = useState(false)
+  const [greetKey, setGreetKey]       = useState(0)
+
+  const bottomRef         = useRef<HTMLDivElement>(null)
+  const inputRef          = useRef<HTMLInputElement>(null)
+  const streamRef         = useRef<ReturnType<typeof setInterval> | null>(null)
+  const greetTimerRef     = useRef<ReturnType<typeof setInterval> | null>(null)
+  const greetTimeRef      = useRef(new Date())
+  const conversationIdRef = useRef<string>(crypto.randomUUID())
+
+  // Cleanup intervals on unmount
+  useEffect(() => () => {
+    if (streamRef.current)    clearInterval(streamRef.current)
+    if (greetTimerRef.current) clearInterval(greetTimerRef.current)
+  }, [])
+
+  // Inline scroll lock — no external hook dependency
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, thinking])
+
+  // On open: focus input, clear unread, replay greeting
+  useEffect(() => {
+    if (!open) return
+    setTimeout(() => inputRef.current?.focus(), 320)
+    setUnread(0)
+    setGreetKey(k => k + 1)
+  }, [open])
+
+  // Greeting typewriter — fires when greetKey changes
+  useEffect(() => {
+    if (greetKey === 0) return
+    if (greetTimerRef.current) clearInterval(greetTimerRef.current)
+    setGreetText('')
+    setGreetDone(false)
+    greetTimeRef.current = new Date()
+    const full = acBuildGreeting()
+    let i = 0
+    greetTimerRef.current = setInterval(() => {
+      i += 2
+      setGreetText(full.slice(0, i))
+      if (i >= full.length) {
+        clearInterval(greetTimerRef.current!)
+        setGreetDone(true)
+      }
+    }, 18)
+    return () => { if (greetTimerRef.current) clearInterval(greetTimerRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [greetKey])
+
+  // Typewriter stream for AI responses
+  const acStreamMessage = useCallback((id: string, fullText: string) => {
+    if (streamRef.current) clearInterval(streamRef.current)
+    let i = 0
+    streamRef.current = setInterval(() => {
+      i += 2
+      setMessages(prev =>
+        prev.map(m => m.id === id
+          ? { ...m, text: fullText.slice(0, i), done: i >= fullText.length }
+          : m
+        )
+      )
+      if (i >= fullText.length && streamRef.current) clearInterval(streamRef.current)
+    }, 16)
+  }, [])
+
+  const acSendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || thinking) return
+
+    const userMsg: AcMessage = {
+      id: `u-${Date.now()}`,
+      role: 'user',
+      text: text.trim(),
+      time: new Date(),
+      done: true,
+    }
+    setMessages(prev => [...prev, userMsg])
+    setInput('')
+    setThinking(true)
+
+    try {
+      const result = await MicrosoftCopilotStudioService.ExecuteCopilotAsyncV2(
+        AC_AGENT_NAME,
+        { message: text.trim(), notificationUrl: 'https://notificationurlplaceholder' },
+        conversationIdRef.current
+      )
+
+      const data = result.data as Record<string, unknown> | null | undefined
+
+      const convId = (
+        data?.conversationId ?? data?.ConversationId ?? data?.conversationID
+      ) as string | undefined
+      if (convId) conversationIdRef.current = convId
+
+      const responseText = (
+        (data?.lastResponse as string | undefined) ??
+        ((data?.responses as string[] | undefined)?.[0]) ??
+        'Sorry, I received an empty response.'
+      )
+
+      const aiId = `ai-${Date.now()}`
+      setThinking(false)
+      setMessages(prev => [...prev, {
+        id: aiId, role: 'ai' as AcRole, text: '', time: new Date(), done: false,
+      }])
+      if (!open) setUnread(n => n + 1)
+      acStreamMessage(aiId, responseText)
+    } catch {
+      setThinking(false)
+      setMessages(prev => [...prev, {
+        id: `ai-err-${Date.now()}`,
+        role: 'ai' as AcRole,
+        text: "Sorry, I couldn't reach the server right now. Please try again.",
+        time: new Date(),
+        done: true,
+      }])
+    }
+  }, [thinking, open, acStreamMessage])
+
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      void acSendMessage(input)
+    }
+  }
+
+  function handleCopy(msgId: string, text: string) {
+    const plain = text.replace(/<[^>]+>/g, '').replace(/\*\*/g, '')
+    navigator.clipboard.writeText(plain)
+      .then(() => {
+        setCopiedId(msgId)
+        setTimeout(() => setCopiedId(id => id === msgId ? null : id), 2000)
+      })
+      .catch(() => console.warn(`[${AC_DISPLAY_NAME}] Clipboard write failed`))
+  }
+
+  function startNewConversation() {
+    setMessages([])
+    conversationIdRef.current = crypto.randomUUID()
+    setGreetKey(k => k + 1)
+  }
+
+  const isEmpty = messages.length === 0
+
+  // ─── Inline SVGs (no external icon dependency) ────────────────────────────
+
+  const SvgAgent = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="2.8" fill="white"/>
+      <circle cx="12" cy="4"  r="1.8" fill="white" opacity="0.9"/>
+      <circle cx="12" cy="20" r="1.8" fill="white" opacity="0.9"/>
+      <circle cx="4"  cy="8"  r="1.8" fill="white" opacity="0.9"/>
+      <circle cx="20" cy="8"  r="1.8" fill="white" opacity="0.9"/>
+      <circle cx="4"  cy="16" r="1.8" fill="white" opacity="0.9"/>
+      <circle cx="20" cy="16" r="1.8" fill="white" opacity="0.9"/>
+      <line x1="12" y1="5.8"  x2="12" y2="9.2"  stroke="white" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="12" y1="14.8" x2="12" y2="18.2" stroke="white" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="5.4"  y1="8.9"  x2="9.4"  y2="11.1" stroke="white" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="14.6" y1="12.9" x2="18.6" y2="15.1" stroke="white" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="5.4"  y1="15.1" x2="9.4"  y2="12.9" stroke="white" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="14.6" y1="11.1" x2="18.6" y2="8.9"  stroke="white" strokeWidth="1.2" opacity="0.6"/>
+    </svg>
+  )
+
+  const SvgAgentSm = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="2.5" fill="white"/>
+      <circle cx="12" cy="5"  r="1.6" fill="white" opacity="0.8"/>
+      <circle cx="12" cy="19" r="1.6" fill="white" opacity="0.8"/>
+      <circle cx="5"  cy="8.5"  r="1.6" fill="white" opacity="0.8"/>
+      <circle cx="19" cy="8.5"  r="1.6" fill="white" opacity="0.8"/>
+      <circle cx="5"  cy="15.5" r="1.6" fill="white" opacity="0.8"/>
+      <circle cx="19" cy="15.5" r="1.6" fill="white" opacity="0.8"/>
+    </svg>
+  )
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+
+  return (
+    <>
+      {/* ── Floating Trigger Orb ── */}
+      <div
+        className={`ac-trigger${open ? ' ac-trigger--open' : ''}`}
+        onClick={() => setOpen(o => !o)}
+        role="button"
+        aria-label={open ? `Close ${AC_DISPLAY_NAME}` : `Open ${AC_DISPLAY_NAME}`}
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setOpen(o => !o) }}
+      >
+        <div className="ac-trigger-orb"><SvgAgent /></div>
+        <div className="ac-trigger-ripple" />
+        <div className="ac-trigger-ripple ac-trigger-ripple--2" />
+        {unread > 0 && !open && (
+          <span className="ac-unread" aria-label={`${unread} unread messages`}>{unread}</span>
+        )}
+        <div className="ac-trigger-label">{AC_DISPLAY_NAME}</div>
+      </div>
+
+      {/* ── Chat Panel ── */}
+      <div
+        className={`ac-panel${open ? ' ac-panel--open' : ''}${fullscreen ? ' ac-panel--fullscreen' : ''}`}
+        role="dialog"
+        aria-label={`${AC_DISPLAY_NAME} chat`}
+        aria-modal="false"
+      >
+        {/* Header */}
+        <div className="ac-header">
+          <div className="ac-header-left">
+            <div className="ac-avatar"><SvgAgent /></div>
+            <div>
+              <div className="ac-header-title">{AC_DISPLAY_NAME}</div>
+              <div className="ac-header-sub">
+                <span className="ac-status-dot" />
+                {AC_DESCRIPTION}
+              </div>
+            </div>
+          </div>
+          <div className="ac-header-actions">
+            {messages.length > 0 && (
+              <button className="ac-icon-btn" title="New conversation"
+                aria-label="Start new conversation" onClick={startNewConversation}>
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                </svg>
+              </button>
+            )}
+            <button className="ac-icon-btn"
+              title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              onClick={() => setFullscreen(f => !f)}>
+              {fullscreen ? (
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5m5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5M0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5m10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0z"/>
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M1.5 1h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 1m9 0h4A1.5 1.5 0 0 1 16 2.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1 0-1M.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5"/>
+                </svg>
+              )}
+            </button>
+            <button className="ac-icon-btn" title="Close"
+              aria-label={`Close ${AC_DISPLAY_NAME}`} onClick={() => setOpen(false)}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Message Body */}
+        <div className="ac-body">
+          {isEmpty && (
+            <div className="ac-welcome">
+              {greetText && (
+                <div className="ac-msg ac-msg--ai ac-msg--greet">
+                  <div className="ac-msg-avatar"><SvgAgentSm /></div>
+                  <div className="ac-msg-col">
+                    <div className="ac-bubble" dangerouslySetInnerHTML={{
+                      __html: acParseMarkdown(greetText) + (!greetDone ? '<span class="ac-cursor">▋</span>' : ''),
+                    }} />
+                    <div className="ac-msg-foot">
+                      <span className="ac-msg-time">{acFmtTime(greetTimeRef.current)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {greetDone && (
+                <div className="ac-quick-wrap">
+                  <div className="ac-greet-sep">What would you like to explore?</div>
+                  <div className="ac-quick-grid">
+                    {AC_QUICK_PROMPTS.map(p => (
+                      <button key={p.label} className="ac-quick-btn"
+                        onClick={() => void acSendMessage(p.query)}>
+                        <span className="ac-quick-label">{p.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {messages.map(msg => (
+            <div key={msg.id} className={`ac-msg ac-msg--${msg.role}`}>
+              {msg.role === 'ai' && <div className="ac-msg-avatar"><SvgAgentSm /></div>}
+              <div className="ac-msg-col">
+                <div className="ac-bubble" dangerouslySetInnerHTML={{
+                  __html: acParseMarkdown(msg.text) + (!msg.done ? '<span class="ac-cursor">▋</span>' : ''),
+                }} />
+                <div className="ac-msg-foot">
+                  <span className="ac-msg-time">{acFmtTime(msg.time)}</span>
+                  {msg.role === 'ai' && msg.done && (
+                    <button className="ac-copy-btn"
+                      title={copiedId === msg.id ? 'Copied!' : 'Copy'}
+                      aria-label={copiedId === msg.id ? 'Copied to clipboard' : 'Copy message'}
+                      onClick={() => handleCopy(msg.id, msg.text)}>
+                      {copiedId === msg.id ? (
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                          <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                      ) : (
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                          <path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                        </svg>
+                      )}
+                      {copiedId === msg.id ? 'Copied!' : 'Copy'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {thinking && (
+            <div className="ac-msg ac-msg--ai">
+              <div className="ac-msg-avatar"><SvgAgentSm /></div>
+              <div className="ac-msg-col">
+                <div className="ac-thinking" aria-label="Agent is thinking">
+                  <span /><span /><span />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input Bar */}
+        <div className="ac-input-bar">
+          {!isEmpty && (
+            <div className="ac-suggestion-strip">
+              {AC_QUICK_PROMPTS.slice(0, 3).map(p => (
+                <button key={p.label} className="ac-suggestion-chip"
+                  onClick={() => void acSendMessage(p.query)}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="ac-input-row">
+            <input
+              ref={inputRef}
+              className="ac-input"
+              placeholder="{{INPUT_PLACEHOLDER}}"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              disabled={thinking}
+              aria-label="Message input"
+            />
+            <button
+              className={`ac-send${input.trim() ? ' ac-send--active' : ''}`}
+              onClick={() => void acSendMessage(input)}
+              disabled={!input.trim() || thinking}
+              title="Send message"
+              aria-label="Send message"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338L1.32 6.295z"/>
+              </svg>
+            </button>
+          </div>
+          <div className="ac-input-hint">{{FOOTER_TEXT}}</div>
+        </div>
+      </div>
+
+      {/* Backdrop — closes panel on click */}
+      {open && (
+        <div className="ac-backdrop" onClick={() => setOpen(false)} aria-hidden="true" />
+      )}
+    </>
+  )
+}

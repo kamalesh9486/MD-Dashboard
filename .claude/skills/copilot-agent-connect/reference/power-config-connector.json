@@ -1,0 +1,11 @@
+{
+  "_comment": "Add the object below under the 'connectionReferences' key in your power.config.json, using the connector ID as the property key. Then run: pac code generate",
+  "978c3d96-f333-48ca-8172-6b3429a948d9": {
+    "id": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio",
+    "displayName": "Microsoft Copilot Studio",
+    "dataSources": [
+      "microsoftcopilotstudio"
+    ],
+    "dataSets": {}
+  }
+}

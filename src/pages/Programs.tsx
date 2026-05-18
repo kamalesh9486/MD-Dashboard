@@ -372,7 +372,7 @@ export default function Programs({ onNavigateToEvents }: Props) {
         <div>
           <h1 style={{ padding: '5px' }}>Programs</h1>
           <p>AI initiatives and programs across all DEWA divisions</p>
-          <DataSourceBadge type="simulated" title="Manually seeded data" />
+          <DataSourceBadge type="simulated" title="Manually seeded data" lastUpdated="10 May 2026" />
         </div>
         <button
           onClick={() => setShowAddModal(true)}

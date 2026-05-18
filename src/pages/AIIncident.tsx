@@ -449,7 +449,7 @@ export default function AIIncident() {
           <h1>AI Incidents</h1>
           <p>Track, investigate and resolve AI-related incidents across all DEWA divisions</p>
         </div>
-        <DataSourceBadge type="simulated" title="Dummy data fed through AI agent" />
+        <DataSourceBadge type="simulated" title="Dummy data fed through AI agent" lastUpdated="13 May 2026" />
       </div>
 
       {error && (

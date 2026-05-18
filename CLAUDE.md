@@ -4,6 +4,14 @@
 
 ---
 
+## Session Start — Mandatory First Action
+
+**At the beginning of every new session, before doing anything else, read `coearchitecture.md`.**
+
+This file is the single source of truth for what the platform does, which pages exist, what data each page uses, and what components are available. Do not guess at existing architecture — read it first. If a user asks about a page, component, or feature and you have not yet read the file this session, read it before answering.
+
+---
+
 ## Auto-Dispatch Rule — Check Before Every Response
 
 Before responding to any prompt, silently evaluate every entry in both tables below. If a match is found, invoke it **in the same turn** — never defer to a follow-up.

@@ -515,7 +515,7 @@ export default function DiscoveryCatalog() {
           <h1 style={{ padding: '5px' }}>Discovery Catalog</h1>
           <p>Live Dataverse data — all discoveries with AI type, SAP type, status, division &amp; department</p>
         </div>
-        <DataSourceBadge type="live" title="Manually fed live data" />
+        <DataSourceBadge type="live" title="Manually fed live data" lastUpdated="11 May 2026" />
       </div>
 
       {loading ? <LoadingState /> : error ? <ErrorState msg={error} onRetry={fetchData} /> : (

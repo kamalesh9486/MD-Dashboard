@@ -35,6 +35,18 @@ function scoreColor(v: number) {
   return '#dc2626'
 }
 
+function heatBg(v: number): string {
+  if (v >= 80) return 'rgba(0,117,96,0.16)'
+  if (v >= 65) return 'rgba(202,138,4,0.15)'
+  return 'rgba(220,38,38,0.12)'
+}
+
+function heatBorder(v: number): string {
+  if (v >= 80) return 'rgba(0,117,96,0.22)'
+  if (v >= 65) return 'rgba(202,138,4,0.22)'
+  return 'rgba(220,38,38,0.2)'
+}
+
 function adkarRadarData(row: AdkarScore) {
   return DIMENSIONS.map(d => ({
     subject: d.label,
@@ -189,47 +201,83 @@ export default function AdkarTab() {
           </div>
         </div>
 
-        {/* Right: All-divisions comparison table */}
+        {/* Right: ADKAR Dimension Heatmap */}
         <div className="ps-card">
           <div className="ps-card-header">
-            <span className="ps-card-title"><Icon name="bi-grid-3x3-gap" /> All Divisions</span>
+            <span className="ps-card-title"><Icon name="bi-grid-3x3-gap" /> Dimension Heatmap</span>
+            <span style={{ fontSize: 11, color: '#9ca3af' }}>All divisions</span>
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="ps-adkar-all-table" style={{ width: '100%' }}>
-              <thead>
-                <tr>
-                  <th>Division</th>
-                  <th>A</th><th>D</th><th>K</th><th>Ab</th><th>R</th>
-                </tr>
-              </thead>
-              <tbody>
-                {adkarScores.map(row => {
-                  const vals = [row.awareness, row.desire, row.knowledge, row.ability, row.reinforcement]
-                  return (
-                    <tr
-                      key={row.division}
-                      style={{ background: row.division === selectedDiv ? 'rgba(0,117,96,0.06)' : undefined, cursor: 'pointer' }}
-                      onClick={() => setSelectedDiv(row.division)}
-                    >
-                      <td title={row.division} style={{ fontWeight: row.division === selectedDiv ? 700 : 500, color: row.division === selectedDiv ? '#007560' : '#374151' }}>
-                        {row.division}
-                      </td>
-                      {vals.map((v, i) => (
-                        <td key={i} style={{ color: scoreColor(v), fontWeight: 700, fontSize: 12 }}>{v}</td>
-                      ))}
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div style={{ padding: '12px 16px 16px', borderTop: '1px solid #e8e5de' }}>
-            {[{ color: '#007560', label: '≥80 Strong' }, { color: '#ca8a04', label: '65–79 Progressing' }, { color: '#dc2626', label: '<65 Needs focus' }].map(l => (
-              <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: l.color, flexShrink: 0 }} />
-                <span style={{ color: l.color, fontWeight: 600 }}>{l.label}</span>
-              </div>
-            ))}
+          <div style={{ padding: '12px 16px' }}>
+            {/* Column headers */}
+            <div style={{ display: 'grid', gridTemplateColumns: '90px repeat(5, 1fr)', gap: 3, marginBottom: 4 }}>
+              <div />
+              {DIMENSIONS.map(d => (
+                <div key={d.key} style={{ textAlign: 'center', padding: '4px 2px' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#374151' }}>{d.short}</div>
+                  <div style={{ fontSize: 9, color: '#9ca3af', fontWeight: 400, marginTop: 1 }}>{d.label.slice(0, 5)}</div>
+                </div>
+              ))}
+            </div>
+            {/* Data rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {adkarScores.map(row => {
+                const isSelected = row.division === selectedDiv
+                return (
+                  <div
+                    key={row.division}
+                    onClick={() => setSelectedDiv(row.division)}
+                    style={{ display: 'grid', gridTemplateColumns: '90px repeat(5, 1fr)', gap: 3, cursor: 'pointer' }}
+                  >
+                    <div style={{
+                      fontSize: 10, fontWeight: isSelected ? 700 : 500,
+                      color: isSelected ? '#007560' : '#6b7280',
+                      display: 'flex', alignItems: 'center',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      paddingRight: 4,
+                    }}>
+                      {row.division}
+                    </div>
+                    {DIMENSIONS.map(d => {
+                      const val = row[d.key as DimKey]
+                      return (
+                        <div
+                          key={d.key}
+                          title={`${row.division} — ${d.label}: ${val}`}
+                          style={{
+                            background: heatBg(val),
+                            border: `1px solid ${isSelected ? 'rgba(0,117,96,0.45)' : heatBorder(val)}`,
+                            borderRadius: 5,
+                            height: 34,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: scoreColor(val),
+                            transition: 'border-color 0.15s',
+                          }}
+                        >
+                          {val}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
+            </div>
+            {/* Legend */}
+            <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid #e8e5de', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+              {[
+                { bg: 'rgba(0,117,96,0.16)',   border: 'rgba(0,117,96,0.22)',   text: '#007560', label: '≥80 Strong'    },
+                { bg: 'rgba(202,138,4,0.15)',   border: 'rgba(202,138,4,0.22)', text: '#ca8a04', label: '65–79 Progress' },
+                { bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.2)',  text: '#dc2626', label: '<65 Focus'      },
+              ].map(l => (
+                <span key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#6b7280' }}>
+                  <span style={{ width: 16, height: 16, borderRadius: 4, background: l.bg, border: `1px solid ${l.border}`, flexShrink: 0 }} />
+                  <span style={{ color: l.text, fontWeight: 600 }}>{l.label}</span>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>}

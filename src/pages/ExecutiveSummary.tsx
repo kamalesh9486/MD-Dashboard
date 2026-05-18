@@ -73,6 +73,41 @@ const FALLBACK_DIV_NAMES = [
   'Customer Service','Renewables · Solar','Corporate Services','Innovation · R&D',
 ]
 
+// ─── KPI mini-chart data ──────────────────────────────────────────────────────
+const TRAINED_PTS = [
+  { x: 0,   y: 34, month: "May '25", val: 6200  },
+  { x: 20,  y: 30, month: "Jun '25", val: 6580  },
+  { x: 40,  y: 28, month: "Jul '25", val: 7050  },
+  { x: 60,  y: 24, month: "Aug '25", val: 7420  },
+  { x: 80,  y: 22, month: "Sep '25", val: 7780  },
+  { x: 100, y: 18, month: "Oct '25", val: 8110  },
+  { x: 120, y: 14, month: "Nov '25", val: 8400  },
+  { x: 140, y: 11, month: "Dec '25", val: 8640  },
+  { x: 160, y: 8,  month: "Jan '26", val: 8820  },
+  { x: 180, y: 5,  month: "Feb '26", val: 8970  },
+  { x: 200, y: 3,  month: "Mar '26", val: 9087  },
+]
+
+const PROJECTS_PTS = [
+  { x: 5,   month: "Jun '25", count: 29 },
+  { x: 25,  month: "Jul '25", count: 31 },
+  { x: 45,  month: "Aug '25", count: 33 },
+  { x: 65,  month: "Sep '25", count: 35 },
+  { x: 85,  month: "Oct '25", count: 37 },
+  { x: 105, month: "Nov '25", count: 39 },
+  { x: 125, month: "Dec '25", count: 41 },
+  { x: 145, month: "Jan '26", count: 43 },
+  { x: 165, month: "Feb '26", count: 45 },
+  { x: 185, month: "Mar '26", count: 47 },
+]
+
+const IMPACT_DOTS_DATA = [
+  { cx: 40,  cy: 30, month: "Aug '25", val: '22.1M AED' },
+  { cx: 100, cy: 24, month: "Nov '25", val: '27.8M AED' },
+  { cx: 160, cy: 12, month: "Feb '26", val: '31.2M AED' },
+  { cx: 200, cy: 6,  month: "Mar '26", val: '34.3M AED' },
+]
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function greeting(name: string) {
   const h = new Date().getHours()
@@ -136,7 +171,16 @@ export default function ExecutiveSummary() {
   const [divisions,  setDivisions]  = useState<Cr978_coe_divisions[]>([])
   const [divLoading,   setDivLoading]   = useState(true)
   const [heatCell,   setHeatCell]   = useState<HeatCell>(null)
+  const [kpiMiniTip, setKpiMiniTip] = useState<{ lines: string[]; x: number; y: number } | null>(null)
   const { name } = useCurrentUser()
+
+  function showTip(e: React.MouseEvent, lines: string[]) {
+    setKpiMiniTip({ lines, x: e.clientX, y: e.clientY })
+  }
+  function hideTip() { setKpiMiniTip(null) }
+  function moveTip(e: React.MouseEvent) {
+    setKpiMiniTip(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+  }
 
   // Section refs for scroll-to on KPI click
   const refTech     = useRef<HTMLDivElement>(null)
@@ -210,7 +254,7 @@ export default function ExecutiveSummary() {
           <div className="es-page-eyebrow">Centre of Excellence · Artificial Intelligence</div>
           <h1>{greeting(name)} Here&apos;s where DEWA&apos;s AI transformation stands today.</h1>
         </div>
-        <DataSourceBadge type="simulated" title="Dummy data from backend" />
+        <DataSourceBadge type="simulated" title="Dummy data from backend" lastUpdated="16 May 2026" />
       </div>
 
       <div className="es-page">
@@ -231,6 +275,13 @@ export default function ExecutiveSummary() {
                 <defs><linearGradient id="sg1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#2aa95a" stopOpacity="0.3"/><stop offset="100%" stopColor="#2aa95a" stopOpacity="0"/></linearGradient></defs>
                 <path d="M0,34 L20,30 40,28 60,24 80,22 100,18 120,14 140,11 160,8 180,5 200,3 L200,40 L0,40 Z" fill="url(#sg1)"/>
                 <path d="M0,34 L20,30 40,28 60,24 80,22 100,18 120,14 140,11 160,8 180,5 200,3" fill="none" stroke="#17944a" strokeWidth="1.8"/>
+                {TRAINED_PTS.map((pt, i) => (
+                  <circle key={i} cx={pt.x} cy={pt.y} r="8" fill="transparent"
+                    onMouseEnter={e => showTip(e, [pt.month, `${pt.val.toLocaleString()} trained`])}
+                    onMouseLeave={hideTip}
+                    onMouseMove={moveTip}
+                    style={{ cursor: 'crosshair' }} />
+                ))}
               </svg>
               <div className="es-kpi-hint">View tech growth <Icon name="bi-arrow-right" /></div>
             </div>
@@ -246,11 +297,14 @@ export default function ExecutiveSummary() {
                 <span className="es-delta es-delta--up">+9</span>
               </div>
               <svg viewBox="0 0 200 40" width="100%" height="36" preserveAspectRatio="none">
-                <g fill="#2b63c8">
-                  {[5,25,45,65,85,105,125,145,165,185].map((x, i) => (
-                    <rect key={i} x={x} y={40 - (16 + i * 2)} width="10" height={16 + i * 2} rx="1"/>
-                  ))}
-                </g>
+                {PROJECTS_PTS.map((b, i) => (
+                  <rect key={i} x={b.x} y={40 - (16 + i * 2)} width="10" height={16 + i * 2} rx="1"
+                    fill="#2b63c8"
+                    onMouseEnter={e => showTip(e, [b.month, `${b.count} active projects`])}
+                    onMouseLeave={hideTip}
+                    onMouseMove={moveTip}
+                    style={{ cursor: 'crosshair' }} />
+                ))}
               </svg>
               <div className="es-kpi-hint">View programmes <Icon name="bi-arrow-right" /></div>
             </div>
@@ -266,9 +320,18 @@ export default function ExecutiveSummary() {
                 <span className="es-delta es-delta--up">+21.3%</span>
               </div>
               <svg viewBox="0 0 200 40" width="100%" height="36" preserveAspectRatio="none">
-                <path d="M0,36 L20,34 40,30 60,32 80,26 100,24 120,18 140,20 160,12 180,10 200,6" fill="none" stroke="#1a9a94" strokeWidth="1.8"/>
-                {[40,100,160].map((cx,i) => <circle key={i} cx={cx} cy={[30,24,12][i]} r="1.5" fill="#1a9a94"/>)}
-                <circle cx="200" cy="6" r="2.2" fill="#1a9a94"/>
+                <path d="M0,36 L20,34 40,30 60,32 80,26 100,24 120,18 140,20 160,12 180,10 200,6" fill="none" stroke="#1a9a94" strokeWidth="1.8"
+                  onMouseMove={moveTip} />
+                {IMPACT_DOTS_DATA.map((d, i) => (
+                  <circle key={i} cx={d.cx} cy={d.cy} r={i === 3 ? 2.2 : 1.5} fill="#1a9a94" />
+                ))}
+                {IMPACT_DOTS_DATA.map((d, i) => (
+                  <circle key={`hit-${i}`} cx={d.cx} cy={d.cy} r="8" fill="transparent"
+                    onMouseEnter={e => showTip(e, [d.month, `Impact: ${d.val}`])}
+                    onMouseLeave={hideTip}
+                    onMouseMove={moveTip}
+                    style={{ cursor: 'crosshair' }} />
+                ))}
               </svg>
               <div className="es-kpi-hint">View heatmap <Icon name="bi-arrow-right" /></div>
             </div>
@@ -290,7 +353,11 @@ export default function ExecutiveSummary() {
                 <circle cx="100" cy="20" r="16" fill="none" stroke="#eef0f6" strokeWidth="5"/>
                 <circle cx="100" cy="20" r="16" fill="none" stroke="#17944a" strokeWidth="5"
                   strokeDasharray={`${avgAdoptionRate} 100`} pathLength="100"
-                  strokeLinecap="round" transform="rotate(-90 100 20)"/>
+                  strokeLinecap="round" transform="rotate(-90 100 20)"
+                  onMouseEnter={e => showTip(e, ['Overall Adoption Rate', `${avgAdoptionRate}% avg · 7 divisions`, '+6.2 pts this quarter'])}
+                  onMouseLeave={hideTip}
+                  onMouseMove={moveTip}
+                  style={{ cursor: 'crosshair' }} />
               </svg>
               <div className="es-kpi-hint">View by division <Icon name="bi-arrow-right" /></div>
             </div>
@@ -307,8 +374,16 @@ export default function ExecutiveSummary() {
               </div>
               <svg viewBox="0 0 200 40" width="100%" height="36" preserveAspectRatio="none">
                 <rect x="0" y="30" width="200" height="4" rx="2" fill="#eef0f6"/>
-                <rect x="0" y="30" width="156" height="4" rx="2" fill="#007560"/>
-                <circle cx="156" cy="32" r="5" fill="#007560"/>
+                <rect x="0" y="30" width="156" height="4" rx="2" fill="#007560"
+                  onMouseEnter={e => showTip(e, ['AI Readiness Score', '78 / 100 — Strong', '+4 pts this quarter'])}
+                  onMouseLeave={hideTip}
+                  onMouseMove={moveTip}
+                  style={{ cursor: 'crosshair' }} />
+                <circle cx="156" cy="32" r="5" fill="#007560"
+                  onMouseEnter={e => showTip(e, ['AI Readiness Score', '78 / 100 — Strong', '+4 pts this quarter'])}
+                  onMouseLeave={hideTip}
+                  onMouseMove={moveTip}
+                  style={{ cursor: 'crosshair' }} />
                 <text x="160" y="18" fontSize="11" fill="#007560" fontWeight="700">78%</text>
               </svg>
               <div className="es-kpi-hint">View AI pulse <Icon name="bi-arrow-right" /></div>
@@ -590,6 +665,14 @@ export default function ExecutiveSummary() {
 
         </div>
       </div>
+
+      {kpiMiniTip && (
+        <div className="es-kpi-mini-tip" style={{ left: kpiMiniTip.x + 14, top: kpiMiniTip.y - 10 }}>
+          {kpiMiniTip.lines.map((line, i) => (
+            <div key={i} className={i === 0 ? 'es-kpi-mini-tip-label' : 'es-kpi-mini-tip-val'}>{line}</div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

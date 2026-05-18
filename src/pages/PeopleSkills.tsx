@@ -45,7 +45,7 @@ export default function PeopleSkills() {
           <h1 style={{ padding: '5px' }}>People &amp; Skills</h1>
           <p>AI workforce capability — adoption, development, certifications and performance</p>
         </div>
-        <DataSourceBadge type={src.type} title={src.title} />
+        <DataSourceBadge type={src.type} title={src.title} lastUpdated="12 May 2026" />
       </div>
 
       {/* Inner tab navigation */}

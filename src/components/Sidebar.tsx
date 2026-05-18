@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import Icon from './Icon'
 
-export type TabId = 'executive-summary' | 'people-skills' | 'programs' | 'events' | 'discovery-catalog' | 'division-analytics' | 'technology-stack' | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center' | 'al-hasbah'
+export type TabId = 'executive-summary' | 'people-skills' | 'programs' | 'events' | 'discovery-catalog' | 'division-analytics' | 'technology-stack' | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center' | 'al-hasbah' 
 
 interface SidebarProps {
   activeTab: TabId
@@ -71,17 +71,9 @@ const NAV_ITEMS = [
   {
     id: 'ai-command-center' as TabId,
     label: 'AI Command Center',
-    svgIcon: (
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="nav-icon">
-        {/* Power BI-style logo: three bars of different heights */}
-        <rect x="2"  y="13" width="5" height="8"  rx="1" fill="currentColor" opacity="0.55"/>
-        <rect x="9"  y="7"  width="5" height="14" rx="1" fill="currentColor" opacity="0.8"/>
-        <rect x="16" y="3"  width="5" height="18" rx="1" fill="currentColor"/>
-        {/* Small spark dot on tallest bar */}
-        <circle cx="18.5" cy="1.8" r="1.4" fill="currentColor" opacity="0.7"/>
-      </svg>
-    ),
+    icon: 'bi-columns-gap',
   },
+ 
 ]
 
 const PAGE_TITLES: Record<TabId, string> = {
@@ -185,8 +177,8 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen,
                 aria-expanded={item.children ? isExpanded : undefined}
               >
                 {'svgIcon' in item
-                  ? item.svgIcon
-                  : <Icon name={item.icon} className="nav-icon" aria-hidden="true" />
+                  ? (item as { svgIcon: React.ReactNode }).svgIcon
+                  : <Icon name={(item as { icon: string }).icon} className="nav-icon" aria-hidden="true" />
                 }
                 {!collapsed && (
                   <>

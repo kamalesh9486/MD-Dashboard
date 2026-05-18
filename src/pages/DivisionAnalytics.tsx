@@ -22,7 +22,7 @@ export default function DivisionAnalytics() {
           <h1 style={{ padding: '5px' }}>Division Analytics</h1>
           <p>AI adoption rates and ADKAR change-readiness scores across all DEWA divisions</p>
         </div>
-        <DataSourceBadge type="simulated" title="Dummy data from backend" />
+        <DataSourceBadge type="simulated" title="Dummy data from backend" lastUpdated="8 May 2026" />
       </div>
 
       <div className="ps-tab-nav" role="tablist">

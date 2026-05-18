@@ -142,11 +142,20 @@ Flagship view for leadership reviews. All data is currently static (hardcoded Q1
 ### 5.3 Division Analytics
 
 **Route key:** `division-analytics`  
-**File:** `src/pages/DivisionAnalytics.tsx`
+**File:** `src/pages/DivisionAnalytics.tsx`  
+**Sub-tabs:** `src/pages/ps/AdoptionTab.tsx`, `src/pages/ps/AdkarTab.tsx`
 
-Static data. Two sub-tabs:
-- **Adoption tab:** Bar chart — AI adoption % per DEWA division, colour-coded by level.
-- **ADKAR tab:** Five-dimension change readiness (Awareness/Desire/Knowledge/Ability/Reinforcement) per division, scores 0–100.
+Live Dataverse (`cr978_coe_divisions`). Two sub-tabs:
+
+**Adoption tab (`AdoptionTab.tsx`)**
+- **AI Adoption by Division** — BarChart, 8 divisions, adoption % colour-coded (green ≥75%, amber 60–74%, grey <60%). Live Dataverse.
+- **Tool Adoption Lanes** — 4 horizontal swim lanes (Microsoft Copilot, Custom GPTs, Power Automate AI, AI Vision). Each lane positions all 8 divisions as floating pills at their exact adoption % along a 0–100% axis, staggered into two rows to avoid overlap. An org-average marker (vertical line) runs through each lane. Hovering a pill shows a tooltip with division name, tool, % value, and delta vs org average. Data is simulated seed (`TOOL_SEED`).
+
+**ADKAR tab (`AdkarTab.tsx`)**
+- **Division selector strip** — pill buttons with ADKAR composite average per division.
+- **Radar chart** — 5-dimension polygon for the selected division (Awareness, Desire, Knowledge, Ability, Reinforcement).
+- **Dimension breakdown** — 5 progress bars with descriptions for the selected division.
+- **ADKAR Dimension Heatmap** — replaces the legacy all-divisions table. An 8×5 grid of colour-coded cells (divisions × ADKAR dimensions). Green ≥80, gold 65–79, red <65. Cell intensity scales with score. Clicking a row changes the selected division. Hover tooltip shows exact division + dimension + value.
 
 ---
 
@@ -181,15 +190,35 @@ Clicking "View Events" sets `contextProgram` in Layout and switches to Events ta
 
 **Route key:** `events`  
 **File:** `src/pages/Events.tsx`  
-**Sub-component:** `src/pages/prog/CalendarView.tsx`
+**CSS:** `src/events.css` (prefix: `ev2-`)
 
-Live Dataverse (`cr978_coe_eventses`). Toolbar: status tabs, List ↔ Calendar view toggle.
+Live Dataverse (`cr978_coe_eventses` + `cr978_coe_divisions` for division name lookup). Full v2 redesign.
 
-- **List view:** Event cards with type badge, status badge, date, location, division, participant count. Clicking opens EventModal.
-- **Calendar view:** Month grid with coloured dots per event type. Clicking a dot opens that event's modal.
-- **EventModal:** Name, type, status, date/time, location, description, speakers, attendees, status timeline.
+**Charts row (`EventsChartsRow`)** — rendered above the list when not filtered by programme:
+- **Events Delivered & Planned** — Stacked BarChart (10-month rolling window, Completed/Upcoming/Cancelled per month).
+- **By Division** — Donut PieChart (top 6 divisions, colour-coded, legend alongside).
+- **Attendance Rate** — LineChart (last 6 completed events with `attendees/invitees` ratio).
 
-If `contextProgram` is set, list is pre-filtered to that programme. "← Back to Programs" breadcrumb appears.
+**Layout modes** (segmented control in toolbar):
+- **Timeline** — Events grouped by month (newest first), each group shows month header + stacked `EventCard` rows.
+- **Grid** — `EventCard` cards with a coloured cover image (gradient per event type / red for Cancelled), type icon, badges.
+- **Calendar** — Monthly grid with event pills per day (click opens `EventDetailPanel`). Prev/Next month navigation, "Today" jump button.
+
+**Toolbar:**
+- 3 status tabs: Upcoming / Completed / Cancelled (with event counts per tab).
+- Search input with clear button.
+- Division `<select>` (only shown when >1 division present).
+- Type filter chip row: All / Webinar / Instructor-led Training / Hands-on Workshop / Hackathon.
+
+**Featured banner (`FeaturedBanner`)** — shown above timeline for the soonest upcoming event (no type/division/search filter active). Shows date block, title, time/location/division meta, countdown "N days away", "View Details" button.
+
+**Event detail (`EventDetailPanel`)** — slide-in right panel (not a modal). Coloured header gradient matches event type. Body: type pill, status pill, date, time, location, division, attendees, invitees, attendance rate progress bar, duration, event code, programme, target audience, tech stack, description, speakers, outcomes, cancelled note. Uses `useScrollLock`. Backdrop click closes.
+
+**`ProgramDetailPanel`** — rendered at top when `fromProgram` is set (Programs → Events drill-down). Dark gradient header with "← Back to Programs" button, programme metadata.
+
+**Data shape (`AppEvent`):** `id`, `programId`, `title`, `type`, `date`, `time`, `location`, `attendees`, `status`, `description`, `speakers[]`, `attendeesList[]`, `outcomes[]`, `duration`, `invitees`, `adoptionRate`, `techStack`, `eventCode`, `targetAudience`, `division`, `program`.
+
+**Event type ↔ gradient map:** Workshop/Hands-on Workshop → teal, Webinar → purple, Hackathon → green, Seminar/ILT → blue, Town Hall → navy. Cancelled overrides all with red.
 
 ---
 
@@ -251,6 +280,31 @@ Static. Four phases (Foundation, Growth, Excellence, Innovation). Phase cards st
 **Route key:** `al-hasbah`  
 **File:** `src/pages/AlHasbah.tsx`  
 **CSS:** `src/al-hasbah.css`
+
+Static data (no Dataverse). Tracks DEWA's live AI use cases — 8 use cases, 16 agents across 7 divisions (Distribution, Customer Affairs, Finance, Human Resources, Operations, Engineering, Compliance, Environment).
+
+**KPI strip (5 tiles, animated on scroll):** Total Use Cases · Total Agents · Cost Savings (AED 2.89M/yr) · Agents Live in Production · Hours Automated (14,200 hrs). Counters animate with cubic-bezier on `IntersectionObserver`.
+
+**Use Case Gallery:**
+- Search by name/description/technology, status filter (Active/POC/Completed/On Hold), division filter.
+- `UseCaseCard` — coloured top ribbon, status badge, name, description, technology tag pills, agent count, annual saving in AED K/M, "View Details" CTA.
+
+**Use Case Drawer (`UseCaseDrawer`)** — slide-in right panel (480px) with 4 tabs:
+
+1. **Overview** — 4 metric tiles (Agents, Avg Eval Score, AED Saved/yr, Avg Uptime). Description + benefit summary chip. Meta grid (Division, Department, Launch Date, Phase). **Maturity Track** — horizontal 5-node phase progress (Ideation → POC → Development → Testing → Production) with completed/active dot states.
+
+2. **Agents** — Grid of `AgentCard` buttons (Accuracy, Eval Score, Uptime, Response Time per agent). Clicking an agent enters `AgentDetailView`: agent stats header + **6-stage AI pipeline scroll**:
+   - Stages: Input Data Retrieval → Pre-Validation Check → AI Processing (IDC) → Post-Validation Check → Output & Delivery → Logging & Monitoring.
+   - Each stage shows animated connector arrows between columns.
+   - The agent's primary stage is highlighted with a "Primary Role" badge.
+   - Per-agent pipeline notes (3 bullet points per stage, specific to each of the 16 agents).
+
+3. **Technology** — One card per technology in the use case: cost breakdown, description, which agents use it, % of use case cost. Horizontal `BarChart` (cost by tech, colour-coded per service).
+
+4. **Benefits** — Before/After comparison rows (4 metrics per use case, coloured: green/blue/amber/purple). Portfolio ROI Trend `ComposedChart` (Oct–Mar, bars = AED savings, line = hours automated).
+
+**Agent statuses:** Production · Testing · Development · Deprecated.  
+**Use case statuses:** Active · POC · Completed · On Hold.
 
 ---
 
@@ -375,13 +429,43 @@ User clicks floating orb (bottom-right)
 | `Sidebar` | `src/components/Sidebar.tsx` | Left nav. Sub-menu for Programs/Events. Collapses to icon-only. |
 | `Icon` | `src/components/Icon.tsx` | 149 Bootstrap Icons embedded as path strings. No external font load. |
 | `LaunchScreen` | `src/components/LaunchScreen.tsx` | Animated splash + auth screen. Calls `useCurrentUser()`. |
-| `CommandIQ` | `src/components/CommandIQ.tsx` | Floating orb + chat panel. Self-contained — no props, no context. |
+| `CommandIQ` | `src/components/CommandIQ.tsx` | Floating orb + chat panel. Self-contained — no props, no context. Wired to Copilot Studio agent via `MicrosoftCopilotStudioService.ExecuteCopilotAsyncV2`. |
+| `DataSourceBadge` | `src/components/DataSourceBadge.tsx` | Small badge shown in page headers. Props: `type` (`"live" \| "simulated" \| "hybrid"`), `title`, `lastUpdated` (displayed date string). Renders a coloured dot + label + "Last updated" date. Used on every page for data provenance. |
+| `FloatingLines` | `src/components/FloatingLines.tsx` | Animated SVG decorative background used in the launch screen and hero sections. |
 
 ### Custom Hooks
 
 | Hook | File | Returns |
 |------|------|---------|
 | `useCurrentUser` | `src/hooks/useCurrentUser.ts` | `{ name, role, email, loading }`. 6s timeout in local dev. |
+| `useScrollLock` | `src/hooks/useScrollLock.ts` | Locks `document.body.style.overflow` to `'hidden'` on mount and restores on unmount. Used by slide-in detail panels (Events, Al Hasbah) to prevent background scroll. |
+
+### People & Skills Sub-Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `AdoptionTab` | `src/pages/ps/AdoptionTab.tsx` | AI Adoption by Division BarChart + Tool Adoption Lanes strip plot. |
+| `AdkarTab` | `src/pages/ps/AdkarTab.tsx` | ADKAR radar + dimension bars + heatmap. |
+| `AIToolsTab` | `src/pages/ps/AIToolsTab.tsx` | Technology Stack tool list + detail panel with trend charts. |
+| `CertificationsTab` | `src/pages/ps/CertificationsTab.tsx` | Static certifications table + charts. |
+| `SkillsTab` | `src/pages/ps/SkillsTab.tsx` | Tag cloud + category filter + bar chart. |
+| `PerformanceTab` | `src/pages/ps/PerformanceTab.tsx` | Histogram + contribution heatmap. |
+
+### Technology Stack Sub-Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `TechStackView` | `src/pages/ps/TechStackView.tsx` | Tool card grid with adoption/growth metrics. |
+| `TechStackDetailPanel` | `src/pages/ps/TechStackDetailPanel.tsx` | Right slide-in panel for a selected tool (KPI tiles, trend chart, department breakdown). |
+
+### Rammas at Work Sub-Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `RammasAtWorkPanel` | *(integrated in TechnologyStack or PeopleSkills)* | Container for the Rammas-specific views. |
+| `RammasBrdTab` | *(sub-tab)* | Board / summary view for Rammas data. |
+| `RammasKmTab` | *(sub-tab)* | Knowledge management view for Rammas data. |
+| `RammasMyRammasTab` | *(sub-tab)* | Personal Rammas usage view. |
 
 ### Recharts Usage by Page
 
@@ -512,6 +596,12 @@ Power Platform environment `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`. Runs inside t
 
 | Date | Change |
 |------|--------|
+| 2026-05-17 | **Division Analytics — Tool Adoption Lanes.** New section in `AdoptionTab.tsx`. 4 horizontal swim lanes (Microsoft Copilot, Custom GPTs, Power Automate AI, AI Vision). Each lane positions 8 divisions as floating pills at their adoption % along a 0–100% axis, staggered two rows to avoid overlap. Org-average marker per lane. Fixed-position tooltip on hover (`getBoundingClientRect`). Seed data in `TOOL_SEED`. |
+| 2026-05-17 | **Division Analytics — ADKAR Dimension Heatmap.** Replaced the duplicate all-divisions table in `AdkarTab.tsx` with an 8×5 colour-coded grid (divisions × ADKAR dimensions). Green ≥80, gold 65–79, red <65. Clicking a row updates the radar/bars selection. `heatBg` + `heatBorder` helper functions added. |
+| 2026-05-17 | **Events v2 full redesign.** `src/pages/Events.tsx` rewritten. Added `EventsChartsRow` (3 charts: monthly stacked bar, division donut, attendance sparkline). Added `FeaturedBanner` for soonest upcoming event. Added Timeline / Grid layout modes alongside Calendar. `EventDetailPanel` replaces modal as slide-in panel. Division filter select + type chip filters added. `useScrollLock` used in panel. `DataSourceBadge` added. |
+| 2026-05-17 | **AL Hasbah page built.** `src/pages/AlHasbah.tsx` + `src/al-hasbah.css` — 8 use cases, 16 agents, 4-tab drawer (Overview / Agents / Technology / Benefits). 6-stage AI pipeline visualization per agent with per-agent bullet notes. Animated KPI strip on scroll. |
+| 2026-05-17 | **`DataSourceBadge` component.** Added `lastUpdated` prop. Now shown on every page in the page-header to communicate data provenance and freshness date. |
+| 2026-05-17 | **`/copilot-agent-connect` skill created.** `.claude/skills/copilot-agent-connect/SKILL.md` + TSX template + CSS template + connector JSON reference. Portable Claude Code skill: prompts for agent logical name, environment ID, display name, colours, quick prompts; generates a complete `{{PASCAL_NAME}}Chat.tsx` + CSS component wired to `MicrosoftCopilotStudioService.ExecuteCopilotAsyncV2`. |
 | 2026-04-12 | Font stack updated to `'Dubai', 'Segoe UI', system-ui, sans-serif` across all CSS files. |
 | 2026-04-12 | No-emoji rule enforced. All emoji replaced with `<Icon name="bi-*" />`. `bi-currency-dirham` mandatory for finance contexts. |
 | 2026-04-12 | CopilotKit restructured — embedded inside Technology Stack as `CopilotKitPanel`. `copilot-kit` tab removed. `CopilotDataContext` added. Agent Value Intelligence section added. |

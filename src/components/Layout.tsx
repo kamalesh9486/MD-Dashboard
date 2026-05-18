@@ -92,6 +92,7 @@ export default function Layout({ onLogout }: LayoutProps) {
         return <AICommandCenter />
       case 'al-hasbah':
         return <AlHasbah />
+    
     }
   }
 
