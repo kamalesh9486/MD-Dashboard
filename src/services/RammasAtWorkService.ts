@@ -1,7 +1,4 @@
-const ENDPOINT = import.meta.env.VITE_RAMMAS_FLOW_URL as string | undefined
-if (!ENDPOINT && import.meta.env.DEV) {
-  console.warn('[RammasAtWork] VITE_RAMMAS_FLOW_URL not set — add it to .env.local')
-}
+import { Rammas_Send_ResponseService } from '../generated/services/Rammas_Send_ResponseService'
 
 // ── Shared utils ─────────────────────────────────────────────
 export const oaToDate = (oa: string | number): Date =>
@@ -271,31 +268,24 @@ export class RammasAtWorkService {
   static fetch(): Promise<ApiResult<RammasAtWorkData>> {
     if (_cache && Date.now() - _cache.ts < CACHE_TTL) return Promise.resolve({ data: _cache.data, error: null })
     if (_inflight) return _inflight   // concurrent callers share the same request
-    if (!ENDPOINT) return Promise.resolve({ data: null, error: 'VITE_RAMMAS_FLOW_URL not configured' })
 
-    const t0 = performance.now()
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 30_000)
+    _inflight = Rammas_Send_ResponseService.Run({})
+      .then(result => {
+        const outputField = result.data?.output
+        const json: unknown = outputField != null
+          ? (typeof outputField === 'string' ? JSON.parse(outputField) : outputField)
+          : result.data as unknown
 
-    _inflight = fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-      signal: controller.signal,
-    })
-      .then(async res => {
-        clearTimeout(timer)
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const json: unknown = await res.json()
+        console.info('[RammasAtWork] raw result', { hasOutput: outputField != null, type: typeof outputField })
+
         if (!isRammasData(json)) throw new Error('Unexpected response shape')
         _cache = { data: json, ts: Date.now() }
-        console.info('[RammasAtWork] fetch', { status: res.status, durationMs: Math.round(performance.now() - t0) })
+        console.info('[RammasAtWork] flow invoked successfully')
         return { data: json, error: null } as ApiResult<RammasAtWorkData>
       })
       .catch(err => {
-        clearTimeout(timer)
         const message = err instanceof Error ? err.message : 'Unknown error'
-        console.error('[RammasAtWork] fetch failed', { message, durationMs: Math.round(performance.now() - t0) })
+        console.error('[RammasAtWork] flow invocation failed', { message })
         return { data: null, error: message } as ApiResult<RammasAtWorkData>
       })
       .finally(() => { _inflight = null })

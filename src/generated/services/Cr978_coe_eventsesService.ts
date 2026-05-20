@@ -8,6 +8,7 @@ import type { GetEntityMetadataOptions, EntityMetadata } from '@microsoft/power-
 import type { IGetOptions, IGetAllOptions } from '../models/CommonModels';
 import type { IOperationResult } from '@microsoft/power-apps/data';
 import { dataSourcesInfo } from '../../../.power/schemas/appschemas/dataSourcesInfo';
+import { deserializeMultiSelectPicklistFields, serializeMultiSelectPicklistFields } from '@microsoft/power-apps/data';
 import { getClient } from '@microsoft/power-apps/data';
 
 
@@ -15,21 +16,28 @@ export class Cr978_coe_eventsesService {
   private static readonly dataSourceName = 'cr978_coe_eventses';
 
   private static readonly client = getClient(dataSourcesInfo);
+  private static readonly multiSelectPicklistFields = ['cr978_coe_techstack'] as const;
 
   public static async create(record: Omit<Cr978_coe_eventsesBase, 'cr978_coe_eventsid'>): Promise<IOperationResult<Cr978_coe_eventses>> {
-    const result = await Cr978_coe_eventsesService.client.createRecordAsync<Omit<Cr978_coe_eventsesBase, 'cr978_coe_eventsid'>, Cr978_coe_eventses>(
+    const result = await Cr978_coe_eventsesService.client.createRecordAsync<Record<string, unknown>, Cr978_coe_eventses>(
       Cr978_coe_eventsesService.dataSourceName,
-      record
+      serializeMultiSelectPicklistFields(record as unknown as Record<string, unknown>, Cr978_coe_eventsesService.multiSelectPicklistFields)
     );
+    if (result.data) {
+      deserializeMultiSelectPicklistFields(result.data as unknown as Record<string, unknown>, Cr978_coe_eventsesService.multiSelectPicklistFields);
+    }
     return result;
   }
 
   public static async update(id: string, changedFields: Partial<Omit<Cr978_coe_eventsesBase, 'cr978_coe_eventsid'>>): Promise<IOperationResult<Cr978_coe_eventses>> {
-    const result = await Cr978_coe_eventsesService.client.updateRecordAsync<Partial<Omit<Cr978_coe_eventsesBase, 'cr978_coe_eventsid'>>, Cr978_coe_eventses>(
+    const result = await Cr978_coe_eventsesService.client.updateRecordAsync<Record<string, unknown>, Cr978_coe_eventses>(
       Cr978_coe_eventsesService.dataSourceName,
       id,
-      changedFields
+      serializeMultiSelectPicklistFields(changedFields as unknown as Record<string, unknown>, Cr978_coe_eventsesService.multiSelectPicklistFields)
     );
+    if (result.data) {
+      deserializeMultiSelectPicklistFields(result.data as unknown as Record<string, unknown>, Cr978_coe_eventsesService.multiSelectPicklistFields);
+    }
     return result;
   }
 
@@ -45,6 +53,9 @@ export class Cr978_coe_eventsesService {
       id,
       options
     );
+    if (result.data) {
+      deserializeMultiSelectPicklistFields(result.data as unknown as Record<string, unknown>, Cr978_coe_eventsesService.multiSelectPicklistFields);
+    }
     return result;
   }
 
@@ -53,6 +64,7 @@ export class Cr978_coe_eventsesService {
       Cr978_coe_eventsesService.dataSourceName,
       options
     );
+    result.data?.forEach(record => deserializeMultiSelectPicklistFields(record as unknown as Record<string, unknown>, Cr978_coe_eventsesService.multiSelectPicklistFields));
     return result;
   }
 

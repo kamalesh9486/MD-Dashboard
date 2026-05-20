@@ -1,10 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { RammasAtWorkService } from '../services/RammasAtWorkService'
-
-const ENDPOINT = import.meta.env.VITE_COPILOT_ENDPOINT as string | undefined
-if (!ENDPOINT && import.meta.env.DEV) {
-  console.warn('[CopilotData] VITE_COPILOT_ENDPOINT is not set — agent data will not load. Add it to .env.local')
-}
+import { _1Service } from '../generated/services/_1Service'
 
 // ── Shapes ────────────────────────────────────────────────────
 export interface AgentDetail {
@@ -61,36 +57,75 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
   const [error,        setError]        = useState<string | null>(null)
 
   useEffect(() => {
-    const controller = new AbortController()
+    let cancelled = false
 
     async function fetchData() {
       setLoading(true)
       setError(null)
       try {
-        if (!ENDPOINT) throw new Error('VITE_COPILOT_ENDPOINT not configured')
-        const res = await fetch(ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-          signal: controller.signal,
-        })
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const json = await res.json() as Record<string, unknown>
+        const result = await _1Service.Run({})
+        if (cancelled) return
 
-        const details = Array.isArray(json['agentdetails'])
-          ? (json['agentdetails'] as AgentDetail[])
-          : []
-        const values = Array.isArray(json['agentvalues'])
-          ? (json['agentvalues'] as AgentValue[])
-          : []
+        // Diagnostic: log what the SDK actually returned so we can see it without expanding
+        const rawData = result.data as unknown
+        const rawKeys = rawData != null && typeof rawData === 'object'
+          ? Object.keys(rawData as Record<string, unknown>).join(', ')
+          : String(rawData)
+        console.info('[CopilotData] raw result — data keys:', rawKeys)
+
+        // Normalize the SDK response — "Respond to PowerApp" wraps data differently:
+        //   Shape A: result.data = { values: "<JSON string>" }     → parse string
+        //   Shape B: result.data = { values: { agentdetails, … } } → unwrap object
+        //   Shape C: result.data = { agentdetails, agentvalues }   → already flat
+        //   Shape D: result.data = { values: { body: {…} } }       → nested body
+        //   Shape E: camelCase keys agentDetails / agentValues
+        let json: Record<string, unknown> = {}
+
+        if (rawData != null && typeof rawData === 'object') {
+          const d = rawData as Record<string, unknown>
+
+          // Step 1: unwrap "values" field if present
+          let candidate: unknown = d
+          if (d['values'] != null) {
+            const v = d['values']
+            candidate = typeof v === 'string' ? JSON.parse(v) : v
+          }
+
+          // Step 2: unwrap "body" if we landed on an HTTP action wrapper
+          if (candidate != null && typeof candidate === 'object') {
+            const c = candidate as Record<string, unknown>
+            if (!Array.isArray(c['agentdetails']) && !Array.isArray(c['agentDetails']) && c['body'] != null) {
+              const b = c['body']
+              candidate = typeof b === 'string' ? JSON.parse(b) : b
+            }
+            json = candidate as Record<string, unknown>
+          }
+        }
+
+        // The flow returns keys in swapped order relative to what the dashboard expects:
+        //   json['agentdetails'] = 290 classification/value records  → goes to agentValue state
+        //   json['agentvalues']  = 2 master agent records            → goes to agentDetails state
+        // Support all casing variants for resilience.
+        const detailsRaw = json['agentvalues']  ?? json['agentValues']  ?? json['AgentValues']
+          ?? json['agent_values']  ?? json['AgentValue']
+        const valuesRaw  = json['agentdetails'] ?? json['agentDetails'] ?? json['AgentDetails']
+          ?? json['agent_details'] ?? json['AgentDetail']
+
+        const detailsCount = Array.isArray(detailsRaw) ? (detailsRaw as unknown[]).length : 'missing'
+        const valuesCount  = Array.isArray(valuesRaw)  ? (valuesRaw  as unknown[]).length : 'missing'
+        const topKeys      = Object.keys(json).slice(0, 8).join(', ') || '(empty)'
+        console.info(`[CopilotData] resolved — masterAgents: ${String(detailsCount)}, classifications: ${String(valuesCount)}, keys: ${topKeys}`)
+
+        const details = Array.isArray(detailsRaw) ? (detailsRaw as AgentDetail[]) : []
+        const values  = Array.isArray(valuesRaw)  ? (valuesRaw  as AgentValue[])  : []
 
         setAgentDetails(details)
         setAgentValue(values)
       } catch (err) {
-        if ((err as Error).name === 'AbortError') return
+        if (cancelled) return
         setError((err as Error).message)
       } finally {
-        if (!controller.signal.aborted) setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
@@ -98,7 +133,7 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
     // Warm the Rammas cache at app startup so the panel loads instantly
     RammasAtWorkService.fetch().catch(() => {})
 
-    return () => controller.abort()
+    return () => { cancelled = true }
   }, [])
 
   return (

@@ -34,8 +34,17 @@ Ask the user these questions **one at a time** in order. Do not ask all at once.
 What is the agent logical name?
 
 This is the string passed as the first argument to ExecuteCopilotAsyncV2().
-Where to find it: Power Apps Studio → Data panel → Microsoft Copilot Studio connector
-→ the agent entry name shown there (e.g. copilots_header_da4fe).
+It includes a publisher prefix and is case-sensitive (e.g. cr3e1_customerSupportAgent,
+copilots_header_da4fe, cr978_commandiq).
+
+How to find it — 3 options:
+  1. Power Apps Studio → Data panel → Microsoft Copilot Studio connector
+     → the agent entry name shown there
+  2. Copilot Studio → your agent → Settings → Channels → Web app
+     → copy the agent name from the URL:
+     .../bots/{agentName}/conversations?api-version=...
+  3. Power Platform Admin Center → your environment → Chatbots
+     → the logical name column
 ```
 
 ### Q2 — Environment ID (REQUIRED)
@@ -94,26 +103,83 @@ Default quick prompts (used when Q7 is skipped):
 
 ---
 
-## Step 2 — Project Detection
+## Step 2 — Project Detection & Auto-Fix
 
-Before generating any files, check these three things:
+Run all checks from the **project root directory** (where `power.config.json` lives).
+Resolve issues automatically — do not ask the user to run commands themselves.
 
-### 2a — Service file
-Check: does `src/generated/services/MicrosoftCopilotStudioService.ts` exist?
+### 2a — Detect project root
 
-**If missing → STOP.** Tell the user:
-> "The auto-generated service is missing. Run `pac code generate` in your project root to regenerate
-> `src/generated/`, then invoke `/copilot-agent-connect` again."
+Locate `power.config.json` by checking:
+1. Current working directory
+2. Common paths: `./my-app/`, `./app/`, parent directory
+
+Use the directory containing `power.config.json` as `PROJECT_ROOT` for all subsequent commands.
 
 ### 2b — Connector registration
-Check: does `power.config.json` contain the string `978c3d96-f333-48ca-8172-6b3429a948d9`?
 
-**If missing →** show the user the connector JSON from
-`reference/power-config-connector.json` and say:
-> "Add this object under the `connectionReferences` key in your `power.config.json`, using
-> the connector ID as the key, then run `pac code generate` to refresh the service."
+Check: does `power.config.json` contain the string `shared_microsoftcopilotstudio` anywhere (inside `connectionReferences`)?
 
-### 2c — Name collision
+**If missing →** ask the user:
+
+```
+The Microsoft Copilot Studio connector is not registered in power.config.json.
+I'll register it automatically — I just need your connection ID.
+
+Where to find it:
+  Run this in your terminal:  npx power-apps connection list
+  Look for the row containing "microsoftcopilotstudio" and copy the full ID.
+  It looks like: shared-microsoftcopi-27b82f22-8a17-46d9-8a7a-4f2eda021e60
+
+  No connection yet? Create one at make.powerapps.com → Connections → + New connection
+  → search "Microsoft Copilot Studio" → add it → then run the list command above.
+
+What is your Copilot Studio connection ID?
+```
+
+Once the user provides the connection ID, run this command from `PROJECT_ROOT`:
+
+```bash
+echo "No" | npx power-apps add-data-source -a "shared_microsoftcopilotstudio" -c <connectionId>
+```
+
+The `echo "No" |` pipe silently answers the interactive prompt
+("Are you using a connection reference instead of a connection ID?") with No.
+Answering Yes causes a "Failed to resolve" error — the pipe prevents that.
+
+After the command completes, re-check `power.config.json` for the connector ID.
+If it still missing, fall back to writing the block manually:
+
+```json
+"978c3d96-f333-48ca-8172-6b3429a948d9": {
+  "id": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio",
+  "displayName": "Microsoft Copilot Studio",
+  "dataSources": ["microsoftcopilotstudio"],
+  "dataSets": {}
+}
+```
+
+Then run from `PROJECT_ROOT`:
+```bash
+npx power-apps generate
+```
+
+### 2c — Service file
+
+Check: does `src/generated/services/MicrosoftCopilotStudioService.ts` exist?
+
+**If missing →** run from `PROJECT_ROOT`:
+```bash
+npx power-apps refresh-data-source
+```
+
+Wait for the command to finish, then re-check. If the file now exists, continue.
+If it still does not exist, tell the user:
+> "Code generation failed. Check that `power.config.json` is valid JSON and
+> that you are authenticated (`npx power-apps login`), then re-invoke `/copilot-agent-connect`."
+
+### 2d — Name collision
+
 Check: does `src/components/<PascalCaseName>Chat.tsx` already exist?
 
 **If exists →** ask:

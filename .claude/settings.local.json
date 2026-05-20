@@ -80,6 +80,8 @@
       "mcp__shadcn__get_project_registries",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(Remove-Item \"C:\\\\Users\\\\kkama\\\\OneDrive\\\\Documents\\\\27\\\\COE-Platform\\\\project_plan.cjs\")",
-      "Bash(Select-Object Name, Length, LastWriteTime)"
+      "Bash(Select-Object Name, Length, LastWriteTime)",
+      "Skill(copilot-agent-connect)"
     ]
-  }}
+  }
+}

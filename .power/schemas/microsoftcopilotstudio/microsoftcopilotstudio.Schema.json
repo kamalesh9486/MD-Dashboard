@@ -29,8 +29,8 @@
             "AzureActiveDirectoryResourceId": "https://api.powerplatform.com",
             "IsOnbehalfofLoginSupported": true,
             "FederatedIdentityCredentials": {
-              "Issuer": "https://login.windows.net/33e01921-4d64-4f8c-a055-5bdaffd5e33d/v2.0",
-              "Subject": "440005d6-71e0-4be1-b895-c2f704147a8a",
+              "Issuer": "https://login.microsoftonline.com/{tenantId}/v2.0",
+              "Subject": "/eid1/c/pub/t/{tenantId}/a/k972yLpWjkypg7DpMYfrNA/d40abeb9-eb01-4ecb-adcf-317f560a024d",
               "Audience": "api://AzureADTokenExchange"
             }
           },

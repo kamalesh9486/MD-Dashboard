@@ -16,6 +16,8 @@ export * as Cr978_coe_personsModel from './models/Cr978_coe_personsModel';
 export * as Cr978_coe_programsModel from './models/Cr978_coe_programsModel';
 export * as Cr978_powerbidashboardsModel from './models/Cr978_powerbidashboardsModel';
 export * as MicrosoftCopilotStudioModel from './models/MicrosoftCopilotStudioModel';
+export * as Rammas_Send_ResponseModel from './models/Rammas_Send_ResponseModel';
+export * as _1Model from './models/_1Model';
 
 // Services
 export * from './services/Ai_coe_toolsesService';
@@ -29,3 +31,5 @@ export * from './services/Cr978_coe_personsService';
 export * from './services/Cr978_coe_programsService';
 export * from './services/Cr978_powerbidashboardsService';
 export * from './services/MicrosoftCopilotStudioService';
+export * from './services/Rammas_Send_ResponseService';
+export * from './services/_1Service';

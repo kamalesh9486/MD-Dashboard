@@ -74,7 +74,7 @@ export interface Cr978_coe_eventsesBase {
   "cr978_coe_Program@odata.bind"?: string;
   cr978_coe_sessiontiming?: string;
   cr978_coe_targetedaudience?: string;
-  cr978_coe_techstack?: Cr978_coe_eventsescr978_coe_techstack;
+  cr978_coe_techstack?: Cr978_coe_eventsescr978_coe_techstack[];
   importsequencenumber?: number;
   overriddencreatedon?: string;
   ownerid: string;

@@ -23,7 +23,7 @@ export class MicrosoftCopilotStudioService {
    */
   public static async ExecuteCopilotAsyncV2(Copilot: string, body: Record<string, unknown>, x_ms_conversation_id?: string, environmentId?: string): Promise<IOperationResult<void>> {
     const params: { Copilot: string, body: Record<string, unknown>, "x-ms-conversation-id"?: string, environmentId?: string } = { Copilot, body, "x-ms-conversation-id": x_ms_conversation_id, environmentId };
-    const result = await MicrosoftCopilotStudioService.client.executeAsync<{ Copilot: string, body: Record<string, unknown>, x_ms_conversation_id?: string, environmentId?: string }, void>(
+    const result = await MicrosoftCopilotStudioService.client.executeAsync<{ Copilot: string, body: Record<string, unknown>, "x-ms-conversation-id"?: string, environmentId?: string }, void>(
       {
         connectorOperation: {
           tableName: MicrosoftCopilotStudioService.dataSourceName,
@@ -40,7 +40,7 @@ export class MicrosoftCopilotStudioService {
    */
   public static async ExecuteCopilotAsync(Copilot: string, body: Record<string, unknown>, x_ms_conversation_id?: string, environmentId?: string): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { Copilot: string, body: Record<string, unknown>, "x-ms-conversation-id"?: string, environmentId?: string } = { Copilot, body, "x-ms-conversation-id": x_ms_conversation_id, environmentId };
-    const result = await MicrosoftCopilotStudioService.client.executeAsync<{ Copilot: string, body: Record<string, unknown>, x_ms_conversation_id?: string, environmentId?: string }, Record<string, unknown>>(
+    const result = await MicrosoftCopilotStudioService.client.executeAsync<{ Copilot: string, body: Record<string, unknown>, "x-ms-conversation-id"?: string, environmentId?: string }, Record<string, unknown>>(
       {
         connectorOperation: {
           tableName: MicrosoftCopilotStudioService.dataSourceName,
@@ -57,7 +57,7 @@ export class MicrosoftCopilotStudioService {
    */
   public static async ExecuteCopilot(Copilot: string, body: Record<string, unknown>, x_ms_conversation_id?: string, environmentId?: string): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { Copilot: string, body: Record<string, unknown>, "x-ms-conversation-id"?: string, environmentId?: string } = { Copilot, body, "x-ms-conversation-id": x_ms_conversation_id, environmentId };
-    const result = await MicrosoftCopilotStudioService.client.executeAsync<{ Copilot: string, body: Record<string, unknown>, x_ms_conversation_id?: string, environmentId?: string }, Record<string, unknown>>(
+    const result = await MicrosoftCopilotStudioService.client.executeAsync<{ Copilot: string, body: Record<string, unknown>, "x-ms-conversation-id"?: string, environmentId?: string }, Record<string, unknown>>(
       {
         connectorOperation: {
           tableName: MicrosoftCopilotStudioService.dataSourceName,
