@@ -275,40 +275,7 @@ Static. Four phases (Foundation, Growth, Excellence, Innovation). Phase cards st
 
 ---
 
-### 5.12 AL Hasbah
-
-**Route key:** `al-hasbah`  
-**File:** `src/pages/AlHasbah.tsx`  
-**CSS:** `src/al-hasbah.css`
-
-Static data (no Dataverse). Tracks DEWA's live AI use cases — 8 use cases, 16 agents across 7 divisions (Distribution, Customer Affairs, Finance, Human Resources, Operations, Engineering, Compliance, Environment).
-
-**KPI strip (5 tiles, animated on scroll):** Total Use Cases · Total Agents · Cost Savings (AED 2.89M/yr) · Agents Live in Production · Hours Automated (14,200 hrs). Counters animate with cubic-bezier on `IntersectionObserver`.
-
-**Use Case Gallery:**
-- Search by name/description/technology, status filter (Active/POC/Completed/On Hold), division filter.
-- `UseCaseCard` — coloured top ribbon, status badge, name, description, technology tag pills, agent count, annual saving in AED K/M, "View Details" CTA.
-
-**Use Case Drawer (`UseCaseDrawer`)** — slide-in right panel (480px) with 4 tabs:
-
-1. **Overview** — 4 metric tiles (Agents, Avg Eval Score, AED Saved/yr, Avg Uptime). Description + benefit summary chip. Meta grid (Division, Department, Launch Date, Phase). **Maturity Track** — horizontal 5-node phase progress (Ideation → POC → Development → Testing → Production) with completed/active dot states.
-
-2. **Agents** — Grid of `AgentCard` buttons (Accuracy, Eval Score, Uptime, Response Time per agent). Clicking an agent enters `AgentDetailView`: agent stats header + **6-stage AI pipeline scroll**:
-   - Stages: Input Data Retrieval → Pre-Validation Check → AI Processing (IDC) → Post-Validation Check → Output & Delivery → Logging & Monitoring.
-   - Each stage shows animated connector arrows between columns.
-   - The agent's primary stage is highlighted with a "Primary Role" badge.
-   - Per-agent pipeline notes (3 bullet points per stage, specific to each of the 16 agents).
-
-3. **Technology** — One card per technology in the use case: cost breakdown, description, which agents use it, % of use case cost. Horizontal `BarChart` (cost by tech, colour-coded per service).
-
-4. **Benefits** — Before/After comparison rows (4 metrics per use case, coloured: green/blue/amber/purple). Portfolio ROI Trend `ComposedChart` (Oct–Mar, bars = AED savings, line = hours automated).
-
-**Agent statuses:** Production · Testing · Development · Deprecated.  
-**Use case statuses:** Active · POC · Completed · On Hold.
-
----
-
-### 5.13 AI Command Center
+### 5.12 AI Command Center
 
 **Route key:** `ai-command-center`  
 **File:** `src/pages/AICommandCenter.tsx`  
@@ -438,7 +405,7 @@ User clicks floating orb (bottom-right)
 | Hook | File | Returns |
 |------|------|---------|
 | `useCurrentUser` | `src/hooks/useCurrentUser.ts` | `{ name, role, email, loading }`. 6s timeout in local dev. |
-| `useScrollLock` | `src/hooks/useScrollLock.ts` | Locks `document.body.style.overflow` to `'hidden'` on mount and restores on unmount. Used by slide-in detail panels (Events, Al Hasbah) to prevent background scroll. |
+| `useScrollLock` | `src/hooks/useScrollLock.ts` | Locks `document.body.style.overflow` to `'hidden'` on mount and restores on unmount. Used by slide-in detail panels (Events) to prevent background scroll. |
 
 ### People & Skills Sub-Components
 
@@ -599,7 +566,6 @@ Power Platform environment `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`. Runs inside t
 | 2026-05-17 | **Division Analytics — Tool Adoption Lanes.** New section in `AdoptionTab.tsx`. 4 horizontal swim lanes (Microsoft Copilot, Custom GPTs, Power Automate AI, AI Vision). Each lane positions 8 divisions as floating pills at their adoption % along a 0–100% axis, staggered two rows to avoid overlap. Org-average marker per lane. Fixed-position tooltip on hover (`getBoundingClientRect`). Seed data in `TOOL_SEED`. |
 | 2026-05-17 | **Division Analytics — ADKAR Dimension Heatmap.** Replaced the duplicate all-divisions table in `AdkarTab.tsx` with an 8×5 colour-coded grid (divisions × ADKAR dimensions). Green ≥80, gold 65–79, red <65. Clicking a row updates the radar/bars selection. `heatBg` + `heatBorder` helper functions added. |
 | 2026-05-17 | **Events v2 full redesign.** `src/pages/Events.tsx` rewritten. Added `EventsChartsRow` (3 charts: monthly stacked bar, division donut, attendance sparkline). Added `FeaturedBanner` for soonest upcoming event. Added Timeline / Grid layout modes alongside Calendar. `EventDetailPanel` replaces modal as slide-in panel. Division filter select + type chip filters added. `useScrollLock` used in panel. `DataSourceBadge` added. |
-| 2026-05-17 | **AL Hasbah page built.** `src/pages/AlHasbah.tsx` + `src/al-hasbah.css` — 8 use cases, 16 agents, 4-tab drawer (Overview / Agents / Technology / Benefits). 6-stage AI pipeline visualization per agent with per-agent bullet notes. Animated KPI strip on scroll. |
 | 2026-05-17 | **`DataSourceBadge` component.** Added `lastUpdated` prop. Now shown on every page in the page-header to communicate data provenance and freshness date. |
 | 2026-05-17 | **`/copilot-agent-connect` skill created.** `.claude/skills/copilot-agent-connect/SKILL.md` + TSX template + CSS template + connector JSON reference. Portable Claude Code skill: prompts for agent logical name, environment ID, display name, colours, quick prompts; generates a complete `{{PASCAL_NAME}}Chat.tsx` + CSS component wired to `MicrosoftCopilotStudioService.ExecuteCopilotAsyncV2`. |
 | 2026-04-12 | Font stack updated to `'Dubai', 'Segoe UI', system-ui, sans-serif` across all CSS files. |
@@ -607,4 +573,4 @@ Power Platform environment `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`. Runs inside t
 | 2026-04-12 | CopilotKit restructured — embedded inside Technology Stack as `CopilotKitPanel`. `copilot-kit` tab removed. `CopilotDataContext` added. Agent Value Intelligence section added. |
 | 2026-04-11 | Technology Stack page wraps `AIToolsTab`. `AIToolsTab.tsx` — Microsoft Copilot live card + detail panel. |
 
-*Active tabs: executive-summary, division-analytics, programs, events, people-skills, technology-stack, discovery-catalog, ai-incident, al-hasbah, ai-command-center.*
+*Active tabs: executive-summary, division-analytics, programs, events, people-skills, technology-stack, discovery-catalog, ai-incident, ai-command-center.*

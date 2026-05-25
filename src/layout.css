@@ -467,6 +467,8 @@ body {
 .ds-badge--mixed::before { background: #6e44b2; }
 
 .ds-badge-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+/* When the badge lives inside the page-header text block it should follow left alignment */
+.page-header .ds-badge-wrap { align-items: flex-start; }
 .ds-badge-date { font-size: 10.5px; color: var(--text-dim); font-weight: 500; letter-spacing: 0.2px; font-family: 'Dubai', 'Segoe UI', system-ui, sans-serif; }
 
 @keyframes ds-pulse {

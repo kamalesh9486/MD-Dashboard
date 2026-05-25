@@ -81,7 +81,10 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(Remove-Item \"C:\\\\Users\\\\kkama\\\\OneDrive\\\\Documents\\\\27\\\\COE-Platform\\\\project_plan.cjs\")",
       "Bash(Select-Object Name, Length, LastWriteTime)",
-      "Skill(copilot-agent-connect)"
+      "Skill(copilot-agent-connect)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\kkama\\\\OneDrive\\\\Documents\\\\27\\\\COE-Platform\\\\src\\\\pages\\\\AlHasbah.tsx\" -Force)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\kkama\\\\OneDrive\\\\Documents\\\\27\\\\COE-Platform\\\\src\\\\al-hasbah.css\" -Force)",
+      "Bash(Write-Host \"Deleted AlHasbah.tsx and al-hasbah.css\")"
     ]
   }
 }

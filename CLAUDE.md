@@ -53,7 +53,7 @@ Before responding to any prompt, silently evaluate every entry in both tables be
 **Charts:** Recharts 3 — no other chart library  
 **Icons:** Bootstrap Icons via `<Icon name="bi-*" />` — no other icon system  
 **Styling:** Custom CSS in per-page `.css` files — no Tailwind, no CSS-in-JS  
-**Active tabs:** `executive-summary` · `division-analytics` · `programs` · `events` · `people-skills` · `technology-stack` · `discovery-catalog` · `ai-incident` · `al-hasbah` · `ai-command-center`
+**Active tabs:** `executive-summary` · `division-analytics` · `programs` · `events` · `people-skills` · `technology-stack` · `discovery-catalog` · `ai-incident` · `ai-command-center`
 
 ---
 

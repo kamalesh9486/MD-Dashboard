@@ -180,7 +180,6 @@ Submenu items: 50px left padding, 12.5px font, 45% white opacity default.
 | `technology-stack` | Technology Stack | `bi-cpu-fill` |
 | `discovery-catalog` | Discovery Catalog | `bi-kanban` |
 | `ai-incident` | AI Incidents | `bi-shield-exclamation` |
-| `al-hasbah` | AL Hasbah | `bi-bullseye` |
 | `ai-command-center` | AI Command Center | Custom Power BI SVG |
 
 Finance and Strategic Roadmap are currently commented out — do not add them back without being asked.
@@ -486,7 +485,6 @@ Each page has its own CSS file in `src/`. Follow this naming convention:
 | Executive Summary | `executive-summary.css` (prefix: `es2-`) |
 | AI Command Center | `ai-command-center.css` |
 | AI Incidents | `ai-incident.css` |
-| AL Hasbah | `al-hasbah.css` |
 | Discovery Catalog | `discovery-catalog.css` |
 | Finance | `finance.css` |
 | People & Skills | `people-skills.css` |

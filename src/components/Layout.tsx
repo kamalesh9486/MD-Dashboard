@@ -12,7 +12,6 @@ import AIIncident        from '../pages/AIIncident'
 import Finance           from '../pages/Finance'
 import StrategicRoadmap  from '../pages/StrategicRoadmap'
 import AICommandCenter   from '../pages/AICommandCenter'
-import AlHasbah         from '../pages/AlHasbah'
 import Icon              from './Icon'
 import { ErrorBoundary } from './ErrorBoundary'
 import dewaLogo          from '../assets/dewa-logo.svg'
@@ -90,9 +89,6 @@ export default function Layout({ onLogout }: LayoutProps) {
         return <StrategicRoadmap />
       case 'ai-command-center':
         return <AICommandCenter />
-      case 'al-hasbah':
-        return <AlHasbah />
-    
     }
   }
 

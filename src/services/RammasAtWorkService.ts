@@ -272,20 +272,28 @@ export class RammasAtWorkService {
     _inflight = Rammas_Send_ResponseService.Run({})
       .then(result => {
         const outputField = result.data?.output
-        const json: unknown = outputField != null
-          ? (typeof outputField === 'string' ? JSON.parse(outputField) : outputField)
-          : result.data as unknown
+        if (import.meta.env.DEV) {
+          console.info(`[RammasAtWork] raw result — hasOutput: ${outputField != null}, type: ${typeof outputField}`)
+        }
 
-        console.info('[RammasAtWork] raw result', { hasOutput: outputField != null, type: typeof outputField })
+        let json: unknown
+        try {
+          json = outputField != null
+            ? (typeof outputField === 'string' ? JSON.parse(outputField) : outputField)
+            : result.data as unknown
+        } catch (parseErr) {
+          const msg = parseErr instanceof Error ? parseErr.message : 'JSON parse failed'
+          throw new Error(`Failed to parse Rammas response: ${msg}`)
+        }
 
         if (!isRammasData(json)) throw new Error('Unexpected response shape')
         _cache = { data: json, ts: Date.now() }
-        console.info('[RammasAtWork] flow invoked successfully')
+        if (import.meta.env.DEV) console.info('[RammasAtWork] flow invoked successfully')
         return { data: json, error: null } as ApiResult<RammasAtWorkData>
       })
       .catch(err => {
         const message = err instanceof Error ? err.message : 'Unknown error'
-        console.error('[RammasAtWork] flow invocation failed', { message })
+        console.error('[RammasAtWork] flow invocation failed:', message)
         return { data: null, error: message } as ApiResult<RammasAtWorkData>
       })
       .finally(() => { _inflight = null })

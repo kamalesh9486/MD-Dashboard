@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import Icon from './Icon'
 
-export type TabId = 'executive-summary' | 'people-skills' | 'programs' | 'events' | 'discovery-catalog' | 'division-analytics' | 'technology-stack' | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center' | 'al-hasbah' 
+export type TabId = 'executive-summary' | 'people-skills' | 'programs' | 'events' | 'discovery-catalog' | 'division-analytics' | 'technology-stack' | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center'
 
 interface SidebarProps {
   activeTab: TabId
@@ -64,11 +64,6 @@ const NAV_ITEMS = [
     icon: 'bi-rocket-takeoff',
   },*/
   {
-    id: 'al-hasbah' as TabId,
-    label: 'AL Hasbah',
-    icon: 'bi-bullseye',
-  },
-  {
     id: 'ai-command-center' as TabId,
     label: 'AI Command Center',
     icon: 'bi-columns-gap',
@@ -88,7 +83,6 @@ const PAGE_TITLES: Record<TabId, string> = {
   'finance':            'Finance',
   'strategic-roadmap':  'Strategic Roadmap',
   'ai-command-center':  'AI Command Center',
-  'al-hasbah':          'AL Hasbah',
 }
 
 export { PAGE_TITLES }

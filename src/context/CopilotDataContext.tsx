@@ -66,12 +66,14 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
         const result = await _1Service.Run({})
         if (cancelled) return
 
-        // Diagnostic: log what the SDK actually returned so we can see it without expanding
+        // Diagnostic: log what the SDK actually returned (dev only)
         const rawData = result.data as unknown
-        const rawKeys = rawData != null && typeof rawData === 'object'
-          ? Object.keys(rawData as Record<string, unknown>).join(', ')
-          : String(rawData)
-        console.info('[CopilotData] raw result — data keys:', rawKeys)
+        if (import.meta.env.DEV) {
+          const rawKeys = rawData != null && typeof rawData === 'object'
+            ? Object.keys(rawData as Record<string, unknown>).join(', ')
+            : String(rawData)
+          console.info('[CopilotData] raw result — data keys:', rawKeys)
+        }
 
         // Normalize the SDK response — "Respond to PowerApp" wraps data differently:
         //   Shape A: result.data = { values: "<JSON string>" }     → parse string
@@ -88,7 +90,11 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
           let candidate: unknown = d
           if (d['values'] != null) {
             const v = d['values']
-            candidate = typeof v === 'string' ? JSON.parse(v) : v
+            try {
+              candidate = typeof v === 'string' ? JSON.parse(v) : v
+            } catch {
+              candidate = v
+            }
           }
 
           // Step 2: unwrap "body" if we landed on an HTTP action wrapper
@@ -96,7 +102,11 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
             const c = candidate as Record<string, unknown>
             if (!Array.isArray(c['agentdetails']) && !Array.isArray(c['agentDetails']) && c['body'] != null) {
               const b = c['body']
-              candidate = typeof b === 'string' ? JSON.parse(b) : b
+              try {
+                candidate = typeof b === 'string' ? JSON.parse(b) : b
+              } catch {
+                candidate = b
+              }
             }
             json = candidate as Record<string, unknown>
           }
@@ -111,10 +121,12 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
         const valuesRaw  = json['agentdetails'] ?? json['agentDetails'] ?? json['AgentDetails']
           ?? json['agent_details'] ?? json['AgentDetail']
 
-        const detailsCount = Array.isArray(detailsRaw) ? (detailsRaw as unknown[]).length : 'missing'
-        const valuesCount  = Array.isArray(valuesRaw)  ? (valuesRaw  as unknown[]).length : 'missing'
-        const topKeys      = Object.keys(json).slice(0, 8).join(', ') || '(empty)'
-        console.info(`[CopilotData] resolved — masterAgents: ${String(detailsCount)}, classifications: ${String(valuesCount)}, keys: ${topKeys}`)
+        if (import.meta.env.DEV) {
+          const detailsCount = Array.isArray(detailsRaw) ? (detailsRaw as unknown[]).length : 'missing'
+          const valuesCount  = Array.isArray(valuesRaw)  ? (valuesRaw  as unknown[]).length : 'missing'
+          const topKeys      = Object.keys(json).slice(0, 8).join(', ') || '(empty)'
+          console.info(`[CopilotData] resolved — masterAgents: ${String(detailsCount)}, classifications: ${String(valuesCount)}, keys: ${topKeys}`)
+        }
 
         const details = Array.isArray(detailsRaw) ? (detailsRaw as AgentDetail[]) : []
         const values  = Array.isArray(valuesRaw)  ? (valuesRaw  as AgentValue[])  : []
@@ -123,7 +135,10 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
         setAgentValue(values)
       } catch (err) {
         if (cancelled) return
-        setError((err as Error).message)
+        const msg = import.meta.env.PROD
+          ? 'Failed to load agent data. Please try again.'
+          : (err instanceof Error ? err.message : String(err))
+        setError(msg)
       } finally {
         if (!cancelled) setLoading(false)
       }
