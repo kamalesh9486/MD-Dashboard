@@ -85,7 +85,8 @@ body {
 ══════════════════════════════════════ */
 .sidebar {
   width: var(--sidebar-width);
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   background: linear-gradient(175deg,
     var(--sidebar-bg-from) 0%,
     var(--sidebar-bg-mid)  45%,
@@ -227,8 +228,8 @@ body {
 }
 
 /* Submenu */
-.submenu { overflow: hidden; max-height: 0; transition: max-height 0.28s ease; }
-.submenu.open { max-height: 300px; }
+.submenu { overflow: hidden; max-height: 0; transition: max-height 0.32s ease; }
+.submenu.open { max-height: 420px; }
 
 .submenu-link-btn {
   display: flex; align-items: center; gap: 10px;
@@ -253,6 +254,13 @@ body {
   flex-shrink: 0;
   position: relative; z-index: 1;
   background: rgba(0,0,0,0.15);
+}
+/* Scroll-fade hint: signals more nav items exist above when the list scrolls */
+.sidebar-footer::before {
+  content: '';
+  position: absolute; left: 0; right: 0; top: -28px; height: 28px;
+  background: linear-gradient(to top, var(--sidebar-bg-to), transparent);
+  pointer-events: none;
 }
 .user-profile-row { display: flex; align-items: center; gap: 10px; overflow: hidden; }
 

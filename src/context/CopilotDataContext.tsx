@@ -68,13 +68,6 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
 
         // Diagnostic: log what the SDK actually returned (dev only)
         const rawData = result.data as unknown
-        if (import.meta.env.DEV) {
-          const rawKeys = rawData != null && typeof rawData === 'object'
-            ? Object.keys(rawData as Record<string, unknown>).join(', ')
-            : String(rawData)
-          console.info('[CopilotData] raw result — data keys:', rawKeys)
-        }
-
         // Normalize the SDK response — "Respond to PowerApp" wraps data differently:
         //   Shape A: result.data = { values: "<JSON string>" }     → parse string
         //   Shape B: result.data = { values: { agentdetails, … } } → unwrap object
@@ -120,13 +113,6 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
           ?? json['agent_values']  ?? json['AgentValue']
         const valuesRaw  = json['agentdetails'] ?? json['agentDetails'] ?? json['AgentDetails']
           ?? json['agent_details'] ?? json['AgentDetail']
-
-        if (import.meta.env.DEV) {
-          const detailsCount = Array.isArray(detailsRaw) ? (detailsRaw as unknown[]).length : 'missing'
-          const valuesCount  = Array.isArray(valuesRaw)  ? (valuesRaw  as unknown[]).length : 'missing'
-          const topKeys      = Object.keys(json).slice(0, 8).join(', ') || '(empty)'
-          console.info(`[CopilotData] resolved — masterAgents: ${String(detailsCount)}, classifications: ${String(valuesCount)}, keys: ${topKeys}`)
-        }
 
         const details = Array.isArray(detailsRaw) ? (detailsRaw as AgentDetail[]) : []
         const values  = Array.isArray(valuesRaw)  ? (valuesRaw  as AgentValue[])  : []

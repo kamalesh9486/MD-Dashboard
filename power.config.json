@@ -92,6 +92,56 @@
         "coe_tools": {
           "entitySetName": "ai_coe_toolses",
           "logicalName": "ai_coe_tools"
+        },
+        "alhasbaauditlogs": {
+          "entitySetName": "ai_alhasbaauditlogs",
+          "logicalName": "ai_alhasbaauditlog",
+          "isHidden": false
+        },
+        "alhasbauserdivisions": {
+          "entitySetName": "ai_alhasbauserdivisionses",
+          "logicalName": "ai_alhasbauserdivisions",
+          "isHidden": false
+        },
+        "alhasbaflowmetrics": {
+          "entitySetName": "ai_alhasbaflowmetricses",
+          "logicalName": "ai_alhasbaflowmetrics",
+          "isHidden": false
+        },
+        "alhasbaincidents": {
+          "entitySetName": "ai_alhasbaincidentses",
+          "logicalName": "ai_alhasbaincidents",
+          "isHidden": false
+        },
+        "alhasbakpihistories": {
+          "entitySetName": "ai_alhasbakpihistories",
+          "logicalName": "ai_alhasbakpihistory",
+          "isHidden": false
+        },
+        "alhasbamilestones": {
+          "entitySetName": "ai_alhasbamilestoneses",
+          "logicalName": "ai_alhasbamilestones",
+          "isHidden": false
+        },
+        "alhasbausers": {
+          "entitySetName": "ai_alhasbauserses",
+          "logicalName": "ai_alhasbausers",
+          "isHidden": false
+        },
+        "alhasbarolepermissions": {
+          "entitySetName": "ai_alhasbarolepermissionses",
+          "logicalName": "ai_alhasbarolepermissions",
+          "isHidden": false
+        },
+        "alhasbaroles": {
+          "entitySetName": "ai_alhasbaroleses",
+          "logicalName": "ai_alhasbaroles",
+          "isHidden": false
+        },
+        "alhasbaagents": {
+          "entitySetName": "ai_alhasbaagentses",
+          "logicalName": "ai_alhasbaagents",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

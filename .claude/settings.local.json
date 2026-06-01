@@ -84,7 +84,11 @@
       "Skill(copilot-agent-connect)",
       "Bash(Remove-Item \"C:\\\\Users\\\\kkama\\\\OneDrive\\\\Documents\\\\27\\\\COE-Platform\\\\src\\\\pages\\\\AlHasbah.tsx\" -Force)",
       "Bash(Remove-Item \"C:\\\\Users\\\\kkama\\\\OneDrive\\\\Documents\\\\27\\\\COE-Platform\\\\src\\\\al-hasbah.css\" -Force)",
-      "Bash(Write-Host \"Deleted AlHasbah.tsx and al-hasbah.css\")"
+      "Bash(Write-Host \"Deleted AlHasbah.tsx and al-hasbah.css\")",
+      "Read(//c/Users/kkama/OneDrive/Documents/alhasbah/**)",
+      "Read(//c/Users/kkama/OneDrive/Documents/**)",
+      "Skill(codebase-research)",
+      "WebFetch(domain:www.techment.com)"
     ]
   }
 }

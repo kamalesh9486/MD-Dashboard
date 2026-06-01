@@ -272,9 +272,6 @@ export class RammasAtWorkService {
     _inflight = Rammas_Send_ResponseService.Run({})
       .then(result => {
         const outputField = result.data?.output
-        if (import.meta.env.DEV) {
-          console.info(`[RammasAtWork] raw result — hasOutput: ${outputField != null}, type: ${typeof outputField}`)
-        }
 
         let json: unknown
         try {
@@ -288,7 +285,6 @@ export class RammasAtWorkService {
 
         if (!isRammasData(json)) throw new Error('Unexpected response shape')
         _cache = { data: json, ts: Date.now() }
-        if (import.meta.env.DEV) console.info('[RammasAtWork] flow invoked successfully')
         return { data: json, error: null } as ApiResult<RammasAtWorkData>
       })
       .catch(err => {

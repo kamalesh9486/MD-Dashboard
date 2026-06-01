@@ -5,6 +5,76 @@
  */
 
 export const dataSourcesInfo = {
+  "ai_alhasbaagentses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbaagentsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbaauditlogs": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbaauditlogid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbaflowmetricses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbaflowmetricsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbaincidentses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbaincidentsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbakpihistories": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbakpihistoryid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbamilestoneses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbamilestonesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbarolepermissionses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbarolepermissionsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbaroleses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbarolesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbauserdivisionses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbauserdivisionsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbauserses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbausersid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cr978_coe_aiincidents": {
     "tableId": "",
     "version": "",

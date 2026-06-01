@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "codebase-research",
+  "owner": "mhylle",
+  "repo": "claude-skills-collection",
+  "path": "skills/codebase-research",
+  "branch": "master",
+  "sha": "13778f43393fa6bd4d3afd4afa45e15f5b979aed",
+  "source": "manual"
+}

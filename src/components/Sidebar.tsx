@@ -1,8 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import Icon from './Icon'
 
-export type TabId = 'executive-summary' | 'people-skills' | 'programs' | 'events' | 'discovery-catalog' | 'division-analytics' | 'technology-stack' | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center'
+export type TabId =
+  | 'executive-summary' | 'people-skills' | 'programs' | 'events'
+  | 'discovery-catalog' | 'division-analytics' | 'technology-stack'
+  | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center'
+  | 'al-hasbah'
+  | 'ah-leadership' | 'ah-kpi-performance' | 'ah-kpi-repository'
+  | 'ah-agent-repository' | 'ah-use-case-repository' | 'ah-health'
+
+interface NavChild {
+  id: TabId
+  label: string
+  icon: string
+}
+
+interface NavItem {
+  id: TabId
+  label: string
+  icon?: string
+  svgIcon?: ReactNode
+  children?: NavChild[]
+  /** Tab to navigate to when the parent is clicked (defaults to its own id). */
+  landingTab?: TabId
+}
 
 interface SidebarProps {
   activeTab: TabId
@@ -12,7 +34,7 @@ interface SidebarProps {
   onLogout: () => void
 }
 
-const NAV_ITEMS = [
+const NAV_ITEMS: NavItem[] = [
   {
     id: 'executive-summary' as TabId,
     label: 'Executive Summary',
@@ -68,7 +90,20 @@ const NAV_ITEMS = [
     label: 'AI Command Center',
     icon: 'bi-columns-gap',
   },
- 
+  {
+    id: 'al-hasbah' as TabId,
+    label: 'Al Hasbah',
+    icon: 'bi-robot',
+    landingTab: 'ah-leadership' as TabId,
+    children: [
+      { id: 'ah-leadership' as TabId,        label: 'Leadership Dashboard',  icon: 'bi-speedometer2'       },
+      { id: 'ah-kpi-performance' as TabId,   label: 'KPI Performance',       icon: 'bi-graph-up-arrow'     },
+      { id: 'ah-kpi-repository' as TabId,    label: 'KPI Repository',        icon: 'bi-table'              },
+      { id: 'ah-agent-repository' as TabId,  label: 'AI Agent Repository',   icon: 'bi-robot'              },
+      { id: 'ah-use-case-repository' as TabId, label: 'Use Case Repository', icon: 'bi-collection-fill'    },
+      { id: 'ah-health' as TabId,            label: 'AI Health & Incidents', icon: 'bi-shield-exclamation' },
+    ],
+  },
 ]
 
 const PAGE_TITLES: Record<TabId, string> = {
@@ -83,22 +118,42 @@ const PAGE_TITLES: Record<TabId, string> = {
   'finance':            'Finance',
   'strategic-roadmap':  'Strategic Roadmap',
   'ai-command-center':  'AI Command Center',
+  'al-hasbah':          'Al Hasbah',
+  'ah-leadership':          'Al Hasbah — Leadership Dashboard',
+  'ah-kpi-performance':     'Al Hasbah — KPI Performance',
+  'ah-kpi-repository':      'Al Hasbah — KPI Repository',
+  'ah-agent-repository':    'Al Hasbah — AI Agent Repository',
+  'ah-use-case-repository': 'Al Hasbah — Use Case Repository',
+  'ah-health':              'Al Hasbah — AI Health & Incidents',
 }
 
 export { PAGE_TITLES }
 
 export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen, onLogout }: SidebarProps) {
-  const [programsOpen, setProgramsOpen] = useState(
-    activeTab === 'programs' || activeTab === 'events'
-  )
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(() => ({
+    programs:    activeTab === 'programs' || activeTab === 'events',
+    'al-hasbah': activeTab === 'al-hasbah' || activeTab.startsWith('ah-'),
+  }))
+
+  // Accordion: auto-expand the menu owning the active tab and collapse the rest,
+  // so the nav stays compact (and in-page drill buttons keep the right menu open).
+  useEffect(() => {
+    if (activeTab === 'programs' || activeTab === 'events') {
+      setOpenMenus({ programs: true })
+    } else if (activeTab === 'al-hasbah' || activeTab.startsWith('ah-')) {
+      setOpenMenus({ 'al-hasbah': true })
+    }
+  }, [activeTab])
 
   const isActive = (id: TabId) => activeTab === id
-  const isProgramsActive = activeTab === 'programs' || activeTab === 'events'
+  const childIds = (item: NavItem) => item.children?.map((c) => c.id) ?? []
+  const isParentActive = (item: NavItem) => isActive(item.id) || childIds(item).includes(activeTab)
 
-  function handleNavClick(item: (typeof NAV_ITEMS)[number]) {
+  function handleNavClick(item: NavItem) {
     if (item.children) {
-      setProgramsOpen((prev) => !prev)
-      onTabChange(item.id)
+      // Accordion toggle: open this one (closing others), or collapse if already open.
+      setOpenMenus((prev) => (prev[item.id] ? {} : { [item.id]: true }))
+      onTabChange(item.landingTab ?? item.id)
     } else {
       onTabChange(item.id)
     }
@@ -159,8 +214,8 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen,
         )}
 
         {NAV_ITEMS.map((item) => {
-          const active = item.children ? isProgramsActive : isActive(item.id)
-          const isExpanded = item.id === 'programs' ? programsOpen : false
+          const active = item.children ? isParentActive(item) : isActive(item.id)
+          const isExpanded = item.children ? !!openMenus[item.id] : false
 
           return (
             <div className="nav-item" key={item.id}>

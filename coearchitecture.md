@@ -28,6 +28,8 @@ The app connects to Microsoft Dataverse (DEWA's Power Platform environment) to r
 
 It also embeds a floating AI chat assistant (CommandIQ) powered by a Power Automate workflow, letting users ask natural-language questions about the platform data at any time.
 
+A dedicated **Al Hasbah** module tracks DEWA's AI agent adoption programme — the portfolio of deployed agents (HR, Finance, Billing), their KPIs, use cases, and incidents — giving programme owners a single view of agent health and business value.
+
 ---
 
 ## 2. Who It's For
@@ -42,6 +44,7 @@ It also embeds a floating AI chat assistant (CommandIQ) powered by a Power Autom
 | **Risk & compliance officers** | AI Incidents — incident pipeline, severity, SLA status, risk categorisation |
 | **Finance / PMO** | Finance — budget allocation vs. actuals, utilisation rates, YoY spend trends |
 | **Innovation / Discovery teams** | Discovery Catalog — innovation submissions, pipeline status, IT lead assignments |
+| **Al Hasbah programme owners** | Al Hasbah — AI agent portfolio health, KPI tracking, use case lifecycle, incident management |
 
 The app is intentionally multi-persona. The sidebar navigation lets each user type jump directly to their area without wading through irrelevant sections.
 
@@ -89,6 +92,20 @@ main.tsx
 ### No Router
 
 There is no React Router. `Layout.tsx` holds a single `activeTab` string state. The sidebar emits tab name strings; the layout renders the correct page component with a conditional switch. This means every page is always rendered in the same DOM shell — no URL changes, no browser history.
+
+### Responsive Layout
+
+`Layout.tsx` tracks `isMobile` (`window.innerWidth ≤ 768`) via a `resize` listener. On mobile the sidebar slides in as an overlay (`mobileOpen` state) instead of collapsing to icon-only. An `onLogout` prop is threaded from `App` → `Layout` → `Sidebar` to handle session sign-out.
+
+Every page is wrapped in an `<ErrorBoundary key={activeTab}>` so a runtime error in one tab never blanks the whole app.
+
+### Al Hasbah Sub-Navigation
+
+Al Hasbah has its own nested tab system. `Layout.tsx` maintains two translation maps:
+- `AH_TO_SUB` — maps global `TabId` (e.g. `'ah-kpi-performance'`) → `AlHasbahTabId` (`'kpi-performance'`)
+- `SUB_TO_AH` — reverse map for `AlHasbah`'s `onNavigate` callback → global `TabId`
+
+This lets the sidebar drive sub-tab changes from the top level without `AlHasbah` knowing about global routing.
 
 ### Dataverse Service Pattern
 
@@ -285,6 +302,41 @@ Live Dataverse (`cr978_powerbidashboards`). Tracks Power BI dashboard deployment
 
 ---
 
+### 5.13 Al Hasbah
+
+**Route keys:** `al-hasbah` · `ah-leadership` · `ah-kpi-performance` · `ah-kpi-repository` · `ah-agent-repository` · `ah-use-case-repository` · `ah-health`  
+**Container:** `src/pages/AlHasbah.tsx`  
+**CSS:** `src/al-hasbah.css`  
+**Data source:** Static seed data (`src/pages/alhasbah/data.ts`) — backend integration pending  
+
+Al Hasbah is DEWA's AI agent adoption programme dashboard. It covers three pilot divisions: HR, Finance, and Billing. The page acts as a thin router that maps an `AlHasbahTabId` prop to one of six sub-views.
+
+**Sub-tabs:**
+
+| Tab | Component | Purpose |
+|-----|-----------|---------|
+| Leadership Dashboard (`ah-leadership`) | `LeadershipDashboard.tsx` | Executive roll-up: animated tech-radar intro strip, Agent Portfolio Widget, 2-col grid (Use Cases card + KPI Monitoring card), Incidents section. Drill-down panels: `RequestDrillDown`, `FailureDrillDown`. |
+| KPI Performance (`ah-kpi-performance`) | `KPIPerformance.tsx` | Per-KPI trend line charts with target reference line, status badges (On Track / At Risk / Off Track), achievement %, filter by division/status. |
+| KPI Repository (`ah-kpi-repository`) | `KPIRepository.tsx` | Full KPI catalogue: searchable/filterable table, KPI definition, unit, frequency, scope, achievability flag. `KPIFormPanel` (slide-in) for add/edit. `NotAchievableModal` for marking KPIs not achievable with reason. |
+| AI Agent Repository (`ah-agent-repository`) | `AIAgentRepository.tsx` | Agent card grid — name, division, status (Live/Pipeline/Planned), KPI metrics (transactions, adoption %, open incidents, PTU usage). `AgentDetailPanel` (slide-in) + `AgentFormPanel` for add/edit. `FormulaInfo` tooltip explains metric calculations. |
+| Use Case Repository (`ah-use-case-repository`) | `UseCaseRepository.tsx` | Use case cards linked to agents — domain, SAP module, milestone progress, go-live dates, expected efficiency/savings. `UseCaseDetailPanel` + `UseCaseFormPanel` slide-in panels. |
+| AI Health & Incidents (`ah-health`) | `Incidents.tsx` | Incident table with severity (Critical–Low), type (AI Agent / SAP / Business Process / Knowledge Gap), status pipeline. `IncidentDetailPanel` (slide-in). Two analysis panels: `KnowledgeGapsPanel`, `ChangeManagementPanel`. |
+
+**Shared utilities (inside `src/pages/alhasbah/`):**
+- `NotificationToast.tsx` + `useToast` hook — ephemeral success/error toasts used across all CRUD actions
+- `FormulaInfo.tsx` — small icon that reveals the calculation formula for a given metric on hover
+
+**Data types (`src/pages/alhasbah/data.ts`):**
+
+| Type | Key fields |
+|------|-----------|
+| `AHAgent` | id, name, division, status, modelsUsed, systemsIntegrated, annualTransactions, aiAdoptionPct, ptuUsage, mcpServers |
+| `AHUseCase` | id, agentId, domain, sapModule, plannedGoLive, milestones[], expectedEfficiency, targetCostSaving |
+| `AHKPI` | id, agentId, kpiName, unit, targetValue, currentValue, status, trend, history[], achievable |
+| `AHIncident` | id, severity, type, status, description, affectedAgent |
+
+---
+
 ## 6. User Flow Maps
 
 ### 6.1 First-Time Launch
@@ -392,8 +444,8 @@ User clicks floating orb (bottom-right)
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| `Layout` | `src/components/Layout.tsx` | App shell. Owns `activeTab`, `collapsed`, `mobileOpen`, `contextProgram`. |
-| `Sidebar` | `src/components/Sidebar.tsx` | Left nav. Sub-menu for Programs/Events. Collapses to icon-only. |
+| `Layout` | `src/components/Layout.tsx` | App shell. Owns `activeTab`, `collapsed`, `mobileOpen`, `isMobile`, `contextProgram`. Handles responsive resize, `AH_TO_SUB`/`SUB_TO_AH` maps for Al Hasbah routing, `onLogout` prop. Wraps each page in `<ErrorBoundary key={activeTab}>`. |
+| `Sidebar` | `src/components/Sidebar.tsx` | Left nav. Accordion sub-menus for Programs/Events and Al Hasbah (6 sub-items). Collapses to icon-only on desktop; slides in as overlay on mobile. Logout button in footer. |
 | `Icon` | `src/components/Icon.tsx` | 149 Bootstrap Icons embedded as path strings. No external font load. |
 | `LaunchScreen` | `src/components/LaunchScreen.tsx` | Animated splash + auth screen. Calls `useCurrentUser()`. |
 | `CommandIQ` | `src/components/CommandIQ.tsx` | Floating orb + chat panel. Self-contained — no props, no context. Wired to Copilot Studio agent via `MicrosoftCopilotStudioService.ExecuteCopilotAsyncV2`. |
@@ -433,6 +485,47 @@ User clicks floating orb (bottom-right)
 | `RammasBrdTab` | *(sub-tab)* | Board / summary view for Rammas data. |
 | `RammasKmTab` | *(sub-tab)* | Knowledge management view for Rammas data. |
 | `RammasMyRammasTab` | *(sub-tab)* | Personal Rammas usage view. |
+
+### Al Hasbah Sub-Components
+
+**Top-level tabs (`src/pages/alhasbah/`):**
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `LeadershipDashboard` | `LeadershipDashboard.tsx` | Executive roll-up: radar animation, Agent Portfolio Widget, KPI/Use Cases 2-col grid, Incidents strip. |
+| `KPIPerformance` | `KPIPerformance.tsx` | KPI trend charts with target reference lines, status/division filters, achievement % calculation. |
+| `KPIRepository` | `KPIRepository.tsx` | KPI catalogue table, add/edit via `KPIFormPanel`, mark-not-achievable via `NotAchievableModal`. |
+| `AIAgentRepository` | `AIAgentRepository.tsx` | Agent card grid with `StatBox` metrics, `AgentDetailPanel`, `AgentFormPanel`, `FormulaInfo` tooltips. |
+| `UseCaseRepository` | `UseCaseRepository.tsx` | Use case cards with milestone bars, `UseCaseDetailPanel`, `UseCaseFormPanel`. |
+| `Incidents` | `Incidents.tsx` | Incident table, `IncidentDetailPanel`, `KnowledgeGapsPanel`, `ChangeManagementPanel`. |
+
+**Leadership sub-components (`src/pages/alhasbah/leadership/`):**
+
+| Component | Purpose |
+|-----------|---------|
+| `AgentPortfolioWidget` | KPI strip + agent status summary + drill-down triggers |
+| `UseCasesCard` | Use cases count by status with nav link to repository |
+| `KPIMonitoringCard` | KPI on-track/at-risk/off-track summary with nav link |
+| `IncidentsSection` | Recent incidents strip with severity badges |
+| `RequestDrillDown` | Slide-in panel: full request volume analysis |
+| `FailureDrillDown` | Slide-in panel: failure breakdown by category |
+| `AgentDetailPanel` | Slide-in: full agent profile (models, systems, KPIs, use cases) |
+| `UseCaseDetailPanel` | Slide-in: use case detail with milestones and system integrations |
+| `KPIDetailOverlay` | Overlay: expanded KPI chart + history table |
+
+**Form/utility components:**
+
+| Component | Purpose |
+|-----------|---------|
+| `AgentFormPanel` (`agents/`) | Add/edit agent slide-in form |
+| `KPIFormPanel` (`kpis/`) | Add/edit KPI slide-in form |
+| `UseCaseFormPanel` (`usecases/`) | Add/edit use case slide-in form |
+| `IncidentFormPanel` (`incidents/`) | Add/edit incident slide-in form |
+| `KnowledgeGapsPanel` (`incidents/`) | Analysis panel for knowledge-gap type incidents |
+| `ChangeManagementPanel` (`incidents/`) | ADKAR change impact panel for incidents |
+| `NotAchievableModal` (`kpis/`) | Modal: capture reason when marking a KPI not achievable |
+| `NotificationToast` | Ephemeral toast + `useToast` hook for CRUD feedback |
+| `FormulaInfo` | Hover tooltip explaining metric calculation formulas |
 
 ### Recharts Usage by Page
 
@@ -510,6 +603,7 @@ const divisionName = divisionMap.get(person._cr978_coe_division_value) ?? 'Unkno
 | Finance | Hybrid | Division names live, budget from FINANCE_SEED array |
 | Strategic Roadmap | Static | Hardcoded phases + initiatives |
 | AI Command Center | Live Dataverse | Read-only |
+| Al Hasbah (all sub-tabs) | Static seed | `src/pages/alhasbah/data.ts` — backend Dataverse integration pending |
 | CommandIQ chat | Live Power Automate | Real-time POST per message |
 
 ### Cross-Page State
@@ -561,8 +655,26 @@ Power Platform environment `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`. Runs inside t
 
 ## 11. Recent Changes
 
+### RammasAtWorkService (`src/services/RammasAtWorkService.ts`)
+
+Fetches data from a Power Automate flow (`Rammas_Send_ResponseService.Run({})`) and returns a `RammasAtWorkData` object containing 18 typed arrays across three product areas:
+
+| Area | Arrays |
+|------|--------|
+| **BRD** | `brd_api_logs`, `brd_openai_analytics`, `brd_records`, `brd_template_records` |
+| **MyRammas** | `myrammas-live-bot`, `myrammas-draft-bot`, `myrammas-api-logs`, `myrammas-openai-analytics`, `myrammas-preview-qna`, `myrammas-shared-bots` |
+| **KM** | `km-document-details`, `km-users`, `km-conversation-analytics`, `km-open-ai-analytics`, `km-api-logs`, `km-folder-details`, `km-division`, `km-department` |
+
+The service has a 5-minute in-memory cache and in-flight deduplication (concurrent callers share one request). `CopilotDataContext` warms this cache at app startup so Rammas panels load instantly.
+
+---
+
 | Date | Change |
 |------|--------|
+| 2026-05-28 | **Al Hasbah module.** New top-level section tracking DEWA's AI agent adoption programme. 6 sub-tabs: Leadership Dashboard, KPI Performance, KPI Repository, AI Agent Repository, Use Case Repository, AI Health & Incidents. All data from static seed (`src/pages/alhasbah/data.ts`) — backend integration pending. Container: `src/pages/AlHasbah.tsx` + `src/al-hasbah.css`. 25 sub-components across `src/pages/alhasbah/`. |
+| 2026-05-28 | **Responsive layout.** `Layout.tsx` tracks `isMobile` (≤768 px) via resize listener. Mobile: sidebar becomes a slide-in overlay (`mobileOpen`). Desktop: collapses to icon-only. `onLogout` prop threaded App→Layout→Sidebar. Each page wrapped in `<ErrorBoundary key={activeTab}>`. |
+| 2026-05-28 | **Al Hasbah sidebar nav.** `Sidebar.tsx`: `TabId` extended with 6 `ah-*` sub-tabs. Accordion menu for Al Hasbah (alongside existing Programs accordion). `landingTab` mechanism: clicking the Al Hasbah parent navigates to `ah-leadership`. Logout button added to sidebar footer. |
+| 2026-05-28 | **RammasAtWorkService typed.** Full TypeScript types added for all 18 response arrays (BRD, MyRammas, KM). 5-minute cache + in-flight dedup. `CopilotDataContext` warm-start call added. |
 | 2026-05-17 | **Division Analytics — Tool Adoption Lanes.** New section in `AdoptionTab.tsx`. 4 horizontal swim lanes (Microsoft Copilot, Custom GPTs, Power Automate AI, AI Vision). Each lane positions 8 divisions as floating pills at their adoption % along a 0–100% axis, staggered two rows to avoid overlap. Org-average marker per lane. Fixed-position tooltip on hover (`getBoundingClientRect`). Seed data in `TOOL_SEED`. |
 | 2026-05-17 | **Division Analytics — ADKAR Dimension Heatmap.** Replaced the duplicate all-divisions table in `AdkarTab.tsx` with an 8×5 colour-coded grid (divisions × ADKAR dimensions). Green ≥80, gold 65–79, red <65. Clicking a row updates the radar/bars selection. `heatBg` + `heatBorder` helper functions added. |
 | 2026-05-17 | **Events v2 full redesign.** `src/pages/Events.tsx` rewritten. Added `EventsChartsRow` (3 charts: monthly stacked bar, division donut, attendance sparkline). Added `FeaturedBanner` for soonest upcoming event. Added Timeline / Grid layout modes alongside Calendar. `EventDetailPanel` replaces modal as slide-in panel. Division filter select + type chip filters added. `useScrollLock` used in panel. `DataSourceBadge` added. |
@@ -573,4 +685,4 @@ Power Platform environment `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`. Runs inside t
 | 2026-04-12 | CopilotKit restructured — embedded inside Technology Stack as `CopilotKitPanel`. `copilot-kit` tab removed. `CopilotDataContext` added. Agent Value Intelligence section added. |
 | 2026-04-11 | Technology Stack page wraps `AIToolsTab`. `AIToolsTab.tsx` — Microsoft Copilot live card + detail panel. |
 
-*Active tabs: executive-summary, division-analytics, programs, events, people-skills, technology-stack, discovery-catalog, ai-incident, ai-command-center.*
+*Active tabs: executive-summary, division-analytics, programs, events, people-skills, technology-stack, discovery-catalog, ai-incident, ai-command-center, al-hasbah (+ sub-tabs: ah-leadership, ah-kpi-performance, ah-kpi-repository, ah-agent-repository, ah-use-case-repository, ah-health).*

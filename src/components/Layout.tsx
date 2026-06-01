@@ -12,12 +12,32 @@ import AIIncident        from '../pages/AIIncident'
 import Finance           from '../pages/Finance'
 import StrategicRoadmap  from '../pages/StrategicRoadmap'
 import AICommandCenter   from '../pages/AICommandCenter'
+import AlHasbah, { type AlHasbahTabId } from '../pages/AlHasbah'
 import Icon              from './Icon'
 import { ErrorBoundary } from './ErrorBoundary'
 import dewaLogo          from '../assets/dewa-logo.svg'
 import '../layout.css'
 
 interface LayoutProps { onLogout: () => void }
+
+// Map global sidebar tab IDs ↔ Al Hasbah's internal sub-tab IDs
+const AH_TO_SUB: Partial<Record<TabId, AlHasbahTabId>> = {
+  'al-hasbah':              'leadership',
+  'ah-leadership':          'leadership',
+  'ah-kpi-performance':     'kpi-performance',
+  'ah-kpi-repository':      'kpi-repository',
+  'ah-agent-repository':    'agent-repository',
+  'ah-use-case-repository': 'use-case-repository',
+  'ah-health':              'ai-health',
+}
+const SUB_TO_AH: Record<AlHasbahTabId, TabId> = {
+  'leadership':          'ah-leadership',
+  'kpi-performance':     'ah-kpi-performance',
+  'kpi-repository':      'ah-kpi-repository',
+  'agent-repository':    'ah-agent-repository',
+  'use-case-repository': 'ah-use-case-repository',
+  'ai-health':           'ah-health',
+}
 
 export default function Layout({ onLogout }: LayoutProps) {
   const [activeTab,        setActiveTab]        = useState<TabId>('executive-summary')
@@ -89,6 +109,19 @@ export default function Layout({ onLogout }: LayoutProps) {
         return <StrategicRoadmap />
       case 'ai-command-center':
         return <AICommandCenter />
+      case 'al-hasbah':
+      case 'ah-leadership':
+      case 'ah-kpi-performance':
+      case 'ah-kpi-repository':
+      case 'ah-agent-repository':
+      case 'ah-use-case-repository':
+      case 'ah-health':
+        return (
+          <AlHasbah
+            activeTab={AH_TO_SUB[activeTab] ?? 'leadership'}
+            onNavigate={(sub) => setActiveTab(SUB_TO_AH[sub])}
+          />
+        )
     }
   }
 
