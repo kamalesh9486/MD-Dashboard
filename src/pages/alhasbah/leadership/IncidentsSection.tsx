@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
-import { AH_INCIDENTS, AH_USE_CASES, AH_SLA_DAYS, AH_SLA_LABEL, type AHSeverity, type AHIncidentStatus, type AHIncidentType } from '../data'
+import { AH_SLA_DAYS, AH_SLA_LABEL, type AHSeverity, type AHIncidentStatus, type AHIncidentType } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 const SEV_COLORS: Record<AHSeverity, string> = {
   critical: '#dc2626', high: '#f97316', medium: '#f59e0b', low: '#94a3b8',
@@ -58,6 +59,7 @@ interface IncidentsSectionProps {
 }
 
 export default function IncidentsSection({ onNavigate }: IncidentsSectionProps) {
+  const { incidents, useCases } = useAlHasbah()
   const [filterSeverity, setFilterSeverity] = useState<AHSeverity | 'all'>('all')
   const [filterStatus,   setFilterStatus]   = useState<AHIncidentStatus | 'all'>('all')
   const [filterType,     setFilterType]     = useState<AHIncidentType | 'all'>('all')
@@ -70,23 +72,23 @@ export default function IncidentsSection({ onNavigate }: IncidentsSectionProps) 
   const hasActiveFilters = filterSeverity !== 'all' || filterStatus !== 'all' || filterType !== 'all' ||
     filterTeam !== 'all' || filterUC !== 'all' || filterDateFrom !== '' || filterDateTo !== ''
 
-  const allTeams  = [...new Set(AH_INCIDENTS.map(i => getAssignedTeam(i.type, i.division)))].sort()
-  const allUCIds  = [...new Set(AH_INCIDENTS.map(i => i.agentId))]
-  const ucOptions = allUCIds.flatMap(aid => AH_USE_CASES.filter(u => u.agentId === aid).map(u => ({ label: u.name, value: u.id })))
+  const allTeams  = [...new Set(incidents.map(i => getAssignedTeam(i.type, i.division)))].sort()
+  const allUCIds  = [...new Set(incidents.map(i => i.agentId))]
+  const ucOptions = allUCIds.flatMap(aid => useCases.filter(u => u.agentId === aid).map(u => ({ label: u.name, value: u.id })))
 
-  const filtered = AH_INCIDENTS.filter(i => {
+  const filtered = incidents.filter(i => {
     if (filterSeverity !== 'all' && i.severity !== filterSeverity) return false
     if (filterStatus   !== 'all' && i.status   !== filterStatus)   return false
     if (filterType     !== 'all' && i.type     !== filterType)     return false
     if (filterTeam     !== 'all' && getAssignedTeam(i.type, i.division) !== filterTeam) return false
-    if (filterUC       !== 'all' && !AH_USE_CASES.filter(u => u.agentId === i.agentId).some(u => u.id === filterUC)) return false
+    if (filterUC       !== 'all' && !useCases.filter(u => u.agentId === i.agentId).some(u => u.id === filterUC)) return false
     if (filterDateFrom && i.reportedDate < filterDateFrom) return false
     if (filterDateTo   && i.reportedDate > filterDateTo)   return false
     return true
   })
 
-  const countBySev = (s: AHSeverity) => AH_INCIDENTS.filter(i => i.severity === s).length
-  const countByStat = (s: AHIncidentStatus) => AH_INCIDENTS.filter(i => i.status === s).length
+  const countBySev  = (s: AHSeverity)       => incidents.filter(i => i.severity === s).length
+  const countByStat = (s: AHIncidentStatus) => incidents.filter(i => i.status   === s).length
 
   function handleSLAEnter(e: React.MouseEvent, sev: AHSeverity) {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -99,7 +101,7 @@ export default function IncidentsSection({ onNavigate }: IncidentsSectionProps) 
         <div>
           <div className="ah-table-title">AI Usecase Health — Incident Stream</div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-            {AH_INCIDENTS.filter(i => i.status !== 'resolved').length} open · {AH_INCIDENTS.filter(i => i.changeManagementTriggered).length} CM-triggered
+            {incidents.filter(i => i.status !== 'resolved').length} open · {incidents.filter(i => i.changeManagementTriggered).length} CM-triggered
           </div>
         </div>
         <button
@@ -119,7 +121,7 @@ export default function IncidentsSection({ onNavigate }: IncidentsSectionProps) 
           style={{ background: 'var(--surface)', border: '1px solid var(--border-card)', borderRadius: 10, padding: '14px 20px', cursor: 'pointer', textAlign: 'left' }}
           onClick={() => { setFilterSeverity('all'); setFilterStatus('all') }}
         >
-          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text)' }}>{AH_INCIDENTS.length}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text)' }}>{incidents.length}</div>
           <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>Total Incidents</div>
         </button>
 
@@ -234,7 +236,7 @@ export default function IncidentsSection({ onNavigate }: IncidentsSectionProps) 
           </div>
         )}
         <div style={{ marginLeft: 'auto', alignSelf: 'flex-end', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2, whiteSpace: 'nowrap' }}>
-          {filtered.length} of {AH_INCIDENTS.length} incidents
+          {filtered.length} of {incidents.length} incidents
         </div>
       </div>
 
@@ -257,7 +259,7 @@ export default function IncidentsSection({ onNavigate }: IncidentsSectionProps) 
             const days    = daysSince(inc.reportedDate)
             const slaDays = AH_SLA_DAYS[inc.severity]
             const breached = days > slaDays
-            const ucName  = AH_USE_CASES.find(u => u.agentId === inc.agentId)?.name ?? '—'
+            const ucName  = useCases.find(u => u.agentId === inc.agentId)?.name ?? '—'
             const team    = getAssignedTeam(inc.type, inc.division)
             return (
               <tr

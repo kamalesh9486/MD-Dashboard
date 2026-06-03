@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import {
-  type AHAgent, type AHDivision, type AHStatus,
-  addAgent, updateAgent,
-} from '../data'
+import { type AHAgent, type AHDivision, type AHStatus } from '../data'
+import { createAgent, updateAgent } from '../services/agentService'
 
 // ── Chip multi-input ──────────────────────────────────────────────────────────
 interface ChipInputProps {
@@ -92,7 +90,8 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
   const [systemsIntegrated,  setSystemsIntegrated]  = useState<string[]>(agent?.systemsIntegrated ?? [])
   const [mcpServers,         setMcpServers]         = useState<string[]>(agent?.mcpServers ?? [])
   const [aiTools,            setAiTools]            = useState<string[]>(agent?.aiTools ?? [])
-  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError]   = useState('')
 
   function validate() {
     if (!name.trim())          { setError('Agent name is required'); return false }
@@ -101,8 +100,10 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
     return true
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return
+    setSaving(true)
+    setError('')
     const payload = {
       name: name.trim(),
       division,
@@ -110,26 +111,31 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
       businessOwner:     businessOwner.trim(),
       targetEndUsers:    targetEndUsers.trim(),
       description:       description.trim(),
-      targetCostSaving:  Number(targetCostSaving)  || 0,
-      fteSavingsTarget:  Number(fteSavingsTarget)   || 0,
+      targetCostSaving:  Number(targetCostSaving)   || 0,
+      fteSavingsTarget:  Number(fteSavingsTarget)    || 0,
       annualTransactions: Number(annualTransactions) || 0,
-      aiAdoptionPct:     Number(aiAdoptionPct)      || 0,
-      ptuUsage:          Number(ptuUsage)           || 0,
-      totalUseCases:     Number(totalUseCases)      || 0,
-      liveUseCases:      Number(liveUseCases)       || 0,
-      openIncidents:     Number(openIncidents)      || 0,
+      aiAdoptionPct:     Number(aiAdoptionPct)       || 0,
+      ptuUsage:          Number(ptuUsage)            || 0,
+      totalUseCases:     Number(totalUseCases)       || 0,
+      liveUseCases:      Number(liveUseCases)        || 0,
+      openIncidents:     Number(openIncidents)       || 0,
       modelsUsed,
       systemsIntegrated,
       mcpServers,
       aiTools,
     }
-    if (isEdit) {
-      updateAgent(agent.id, payload)
-    } else {
-      addAgent(payload)
+    try {
+      if (isEdit && agent._dvId) {
+        await updateAgent(agent._dvId, payload)
+      } else {
+        await createAgent(payload)
+      }
+      onSaved(name.trim())
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Save failed')
+      setSaving(false)
     }
-    onSaved(name.trim())
-    onClose()
   }
 
   return (
@@ -289,11 +295,11 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-            <button className="ah-add-btn" style={{ flex: 1 }} onClick={handleSubmit}>
-              <Icon name={isEdit ? 'bi-check-lg' : 'bi-robot'} />
-              {isEdit ? ' Save Changes' : ' Add Agent'}
+            <button className="ah-add-btn" style={{ flex: 1 }} onClick={() => { void handleSubmit() }} disabled={saving}>
+              <Icon name={saving ? 'bi-hourglass-split' : isEdit ? 'bi-check-lg' : 'bi-robot'} />
+              {saving ? ' Saving…' : isEdit ? ' Save Changes' : ' Add Agent'}
             </button>
-            <button className="ah-pill-btn" onClick={onClose}>Cancel</button>
+            <button className="ah-pill-btn" onClick={onClose} disabled={saving}>Cancel</button>
           </div>
         </div>
       </div>

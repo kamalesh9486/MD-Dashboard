@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import Icon from '../../components/Icon'
-import { AH_KPIS_MUT, AH_KPI_FAMILIES, type AHKPI, type AHDivision, type AHKPIStatus } from './data'
+import { AH_KPI_FAMILIES, type AHKPI, type AHDivision, type AHKPIStatus } from './data'
+import { useAlHasbah } from './AlHasbahContext'
 import KPIDetailOverlay from './leadership/KPIDetailOverlay'
 import NotAchievableModal from './kpis/NotAchievableModal'
 import KPIFormPanel from './kpis/KPIFormPanel'
@@ -50,7 +51,7 @@ function FilterSelect({ label, value, onChange, children }: {
 interface Props { onNavigate?: (tab: string) => void }
 
 export default function KPIRepository({ onNavigate }: Props) {
-  const [kpis,         setKpis]         = useState<AHKPI[]>(() => [...AH_KPIS_MUT])
+  const { kpis, loading, error, refreshKpis } = useAlHasbah()
   const [search,       setSearch]       = useState('')
   const [divFilter,    setDivFilter]    = useState<DivFilter>('all')
   const [statFilter,   setStatFilter]   = useState<StatFilter>('all')
@@ -61,8 +62,6 @@ export default function KPIRepository({ onNavigate }: Props) {
   const [selectedNAKPI, setSelectedNAKPI] = useState<AHKPI | null>(null)
   const [showKPIForm,  setShowKPIForm]  = useState(false)
   const { toasts, dismiss, showSuccess } = useToast()
-
-  function refresh() { setKpis([...AH_KPIS_MUT]) }
 
   const families = useMemo(() => [...new Set(kpis.map(k => k.kpiFamily))].sort(), [kpis])
 
@@ -91,6 +90,9 @@ export default function KPIRepository({ onNavigate }: Props) {
   const atRiskCount   = kpis.filter(k => k.status === 'at_risk').length
   const offTrackCount = kpis.filter(k => k.status === 'off_track').length
 
+  if (loading) return <div className="ah-loading-state"><Icon name="bi-hourglass-split" /> Loading from Dataverse…</div>
+  if (error)   return <div className="ah-error-state"><Icon name="bi-exclamation-triangle" /> {error}</div>
+
   function toggleGroup(key: string) {
     setExpandedGroups(prev => {
       const next = new Set(prev)
@@ -105,8 +107,10 @@ export default function KPIRepository({ onNavigate }: Props) {
     setSearch(''); setDivFilter('all'); setStatFilter('all'); setFamilyFilter('all'); setScopeFilter('all')
   }
 
-  function handleSaved(name: string) {
-    refresh()
+  async function handleSaved(name: string) {
+    // Brief delay for Dataverse eventual consistency before re-fetching
+    await new Promise(r => setTimeout(r, 600))
+    await refreshKpis()
     showSuccess(`KPI "${name}" added successfully`)
   }
 

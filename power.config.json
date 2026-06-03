@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "appId": "806f7431-4402-4d2f-9434-7db2dbd58778",
-  "appDisplayName": "Ai CoE-R03-V1-1",
+  "appId": "baaa84f8-772d-4900-98dc-b38eddb7b390",
+  "appDisplayName": "Ai CoE-R03-V1-2",
   "region": "prod",
   "environmentId": "07da6342-8cc4-e81c-95fa-9ce24e7c2f46",
   "description": " ",
@@ -141,6 +141,21 @@
         "alhasbaagents": {
           "entitySetName": "ai_alhasbaagentses",
           "logicalName": "ai_alhasbaagents",
+          "isHidden": false
+        },
+        "alhasbaagentkpis": {
+          "entitySetName": "ai_alhasbaagentkpises",
+          "logicalName": "ai_alhasbaagentkpis",
+          "isHidden": false
+        },
+        "alhasbapermissions": {
+          "entitySetName": "ai_alhasbapermissionses",
+          "logicalName": "ai_alhasbapermissions",
+          "isHidden": false
+        },
+        "alhasbausecases": {
+          "entitySetName": "ai_alhasbausecaseses",
+          "logicalName": "ai_alhasbausecases",
           "isHidden": false
         }
       },

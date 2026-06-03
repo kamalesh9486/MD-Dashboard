@@ -4,7 +4,8 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import Icon from '../../components/Icon'
-import { AH_KPIS, type AHKPI, type AHDivision, type AHKPIStatus } from './data'
+import { type AHKPI, type AHDivision, type AHKPIStatus } from './data'
+import { useAlHasbah } from './AlHasbahContext'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -282,29 +283,33 @@ function FilterChip({ label, active, color, onClick }: { label: string; active: 
 interface Props { onNavigate?: (tab: string) => void }
 
 export default function KPIPerformance(_props: Props) {
+  const { kpis, loading, error } = useAlHasbah()
   const [filterStatus,   setFilterStatus]   = useState<AHKPIStatus | 'all'>('all')
   const [filterDivision, setFilterDivision] = useState<AHDivision | 'all'>('all')
   const [filterFreq,     setFilterFreq]     = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
 
   const summary = useMemo(() => {
-    const total    = AH_KPIS.length
-    const onTrack  = AH_KPIS.filter(k => k.status === 'on_track').length
-    const atRisk   = AH_KPIS.filter(k => k.status === 'at_risk').length
-    const offTrack = AH_KPIS.filter(k => k.status === 'off_track').length
-    const avgPct   = total > 0 ? Math.round(AH_KPIS.reduce((s, k) => s + achievementPct(k), 0) / total) : 0
+    const total    = kpis.length
+    const onTrack  = kpis.filter(k => k.status === 'on_track').length
+    const atRisk   = kpis.filter(k => k.status === 'at_risk').length
+    const offTrack = kpis.filter(k => k.status === 'off_track').length
+    const avgPct   = total > 0 ? Math.round(kpis.reduce((s, k) => s + achievementPct(k), 0) / total) : 0
     return { total, onTrack, atRisk, offTrack, avgPct }
-  }, [])
+  }, [kpis])
 
   const hasActiveFilters = filterStatus !== 'all' || filterDivision !== 'all' || filterFreq !== 'all'
 
-  const filtered = useMemo(() => AH_KPIS.filter(k => {
+  const filtered = useMemo(() => kpis.filter(k => {
     if (filterStatus   !== 'all' && k.status    !== filterStatus)   return false
     if (filterDivision !== 'all' && k.division  !== filterDivision) return false
     if (filterFreq     !== 'all' && k.frequency !== filterFreq)     return false
     return true
-  }), [filterStatus, filterDivision, filterFreq])
+  }), [kpis, filterStatus, filterDivision, filterFreq])
 
   const avgColor = summary.avgPct >= 80 ? '#007560' : '#ca8a04'
+
+  if (loading) return <div className="ah-loading-state"><Icon name="bi-hourglass-split" /> Loading from Dataverse…</div>
+  if (error)   return <div className="ah-error-state"><Icon name="bi-exclamation-triangle" /> {error}</div>
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -314,7 +319,7 @@ export default function KPIPerformance(_props: Props) {
         <div>
           <span style={{ fontWeight: 700, color: '#007560', fontSize: 13.5 }}>KPI Performance Registry</span>
           <span style={{ fontSize: 12.5, color: 'var(--text-muted)', marginLeft: 12 }}>
-            {AH_KPIS.length} KPIs across HR, Finance &amp; Billing
+            {kpis.length} KPIs across HR, Finance &amp; Billing
           </span>
         </div>
         <div
@@ -400,7 +405,7 @@ export default function KPIPerformance(_props: Props) {
         )}
 
         <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-          Showing {filtered.length} of {AH_KPIS.length} KPIs
+          Showing {filtered.length} of {kpis.length} KPIs
         </span>
       </div>
 

@@ -57,6 +57,8 @@ Before responding to any prompt, silently evaluate every entry in both tables be
 
 ---
 
+
+
 ## Navigation
 
 **There is no React Router.** Do not add it. Navigation is tab state in `Layout.tsx`:
@@ -205,10 +207,12 @@ npm run dev      # local dev on http://localhost:3000
 npm run build    # tsc -b && vite build → ./dist
 npm run lint     # ESLint check
 npm run preview  # preview ./dist locally
+
+
 ```
 
-Deploy via `pac code push` to Power Platform environment `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`.
-
+Don't Push directly to `main` — create a feature branch, push, and open a PR for review.
+Don't push the application to power apps without user approval
 ---
 
 ## What NOT To Do

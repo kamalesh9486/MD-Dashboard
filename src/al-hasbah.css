@@ -1708,3 +1708,18 @@ textarea.ah-select {
   from { transform: scale(0.96); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
 }
+
+/* ── Dataverse loading / error states ─────────────────────────────────────── */
+.ah-loading-state,
+.ah-error-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.ah-error-state {
+  color: #dc2626;
+}

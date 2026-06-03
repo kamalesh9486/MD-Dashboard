@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import { AH_AGENTS_MUT, type AHKPI, type AHDivision, type AHKPIStatus, type AHTrend, addKPI } from '../data'
+import { type AHKPI } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
+import { createKpi } from '../services/kpiService'
 
 interface Props {
   onClose: () => void
@@ -10,17 +12,14 @@ interface Props {
 
 export default function KPIFormPanel({ onClose, onSaved }: Props) {
   useScrollLock()
+  const { agents } = useAlHasbah()
 
-  const [agentId,              setAgentId]             = useState(AH_AGENTS_MUT[0]?.id ?? '')
+  const [agentId,              setAgentId]             = useState(agents[0]?.id ?? '')
   const [kpiFunction,          setKpiFunction]         = useState('')
   const [kpiName,              setKpiName]             = useState('')
   const [kpiDefinition,        setKpiDefinition]       = useState('')
   const [unit,                 setUnit]                = useState<AHKPI['unit']>('%')
   const [targetValue,          setTargetValue]         = useState('')
-  const [currentValue,         setCurrentValue]        = useState('')
-  const [status,               setStatus]              = useState<AHKPIStatus>('at_risk')
-  const [trend,                setTrend]               = useState<AHTrend>('flat')
-  const [trendDelta,           setTrendDelta]          = useState('0')
   const [frequency,            setFrequency]           = useState<AHKPI['frequency']>('monthly')
   const [owner,                setOwner]               = useState('')
   const [kpiFamily,            setKpiFamily]           = useState('')
@@ -28,11 +27,10 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
   const [achievable,           setAchievable]          = useState<AHKPI['achievable']>('yes')
   const [notAchievableReason,  setNotAchievableReason] = useState('')
   const [lowerIsBetter,        setLowerIsBetter]       = useState(false)
-  const [lastMeasured,         setLastMeasured]        = useState(new Date().toISOString().slice(0, 10))
-  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState('')
 
-  const agent    = AH_AGENTS_MUT.find(a => a.id === agentId)
-  const division = (agent?.division ?? 'HR') as AHDivision
+  // division is derived server-side from agentId
 
   function validate() {
     if (!kpiName.trim())       { setError('KPI name is required'); return false }
@@ -43,32 +41,33 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
     return true
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return
-    addKPI({
-      agentId,
-      division,
-      function: kpiFunction.trim(),
-      kpiName: kpiName.trim(),
-      kpiDefinition: kpiDefinition.trim(),
-      unit,
-      targetValue:  Number(targetValue)  || 0,
-      currentValue: Number(currentValue) || 0,
-      status,
-      trend,
-      trendDelta: Number(trendDelta) || 0,
-      frequency,
-      owner: owner.trim(),
-      history: [],
-      lowerIsBetter,
-      kpiFamily: kpiFamily.trim(),
-      scope,
-      achievable,
-      notAchievableReason: achievable === 'no' ? notAchievableReason.trim() : undefined,
-      lastMeasured,
-    })
-    onSaved(kpiName.trim())
-    onClose()
+    setSaving(true)
+    setError('')
+    try {
+      await createKpi({
+        agentId,
+        function: kpiFunction.trim(),
+        kpiName: kpiName.trim(),
+        kpiDefinition: kpiDefinition.trim(),
+        unit,
+        targetValue:  Number(targetValue)  || 0,
+        frequency,
+        owner: owner.trim(),
+        lowerIsBetter,
+        kpiFamily: kpiFamily.trim(),
+        scope,
+        achievable,
+        notAchievableReason: achievable === 'no' ? notAchievableReason.trim() : undefined,
+        dataSource: undefined,
+      })
+      onSaved(kpiName.trim())
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Save failed')
+      setSaving(false)
+    }
   }
 
   return (
@@ -96,7 +95,7 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
           <div className="ah-form-group">
             <label className="ah-form-label">Linked AI Agent *</label>
             <select className="ah-select" value={agentId} onChange={e => setAgentId(e.target.value)}>
-              {AH_AGENTS_MUT.map(a => (
+              {agents.map(a => (
                 <option key={a.id} value={a.id}>{a.name} ({a.division})</option>
               ))}
             </select>
@@ -144,16 +143,10 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
             </div>
           </div>
 
-          {/* Target + Current values */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Target Value</label>
-              <input className="ah-select" type="number" placeholder="0" value={targetValue} onChange={e => setTargetValue(e.target.value)} />
-            </div>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Current Value</label>
-              <input className="ah-select" type="number" placeholder="0" value={currentValue} onChange={e => setCurrentValue(e.target.value)} />
-            </div>
+          {/* Target value */}
+          <div className="ah-form-group">
+            <label className="ah-form-label">Target Value</label>
+            <input className="ah-select" type="number" placeholder="0" value={targetValue} onChange={e => setTargetValue(e.target.value)} />
           </div>
 
           {/* Lower is better toggle */}
@@ -167,30 +160,6 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
               {lowerIsBetter && <Icon name="bi-check" style={{ color: '#fff', fontSize: 12 }} />}
             </div>
             <span style={{ fontSize: 13, color: 'var(--text)' }}>Lower is better (e.g. processing time, error rate)</span>
-          </div>
-
-          {/* Status + Trend */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Status</label>
-              <select className="ah-select" value={status} onChange={e => setStatus(e.target.value as AHKPIStatus)}>
-                <option value="on_track">On Track</option>
-                <option value="at_risk">At Risk</option>
-                <option value="off_track">Off Track</option>
-              </select>
-            </div>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Trend</label>
-              <select className="ah-select" value={trend} onChange={e => setTrend(e.target.value as AHTrend)}>
-                <option value="up">Up</option>
-                <option value="down">Down</option>
-                <option value="flat">Flat</option>
-              </select>
-            </div>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Trend Delta</label>
-              <input className="ah-select" type="number" step="0.1" placeholder="0" value={trendDelta} onChange={e => setTrendDelta(e.target.value)} />
-            </div>
           </div>
 
           {/* KPI Family + Scope */}
@@ -209,16 +178,10 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
             </div>
           </div>
 
-          {/* Owner + Last Measured */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div className="ah-form-group">
-              <label className="ah-form-label">KPI Owner *</label>
-              <input className="ah-select" type="text" placeholder="Full name" value={owner} onChange={e => { setOwner(e.target.value); setError('') }} />
-            </div>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Last Measured</label>
-              <input className="ah-select" type="date" value={lastMeasured} onChange={e => setLastMeasured(e.target.value)} />
-            </div>
+          {/* Owner */}
+          <div className="ah-form-group">
+            <label className="ah-form-label">KPI Owner *</label>
+            <input className="ah-select" type="text" placeholder="Full name" value={owner} onChange={e => { setOwner(e.target.value); setError('') }} />
           </div>
 
           {/* Achievability */}
@@ -245,10 +208,11 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-            <button className="ah-add-btn" style={{ flex: 1 }} onClick={handleSubmit}>
-              <Icon name="bi-graph-up" /> Add KPI
+            <button className="ah-add-btn" style={{ flex: 1 }} onClick={() => { void handleSubmit() }} disabled={saving}>
+              <Icon name={saving ? 'bi-hourglass-split' : 'bi-graph-up'} />
+              {saving ? ' Saving…' : ' Add KPI'}
             </button>
-            <button className="ah-pill-btn" onClick={onClose}>Cancel</button>
+            <button className="ah-pill-btn" onClick={onClose} disabled={saving}>Cancel</button>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import { AH_USE_CASES_MUT, AH_INCIDENTS_MUT, AH_KPIS, type AHAgent, type AHDivision } from '../data'
+import { type AHAgent, type AHDivision } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 interface Props {
   agent: AHAgent
@@ -73,13 +74,14 @@ function fmt(n: number) {
 
 export default function AgentDetailPanel({ agent, onClose }: Props) {
   useScrollLock()
+  const { useCases, incidents: allIncidents, kpis: allKpis } = useAlHasbah()
 
   const divColor  = DIV_COLORS[agent.division]
   const statCol   = statusColor(agent.status)
-  const linkedUCs = AH_USE_CASES_MUT.filter(u => u.agentId === agent.id)
-  const incidents  = AH_INCIDENTS_MUT.filter(i => i.agentId === agent.id)
+  const linkedUCs = useCases.filter(u => u.agentId === agent.id)
+  const incidents  = allIncidents.filter(i => i.agentId === agent.id)
   const openInc    = incidents.filter(i => i.status !== 'resolved')
-  const kpis       = AH_KPIS.filter(k => k.agentId === agent.id)
+  const kpis       = allKpis.filter(k => k.agentId === agent.id)
 
   const adoptCol = agent.aiAdoptionPct >= 80 ? '#007560' : agent.aiAdoptionPct >= 50 ? '#ca8a04' : '#dc2626'
 

@@ -5,6 +5,7 @@ import KPIRepository       from './alhasbah/KPIRepository'
 import AIAgentRepository   from './alhasbah/AIAgentRepository'
 import UseCaseRepository   from './alhasbah/UseCaseRepository'
 import Incidents           from './alhasbah/Incidents'
+import { AlHasbahProvider } from './alhasbah/AlHasbahContext'
 import '../al-hasbah.css'
 import '../people-skills.css'
 
@@ -37,22 +38,24 @@ export default function AlHasbah({ activeTab, onNavigate }: AlHasbahProps) {
   }
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
-          <h1>Al Hasbah</h1>
-          <p>AI agent adoption programme — portfolio health, KPIs, use cases and incidents</p>
+    <AlHasbahProvider>
+      <div>
+        <div className="page-header">
+          <div>
+            <h1>Al Hasbah</h1>
+            <p>AI agent adoption programme — portfolio health, KPIs, use cases and incidents</p>
+          </div>
+          <DataSourceBadge
+            type="live"
+            title="Live Dataverse · Al Hasbah tables"
+            lastUpdated={new Date().toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' })}
+          />
         </div>
-        <DataSourceBadge
-          type="simulated"
-          title="Static seed data · backend integration pending"
-          lastUpdated="25 May 2026"
-        />
-      </div>
 
-      <div role="tabpanel">
-        {renderTab()}
+        <div role="tabpanel">
+          {renderTab()}
+        </div>
       </div>
-    </div>
+    </AlHasbahProvider>
   )
 }

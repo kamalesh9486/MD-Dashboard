@@ -6,11 +6,12 @@ import {
 } from 'recharts'
 import Icon from '../../../components/Icon'
 import {
-  AH_MONTHLY_FLOW, AH_LOG_SUMMARY,
-  AH_REJECTION_BREAKDOWN, AH_DIVISION_COUNTS, AH_LIFECYCLE,
+  AH_LOG_SUMMARY,
+  AH_REJECTION_BREAKDOWN,
   AH_DOC_BREAKDOWN,
   type AHRejectionIssueType,
 } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 const TT_STYLE = {
   background: 'rgba(28,28,30,0.93)', border: 'none', borderRadius: 9,
@@ -43,13 +44,31 @@ interface Props {
 }
 
 export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory }: Props) {
+  const { agents, flowMetrics } = useAlHasbah()
+
+  // Compute lifecycle counts from live Dataverse agents (matches Agent Repository count)
+  const lifecycle = useMemo(() => ({
+    planned:  agents.filter(a => a.status === 'planned').length,
+    pipeline: agents.filter(a => a.status === 'pipeline').length,
+    live:     agents.filter(a => a.status === 'live').length,
+  }), [agents])
+  const lifecycleTotal = agents.length
+
+  // Department breakdown from live agents (no static fallback)
+  const deptData = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const a of agents) counts[a.division] = (counts[a.division] ?? 0) + 1
+    return Object.entries(counts).map(([name, value]) => ({ name, value, fill: DEPT_COLORS[name] ?? '#9ca3af' }))
+  }, [agents])
+
   const stats = useMemo(() => {
-    const totalAI     = AH_MONTHLY_FLOW.reduce((s, m) => s + m.aiFlows, 0)
-    const totalManual = AH_MONTHLY_FLOW.reduce((s, m) => s + m.manualFlows, 0)
-    const timeSaved   = AH_MONTHLY_FLOW.reduce((s, m) => s + m.fteSaved, 0)
+    const totalAI     = flowMetrics.reduce((s, m) => s + m.aiFlows, 0)
+    const totalManual = flowMetrics.reduce((s, m) => s + m.manualFlows, 0)
+    const timeSaved   = flowMetrics.reduce((s, m) => s + m.fteSaved, 0)
     const fteSaved    = timeSaved / 2080
-    const adoptionPct = Math.round((totalAI / (totalAI + totalManual)) * 100)
-    const total       = AH_LIFECYCLE.planned + AH_LIFECYCLE.pipeline + AH_LIFECYCLE.live
+    const adoptionPct = totalAI + totalManual > 0
+      ? Math.round((totalAI / (totalAI + totalManual)) * 100)
+      : 0
 
     const issuesByType: Record<AHRejectionIssueType, number> = {
       ai_issue: 0, user_awareness: 0, ocr_doc_quality: 0, other: 0,
@@ -57,23 +76,20 @@ export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory 
     for (const r of AH_REJECTION_BREAKDOWN) issuesByType[r.issueType] += r.count
     const totalIssues = Object.values(issuesByType).reduce((a, b) => a + b, 0)
 
-    return { totalAI, totalManual, timeSaved, fteSaved, adoptionPct, total, issuesByType, totalIssues }
-  }, [])
+    return { totalAI, totalManual, timeSaved, fteSaved, adoptionPct, issuesByType, totalIssues }
+  }, [flowMetrics])
 
-  const deptData = useMemo(() =>
-    Object.entries(AH_DIVISION_COUNTS).map(([name, value]) => ({ name, value, fill: DEPT_COLORS[name] ?? '#9ca3af' }))
-  , [])
-
-  const lifecycleTotal = AH_LIFECYCLE.planned + AH_LIFECYCLE.pipeline + AH_LIFECYCLE.live
-
-  const INSIGHTS = [
-    { icon: 'bi-exclamation-triangle', color: '#ef4444', title: 'High AI Issue Rate', body: `AI issues account for ${Math.round(stats.issuesByType.ai_issue / stats.totalIssues * 100)}% of all log rejections.` },
-    { icon: 'bi-graph-down-arrow',     color: '#ca8a04', title: 'Low AI Confidence',  body: `Avg AI Confidence (${AH_LOG_SUMMARY.avgAiConfidence}%) is below 50% — model calibration review needed.` },
-    { icon: 'bi-activity',             color: '#007560', title: 'Adoption Progress',   body: `AI Adoption at ${stats.adoptionPct}% — ${100 - stats.adoptionPct}% of flows are still manual.` },
-    { icon: 'bi-lightbulb',            color: '#7c3aed', title: 'Innovation Coverage', body: `Innovation division has ${AH_DIVISION_COUNTS.Innovation} agents (${Math.round(AH_DIVISION_COUNTS.Innovation / lifecycleTotal * 100)}%) — consider expanding AI coverage.` },
-    { icon: 'bi-hourglass-split',      color: '#0ea5e9', title: 'Pipeline Pressure',   body: `${AH_LIFECYCLE.planned} agents (${Math.round(AH_LIFECYCLE.planned / lifecycleTotal * 100)}%) are still in the Planned stage.` },
-    { icon: 'bi-file-earmark-person',  color: '#ea580c', title: 'Document Offender',   body: 'Passport documents have the highest issue rate across all document types.' },
-  ]
+  const INSIGHTS = useMemo(() => {
+    const innovationCount = agents.filter(a => a.division as string === 'Innovation').length
+    return [
+      { icon: 'bi-exclamation-triangle', color: '#ef4444', title: 'High AI Issue Rate', body: `AI issues account for ${Math.round(stats.issuesByType.ai_issue / Math.max(stats.totalIssues, 1) * 100)}% of all log rejections.` },
+      { icon: 'bi-graph-down-arrow',     color: '#ca8a04', title: 'Low AI Confidence',  body: `Avg AI Confidence (${AH_LOG_SUMMARY.avgAiConfidence}%) is below 50% — model calibration review needed.` },
+      { icon: 'bi-activity',             color: '#007560', title: 'Adoption Progress',   body: `AI Adoption at ${stats.adoptionPct}% — ${100 - stats.adoptionPct}% of flows are still manual.` },
+      { icon: 'bi-lightbulb',            color: '#7c3aed', title: 'Innovation Coverage', body: `Innovation division has ${innovationCount} agents (${lifecycleTotal > 0 ? Math.round(innovationCount / lifecycleTotal * 100) : 0}%) — consider expanding AI coverage.` },
+      { icon: 'bi-hourglass-split',      color: '#0ea5e9', title: 'Pipeline Pressure',   body: `${lifecycle.planned} agents (${lifecycleTotal > 0 ? Math.round(lifecycle.planned / lifecycleTotal * 100) : 0}%) are still in the Planned stage.` },
+      { icon: 'bi-file-earmark-person',  color: '#ea580c', title: 'Document Offender',   body: 'Passport documents have the highest issue rate across all document types.' },
+    ]
+  }, [agents, lifecycle, lifecycleTotal, stats])
 
   const radialData = [{ name: 'Adoption', value: stats.adoptionPct, fill: '#007560' }]
 
@@ -83,7 +99,7 @@ export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory 
         <div className="ah-widget-icon"><Icon name="bi-robot" /></div>
         <div>
           <div className="ah-widget-title">AI Agent Portfolio</div>
-          <div className="ah-widget-sub">Comprehensive view across {lifecycleTotal} agents · {AH_MONTHLY_FLOW.length}-month window</div>
+          <div className="ah-widget-sub">Comprehensive view across {lifecycleTotal} agents · {flowMetrics.length || 6}-month window</div>
         </div>
       </div>
 
@@ -96,7 +112,7 @@ export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory 
             <div className="ah-exec-label">Total Agents</div>
           </div>
           <div className="ah-exec-card">
-            <div className="ah-exec-val ah-sum-val-green">{AH_LIFECYCLE.live}</div>
+            <div className="ah-exec-val ah-sum-val-green">{lifecycle.live}</div>
             <div className="ah-exec-label">Live Agents</div>
           </div>
           <div className="ah-exec-card">
@@ -123,9 +139,9 @@ export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory 
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Lifecycle</div>
             <div className="ah-lifecycle-bar">
               {[
-                { label: 'Planned',  count: AH_LIFECYCLE.planned,  color: '#9ca3af' },
-                { label: 'Pipeline', count: AH_LIFECYCLE.pipeline, color: '#ca8a04' },
-                { label: 'Live',     count: AH_LIFECYCLE.live,     color: '#007560' },
+                { label: 'Planned',  count: lifecycle.planned,  color: '#9ca3af' },
+                { label: 'Pipeline', count: lifecycle.pipeline, color: '#ca8a04' },
+                { label: 'Live',     count: lifecycle.live,     color: '#007560' },
               ].map(seg => (
                 <div
                   key={seg.label}
@@ -138,7 +154,7 @@ export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory 
               ))}
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-              {[{ l: 'Planned', c: '#9ca3af', n: AH_LIFECYCLE.planned }, { l: 'Pipeline', c: '#ca8a04', n: AH_LIFECYCLE.pipeline }, { l: 'Live', c: '#007560', n: AH_LIFECYCLE.live }].map(s => (
+              {[{ l: 'Planned', c: '#9ca3af', n: lifecycle.planned }, { l: 'Pipeline', c: '#ca8a04', n: lifecycle.pipeline }, { l: 'Live', c: '#007560', n: lifecycle.live }].map(s => (
                 <span key={s.l} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: 'var(--text-muted)' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.c, display: 'inline-block' }} />
                   {s.l} ({s.n})
@@ -222,10 +238,10 @@ export default function AgentPortfolioWidget({ onDrillRequests, onDrillCategory 
             >
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Total Requests (click to drill down)</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
-                {(AH_MONTHLY_FLOW.reduce((s, m) => s + m.aiFlows + m.manualFlows, 0)).toLocaleString()}
+                {(flowMetrics.reduce((s, m) => s + m.aiFlows + m.manualFlows, 0)).toLocaleString()}
               </div>
               <ResponsiveContainer width="100%" height={130}>
-                <BarChart data={AH_MONTHLY_FLOW} margin={{ top: 4, right: 8, left: -16, bottom: 0 }} barCategoryGap="25%">
+                <BarChart data={flowMetrics} margin={{ top: 4, right: 8, left: -16, bottom: 0 }} barCategoryGap="25%">
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,117,96,0.07)" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />

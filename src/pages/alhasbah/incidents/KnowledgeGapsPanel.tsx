@@ -1,12 +1,11 @@
 import Icon from '../../../components/Icon'
 import {
-  AH_INCIDENTS_MUT,
-  AH_AGENTS_MUT,
   AH_SLA_DAYS,
   daysSince,
   type AHIncident,
   type AHSeverity,
 } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 const SEV_COLORS: Record<AHSeverity, string> = {
   critical: '#dc2626',
@@ -38,8 +37,9 @@ interface Props {
 }
 
 export default function KnowledgeGapsPanel({ onSelectIncident }: Props) {
-  const gaps = AH_INCIDENTS_MUT.filter(i => i.type === 'knowledge_gap')
-  const agentMap = new Map(AH_AGENTS_MUT.map(a => [a.id, a.name]))
+  const { incidents, agents } = useAlHasbah()
+  const gaps = incidents.filter(i => i.type === 'knowledge_gap')
+  const agentMap = new Map(agents.map(a => [a.id, a.name]))
 
   if (gaps.length === 0) {
     return (

@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import {
-  AH_AGENTS_MUT, type AHUseCase, type AHDivision, type AHStatus,
-  addUseCase, updateAgent,
-} from '../data'
+import { type AHUseCase, type AHDivision, type AHStatus } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
+import { createUseCase, updateUseCase } from '../services/useCaseService'
 
 // ── Chip multi-input ──────────────────────────────────────────────────────────
 interface ChipInputProps {
@@ -70,28 +69,12 @@ interface Props {
   onSaved: (name: string) => void
 }
 
-// Stub: updateUseCase is not yet in data.ts — we'll update via localStorage directly
-function updateUseCase(id: string, patch: Partial<Omit<AHUseCase, 'id'>>) {
-  try {
-    const stored = localStorage.getItem('ah_usecases_v1')
-    if (!stored) return
-    const list: AHUseCase[] = JSON.parse(stored)
-    const idx = list.findIndex((u: AHUseCase) => u.id === id)
-    if (idx !== -1) {
-      list[idx] = { ...list[idx], ...patch }
-      localStorage.setItem('ah_usecases_v1', JSON.stringify(list))
-    }
-  } catch { /* ignore */ }
-}
-
-// suppress unused import warning — updateAgent imported transitively
-void updateAgent
-
 export default function UseCaseFormPanel({ uc, onClose, onSaved }: Props) {
   useScrollLock()
   const isEdit = !!uc
+  const { agents } = useAlHasbah()
 
-  const [agentId,              setAgentId]             = useState(uc?.agentId ?? (AH_AGENTS_MUT[0]?.id ?? ''))
+  const [agentId,              setAgentId]             = useState(uc?.agentId ?? (agents[0]?.id ?? ''))
   const [name,                 setName]                = useState(uc?.name ?? '')
   const [domain,               setDomain]              = useState(uc?.domain ?? '')
   const [status,               setStatus]              = useState<AHStatus>(uc?.status ?? 'planned')
@@ -108,9 +91,10 @@ export default function UseCaseFormPanel({ uc, onClose, onSaved }: Props) {
   const [processes,            setProcesses]           = useState<string[]>(uc?.processes ?? [])
   const [totalDevelopmentEffort, setTotalDevelopmentEffort] = useState(String(uc?.totalDevelopmentEffort ?? '0'))
   const [adoptionActual,       setAdoptionActual]      = useState(String(uc?.adoptionActual ?? ''))
-  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState('')
 
-  const agent    = AH_AGENTS_MUT.find(a => a.id === agentId)
+  const agent    = agents.find(a => a.id === agentId)
   const division = (agent?.division ?? 'HR') as AHDivision
 
   function validate() {
@@ -120,10 +104,12 @@ export default function UseCaseFormPanel({ uc, onClose, onSaved }: Props) {
     return true
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return
+    setSaving(true)
+    setError('')
 
-    const payload: Omit<AHUseCase, 'id'> = {
+    const payload: Omit<AHUseCase, 'id' | '_dvId'> = {
       agentId,
       name: name.trim(),
       division,
@@ -150,13 +136,18 @@ export default function UseCaseFormPanel({ uc, onClose, onSaved }: Props) {
       ],
     }
 
-    if (isEdit) {
-      updateUseCase(uc.id, payload)
-    } else {
-      addUseCase(payload)
+    try {
+      if (isEdit && uc._dvId) {
+        await updateUseCase(uc._dvId, payload)
+      } else {
+        await createUseCase(payload)
+      }
+      onSaved(name.trim())
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Save failed')
+      setSaving(false)
     }
-    onSaved(name.trim())
-    onClose()
   }
 
   return (
@@ -188,7 +179,7 @@ export default function UseCaseFormPanel({ uc, onClose, onSaved }: Props) {
           <div className="ah-form-group">
             <label className="ah-form-label">Linked AI Agent *</label>
             <select className="ah-select" value={agentId} onChange={e => setAgentId(e.target.value)}>
-              {AH_AGENTS_MUT.map(a => (
+              {agents.map(a => (
                 <option key={a.id} value={a.id}>{a.name} ({a.division})</option>
               ))}
             </select>
@@ -322,11 +313,11 @@ export default function UseCaseFormPanel({ uc, onClose, onSaved }: Props) {
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-            <button className="ah-add-btn" style={{ flex: 1 }} onClick={handleSubmit}>
-              <Icon name={isEdit ? 'bi-check-lg' : 'bi-collection-fill'} />
-              {isEdit ? ' Save Changes' : ' Add Use Case'}
+            <button className="ah-add-btn" style={{ flex: 1 }} onClick={() => { void handleSubmit() }} disabled={saving}>
+              <Icon name={saving ? 'bi-hourglass-split' : isEdit ? 'bi-check-lg' : 'bi-collection-fill'} />
+              {saving ? ' Saving…' : isEdit ? ' Save Changes' : ' Add Use Case'}
             </button>
-            <button className="ah-pill-btn" onClick={onClose}>Cancel</button>
+            <button className="ah-pill-btn" onClick={onClose} disabled={saving}>Cancel</button>
           </div>
         </div>
       </div>

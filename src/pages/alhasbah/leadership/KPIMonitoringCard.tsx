@@ -1,19 +1,22 @@
 import Icon from '../../../components/Icon'
-import { AH_KPIS, AH_KPI_FAMILIES } from '../data'
+import { AH_KPI_FAMILIES } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 interface Props { onNavigate: () => void }
 
 export default function KPIMonitoringCard({ onNavigate }: Props) {
-  const total    = AH_KPIS.length
-  const onTrack  = AH_KPIS.filter(k => k.status === 'on_track').length
-  const atRisk   = AH_KPIS.filter(k => k.status === 'at_risk').length
-  const offTrack = AH_KPIS.filter(k => k.status === 'off_track').length
-  const healthPct = Math.round((onTrack / total) * 100)
+  const { kpis } = useAlHasbah()
+
+  const total    = kpis.length
+  const onTrack  = kpis.filter(k => k.status === 'on_track').length
+  const atRisk   = kpis.filter(k => k.status === 'at_risk').length
+  const offTrack = kpis.filter(k => k.status === 'off_track').length
+  const healthPct = total > 0 ? Math.round((onTrack / total) * 100) : 0
 
   const divisions = ['HR', 'Finance', 'Billing'] as const
   const byDiv = divisions.map(d => ({
     label: d,
-    count: AH_KPIS.filter(k => k.division === d).length,
+    count: kpis.filter(k => k.division === d).length,
   }))
 
   return (

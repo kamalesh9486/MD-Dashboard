@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import { AH_AGENTS, AH_MONTHLY_FLOW, AH_USE_CASES } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 interface Props { onClose: () => void }
 
@@ -9,6 +9,7 @@ const DIV_COLORS: Record<string, string> = { HR: '#7c3aed', Finance: '#0ea5e9', 
 
 export default function RequestDrillDown({ onClose }: Props) {
   useScrollLock()
+  const { agents, useCases, flowMetrics } = useAlHasbah()
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   function toggle(id: string) {
@@ -19,21 +20,21 @@ export default function RequestDrillDown({ onClose }: Props) {
     })
   }
 
-  const totalAI     = AH_MONTHLY_FLOW.reduce((s, m) => s + m.aiFlows, 0)
-  const totalManual = AH_MONTHLY_FLOW.reduce((s, m) => s + m.manualFlows, 0)
+  const totalAI     = flowMetrics.reduce((s, m) => s + m.aiFlows, 0)
+  const totalManual = flowMetrics.reduce((s, m) => s + m.manualFlows, 0)
   const grandTotal  = totalAI + totalManual
 
   // Build per-agent row data (distribute flows proportionally by liveUseCases)
-  const totalLiveUCs = AH_AGENTS.filter(a => a.status === 'live').reduce((s, a) => s + a.liveUseCases, 0)
-  const agentRows = AH_AGENTS
+  const totalLiveUCs = agents.filter(a => a.status === 'live').reduce((s, a) => s + a.liveUseCases, 0)
+  const agentRows = agents
     .filter(a => a.liveUseCases > 0 || a.status !== 'planned')
     .map(agent => {
-      const weight   = totalLiveUCs > 0 ? (agent.liveUseCases / totalLiveUCs) : (1 / AH_AGENTS.length)
+      const weight   = totalLiveUCs > 0 ? (agent.liveUseCases / totalLiveUCs) : (1 / Math.max(agents.length, 1))
       const ai       = Math.round(totalAI * weight)
       const manual   = Math.round(totalManual * weight)
       const total    = ai + manual
       const adoption = total > 0 ? Math.round((ai / total) * 100) : 0
-      const uc       = AH_USE_CASES.filter(u => u.agentId === agent.id)
+      const uc       = useCases.filter(u => u.agentId === agent.id)
       return { agent, ai, manual, total, adoption, uc }
     })
     .sort((a, b) => b.total - a.total)
@@ -48,7 +49,7 @@ export default function RequestDrillDown({ onClose }: Props) {
           </button>
           <div className="ah-panel-name">Request Volume — Agent Drill-Down</div>
           <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
-            Grand Total: {grandTotal.toLocaleString()} requests across {AH_AGENTS.length} agents
+            Grand Total: {grandTotal.toLocaleString()} requests across {agents.length} agents
           </div>
         </div>
 

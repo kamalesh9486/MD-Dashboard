@@ -3,12 +3,8 @@ import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
 import {
   AH_CM_ACTIVITIES_MUT,
-  AH_AGENTS_MUT,
-  AH_INCIDENTS_MUT,
   AH_SLA_DAYS,
   AH_SLA_LABEL,
-  addComment,
-  updateIncident,
   getAssignedTeam,
   daysSince,
   type AHIncident,
@@ -17,6 +13,8 @@ import {
   type AHIncidentStatus,
   type AHCMActivityType,
 } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
+import { updateIncidentDv, addCommentDv } from '../services/incidentService'
 
 const SEV_COLORS: Record<AHSeverity, string> = {
   critical: '#dc2626',
@@ -95,21 +93,23 @@ export default function IncidentDetailPanel({ incident, onClose, onUpdate }: Pro
   })
   const [resErrors, setResErrors] = useState<ResErrors>({})
 
+  const { agents, incidents: allIncidents } = useAlHasbah()
+
   const isResolved = localStatus === 'resolved'
   const days       = daysSince(incident.reportedDate)
   const slaDays    = AH_SLA_DAYS[incident.severity]
   const breached   = !isResolved && days > slaDays
-  const agent      = AH_AGENTS_MUT.find(a => a.id === incident.agentId)
+  const agent      = agents.find(a => a.id === incident.agentId)
   const team       = getAssignedTeam(incident.type, incident.division)
   const cmActs     = AH_CM_ACTIVITIES_MUT.filter(a => a.incidentId === incident.id)
   const sevColor   = SEV_COLORS[incident.severity]
 
   const suggestedSolutions = useMemo(() => {
     if (isResolved) return []
-    return AH_INCIDENTS_MUT.filter(
+    return allIncidents.filter(
       i => i.status === 'resolved' && i.type === incident.type && i.id !== incident.id && i.resolution,
     )
-  }, [incident.id, incident.type, isResolved])
+  }, [allIncidents, incident.id, incident.type, isResolved])
 
   function changeStatus(newStatus: AHIncidentStatus) {
     const patch: Partial<AHIncident> = { status: newStatus }
@@ -117,21 +117,31 @@ export default function IncidentDetailPanel({ incident, onClose, onUpdate }: Pro
       patch.resolvedDate = new Date().toISOString().split('T')[0]
     }
     setLocalStatus(newStatus)
-    updateIncident(incident.id, patch)
-    onUpdate()
+    if (incident._dvId) {
+      void updateIncidentDv(incident._dvId, patch).then(() => onUpdate())
+    } else {
+      onUpdate()
+    }
   }
 
   function handleAddComment() {
     if (!commentText.trim()) return
-    addComment(incident.id, {
+    const comment = {
       author: 'Current User',
       timestamp: new Date().toISOString(),
       text: commentText.trim(),
-    })
+    }
     setCommentText('')
     setShowCommentBox(false)
-    if (localStatus === 'open') changeStatus('in_progress')
-    onUpdate()
+    if (incident._dvId) {
+      void addCommentDv(incident._dvId, incident.comments ?? [], comment).then(() => {
+        if (localStatus === 'open') changeStatus('in_progress')
+        onUpdate()
+      })
+    } else {
+      if (localStatus === 'open') changeStatus('in_progress')
+      onUpdate()
+    }
   }
 
   function validateResolution(): boolean {
@@ -151,14 +161,18 @@ export default function IncidentDetailPanel({ incident, onClose, onUpdate }: Pro
       testedBy:           resForm.testedBy.trim() || undefined,
       preventiveMeasures: resForm.preventiveMeasures.trim() || undefined,
     }
-    updateIncident(incident.id, {
+    const patch = {
       resolution,
-      status: 'resolved',
+      status: 'resolved' as AHIncidentStatus,
       resolvedDate: new Date().toISOString().split('T')[0],
-    })
+    }
     setLocalStatus('resolved')
     setShowResForm(false)
-    onUpdate()
+    if (incident._dvId) {
+      void updateIncidentDv(incident._dvId, patch).then(() => onUpdate())
+    } else {
+      onUpdate()
+    }
   }
 
   return (

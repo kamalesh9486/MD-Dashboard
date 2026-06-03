@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import { AH_AGENTS_MUT, AH_INCIDENTS_MUT, AH_KPIS, type AHUseCase, type AHDivision } from '../data'
+import { type AHUseCase, type AHDivision } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 interface Props {
   uc: AHUseCase
@@ -54,25 +55,27 @@ function SectionLabel({ icon, title }: { icon: string; title: string }) {
   )
 }
 
-const agentMap = new Map(AH_AGENTS_MUT.map(a => [a.id, a.name]))
-
 type Tab = 'overview' | 'performance' | 'incidents'
 
 export default function UseCaseDetailPanel({ uc, onClose }: Props) {
   useScrollLock()
+  const { agents, incidents: allIncidents, kpis: allKpis } = useAlHasbah()
   const [activeTab, setActiveTab] = useState<Tab>('overview')
 
   const divColor  = DIV_COLORS[uc.division]
   const statCol   = statusColor(uc.status)
-  const incidents = AH_INCIDENTS_MUT.filter(i => i.agentId === uc.agentId)
+  const incidents = allIncidents.filter(i => i.agentId === uc.agentId)
   const openInc   = incidents.filter(i => i.status !== 'resolved')
-  const kpis      = AH_KPIS.filter(k => k.agentId === uc.agentId)
-  const agentName = agentMap.get(uc.agentId) ?? uc.agentId
+  const kpis      = allKpis.filter(k => k.agentId === uc.agentId)
+  const agentName = agents.find(a => a.id === uc.agentId)?.name ?? uc.agentId
 
+  const milestones    = uc.milestones ?? []
+  const processes     = uc.processes ?? []
+  const sysInteg      = uc.systemsForIntegration ?? []
   const aiHandled     = Math.round(uc.annualVolume * uc.expectedEfficiency / 100)
   const manualFallbk  = uc.annualVolume - aiHandled
-  const completedMs   = uc.milestones.filter(m => m.status === 'completed').length
-  const milestonePct  = Math.round(completedMs / uc.milestones.length * 100)
+  const completedMs   = milestones.filter(m => m.status === 'completed').length
+  const milestonePct  = milestones.length > 0 ? Math.round(completedMs / milestones.length * 100) : 0
   const effCol        = uc.expectedEfficiency >= 75 ? '#007560' : uc.expectedEfficiency >= 50 ? '#ca8a04' : '#dc2626'
 
   const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -110,7 +113,7 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
             {[
               { label: 'Annual Volume', val: uc.annualVolume > 0 ? uc.annualVolume.toLocaleString() : '—' },
               { label: 'Efficiency Target', val: `${uc.expectedEfficiency}%` },
-              { label: 'Milestones', val: `${completedMs}/${uc.milestones.length} done` },
+              { label: 'Milestones', val: `${completedMs}/${milestones.length} done` },
             ].map(m => (
               <div key={m.label}>
                 <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginBottom: 2 }}>{m.label}</div>
@@ -165,7 +168,7 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
               <div>
                 <SectionLabel icon="bi-database" title="Systems for Integration" />
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                  {uc.systemsForIntegration.map(s => (
+                  {sysInteg.map(s => (
                     <span key={s} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 5, background: 'rgba(0,117,96,0.06)', color: 'var(--text-muted)', border: '1px solid rgba(0,117,96,0.12)' }}>{s}</span>
                   ))}
                 </div>
@@ -188,7 +191,7 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
               </div>
 
               <div>
-                <SectionLabel icon="bi-check2-square" title={`Milestones (${completedMs}/${uc.milestones.length})`} />
+                <SectionLabel icon="bi-check2-square" title={`Milestones (${completedMs}/${milestones.length})`} />
                 <div style={{ marginBottom: 10 }}>
                   <div style={{ height: 6, borderRadius: 3, background: 'rgba(0,117,96,0.1)', overflow: 'hidden', marginBottom: 4 }}>
                     <div style={{ height: '100%', width: `${milestonePct}%`, borderRadius: 3, background: '#007560', transition: 'width 0.4s' }} />
@@ -196,7 +199,7 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
                   <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{milestonePct}% complete</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {uc.milestones.map((ms, i) => {
+                  {milestones.map((ms, i) => {
                     const msIcon  = ms.status === 'completed' ? 'bi-check-circle-fill' : ms.status === 'in_progress' ? 'bi-clock' : 'bi-circle'
                     const msColor = ms.status === 'completed' ? '#007560' : ms.status === 'in_progress' ? '#ca8a04' : '#9ca3af'
                     return (
@@ -233,11 +236,11 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
               )}
 
               {/* Processes */}
-              {uc.processes.length > 0 && (
+              {processes.length > 0 && (
                 <div>
                   <SectionLabel icon="bi-diagram-3" title="Key Processes" />
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {uc.processes.map(p => (
+                    {processes.map(p => (
                       <span key={p} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 5, background: 'rgba(14,165,233,0.08)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.2)' }}>{p}</span>
                     ))}
                   </div>

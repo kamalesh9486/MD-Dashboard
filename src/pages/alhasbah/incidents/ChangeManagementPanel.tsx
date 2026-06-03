@@ -1,10 +1,10 @@
 import Icon from '../../../components/Icon'
 import {
   AH_CM_ACTIVITIES_MUT,
-  AH_INCIDENTS_MUT,
   type AHCMActivityType,
   type AHCMActivityStatus,
 } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 const TYPE_CONFIG: Record<AHCMActivityType, { label: string; color: string; icon: string }> = {
   awareness_session: { label: 'Awareness Sessions', color: '#7c3aed', icon: 'bi-megaphone' },
@@ -24,8 +24,9 @@ function statusBadge(status: AHCMActivityStatus) {
 }
 
 export default function ChangeManagementPanel() {
+  const { incidents } = useAlHasbah()
   const activities  = AH_CM_ACTIVITIES_MUT
-  const incidentMap = new Map(AH_INCIDENTS_MUT.map(i => [i.id, i.title]))
+  const incidentMap = new Map(incidents.map(i => [i.id, i.title]))
 
   const total      = activities.length
   const completed  = activities.filter(a => a.status === 'completed').length

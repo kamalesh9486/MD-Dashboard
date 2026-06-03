@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import Icon from '../../components/Icon'
-import { AH_USE_CASES_MUT, AH_AGENTS_MUT, type AHUseCase, type AHDivision, type AHStatus } from './data'
+import { type AHUseCase, type AHDivision, type AHStatus } from './data'
+import { useAlHasbah } from './AlHasbahContext'
 import UseCaseDetailPanel from './leadership/UseCaseDetailPanel'
 import UseCaseFormPanel   from './usecases/UseCaseFormPanel'
 import NotificationToast, { useToast } from './NotificationToast'
@@ -28,12 +29,12 @@ function fmt(n: number) {
   return String(n)
 }
 
-function UCCard({ uc, onClick, onEdit }: { uc: AHUseCase; onClick: () => void; onEdit: (e: React.MouseEvent) => void }) {
+function UCCard({ uc, agentMap, onClick, onEdit }: { uc: AHUseCase; agentMap: Map<string, string>; onClick: () => void; onEdit: (e: React.MouseEvent) => void }) {
   const divColor = DIV_COLORS[uc.division]
   const statCol  = statusColor(uc.status)
   const effCol   = uc.expectedEfficiency >= 75 ? '#007560' : uc.expectedEfficiency >= 50 ? '#ca8a04' : '#dc2626'
 
-  const agentName = AH_AGENTS_MUT.find(a => a.id === uc.agentId)?.name ?? uc.agentId
+  const agentName = agentMap.get(uc.agentId) ?? uc.agentId
 
   return (
     <div className="ah-uc-card" onClick={onClick} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && onClick()}>
@@ -102,7 +103,7 @@ function UCCard({ uc, onClick, onEdit }: { uc: AHUseCase; onClick: () => void; o
 interface Props { onNavigate?: (tab: string) => void }
 
 export default function UseCaseRepository(_props: Props) {
-  const [useCases,    setUseCases]    = useState<AHUseCase[]>(() => [...AH_USE_CASES_MUT])
+  const { useCases, agents, loading, error, refreshUseCases } = useAlHasbah()
   const [search,     setSearch]     = useState('')
   const [divFilter,  setDivFilter]  = useState<DivFilter>('all')
   const [statFilter, setStatFilter] = useState<StatFilter>('all')
@@ -112,7 +113,7 @@ export default function UseCaseRepository(_props: Props) {
   const [showForm,   setShowForm]   = useState(false)
   const { toasts, dismiss, showSuccess } = useToast()
 
-  function refresh() { setUseCases([...AH_USE_CASES_MUT]) }
+  const agentMap = useMemo(() => new Map(agents.map(a => [a.id, a.name])), [agents])
 
   const counts = useMemo(() => ({
     total:        useCases.length,
@@ -138,6 +139,9 @@ export default function UseCaseRepository(_props: Props) {
     { val: 'pipeline', label: `Pipeline (${counts.pipeline})` },
     { val: 'planned',  label: `Planned (${counts.planned})` },
   ]
+
+  if (loading) return <div className="ah-loading-state"><Icon name="bi-hourglass-split" /> Loading from Dataverse…</div>
+  if (error)   return <div className="ah-error-state"><Icon name="bi-exclamation-triangle" /> {error}</div>
 
   function toggleCollapse(div: string) {
     setCollapsed(prev => {
@@ -269,6 +273,7 @@ export default function UseCaseRepository(_props: Props) {
                     <UCCard
                       key={uc.id}
                       uc={uc}
+                      agentMap={agentMap}
                       onClick={() => setSelectedUC(uc)}
                       onEdit={e => { e.stopPropagation(); setEditingUC(uc); setShowForm(true) }}
                     />
@@ -287,8 +292,12 @@ export default function UseCaseRepository(_props: Props) {
           uc={editingUC ?? undefined}
           onClose={() => { setShowForm(false); setEditingUC(null) }}
           onSaved={name => {
-            refresh()
-            showSuccess(editingUC ? `"${name}" updated successfully` : `"${name}" added to the repository`)
+            const wasEdit = !!editingUC
+            void (async () => {
+              await new Promise(r => setTimeout(r, 600))
+              await refreshUseCases()
+              showSuccess(wasEdit ? `"${name}" updated successfully` : `"${name}" added to the repository`)
+            })()
           }}
         />
       )}

@@ -2,12 +2,12 @@ import { useState } from 'react'
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
 import {
-  AH_AGENTS_MUT,
-  addIncident,
   type AHDivision,
   type AHSeverity,
   type AHIncidentType,
 } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
+import { createIncident } from '../services/incidentService'
 
 interface Props {
   onClose: () => void
@@ -16,6 +16,7 @@ interface Props {
 
 export default function IncidentFormPanel({ onClose, onAdded }: Props) {
   useScrollLock()
+  const { agents } = useAlHasbah()
 
   const [agentId, setAgentId]         = useState('')
   const [title, setTitle]             = useState('')
@@ -25,9 +26,10 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
   const [submitterName, setSubmitterName] = useState('')
   const [submitterEmail, setSubmitterEmail] = useState('')
   const [cmRequired, setCmRequired]   = useState(false)
+  const [saving, setSaving]           = useState(false)
   const [error, setError]             = useState('')
 
-  const selectedAgent = AH_AGENTS_MUT.find(a => a.id === agentId)
+  const selectedAgent = agents.find(a => a.id === agentId)
 
   function validate(): boolean {
     if (!agentId)           { setError('Please select an AI agent.'); return false }
@@ -38,29 +40,34 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
     return true
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setError('')
     if (!validate()) return
+    setSaving(true)
 
     const division: AHDivision = selectedAgent?.division ?? 'HR'
 
-    addIncident({
-      agentId,
-      title: title.trim(),
-      type,
-      severity,
-      status: 'open',
-      division,
-      reportedDate: new Date().toISOString().slice(0, 10),
-      changeManagementTriggered: cmRequired,
-      description: description.trim(),
-      submitterName: submitterName.trim(),
-      submitterEmail: submitterEmail.trim(),
-      comments: [],
-    })
-
-    onAdded()
-    onClose()
+    try {
+      await createIncident({
+        agentId,
+        title: title.trim(),
+        type,
+        severity,
+        status: 'open',
+        division,
+        reportedDate: new Date().toISOString().slice(0, 10),
+        changeManagementTriggered: cmRequired,
+        description: description.trim(),
+        submitterName: submitterName.trim(),
+        submitterEmail: submitterEmail.trim(),
+        comments: [],
+      })
+      onAdded()
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Submit failed')
+      setSaving(false)
+    }
   }
 
   return (
@@ -119,7 +126,7 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
               onChange={e => setAgentId(e.target.value)}
             >
               <option value="">Select agent...</option>
-              {AH_AGENTS_MUT.map(a => (
+              {agents.map(a => (
                 <option key={a.id} value={a.id}>{a.name} — {a.division}</option>
               ))}
             </select>
@@ -275,10 +282,11 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
-            <button className="ah-add-btn" onClick={handleSubmit} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Icon name="bi-shield-plus" /> Submit Incident
+            <button className="ah-add-btn" onClick={() => { void handleSubmit() }} style={{ display: 'flex', alignItems: 'center', gap: 6 }} disabled={saving}>
+              <Icon name={saving ? 'bi-hourglass-split' : 'bi-shield-plus'} />
+              {saving ? ' Submitting…' : ' Submit Incident'}
             </button>
-            <button className="ah-pill-btn" onClick={onClose}>Cancel</button>
+            <button className="ah-pill-btn" onClick={onClose} disabled={saving}>Cancel</button>
           </div>
         </div>
       </div>

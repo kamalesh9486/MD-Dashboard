@@ -1,6 +1,7 @@
 import Icon from '../../../components/Icon'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import { AH_AGENTS, AH_USE_CASES, type AHKPI, type AHKPIStatus } from '../data'
+import { type AHKPI, type AHKPIStatus } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine } from 'recharts'
 
 interface Props {
@@ -49,11 +50,12 @@ function statusInterpretation(kpi: AHKPI) {
 
 export default function KPIDetailOverlay({ kpi, onClose }: Props) {
   useScrollLock()
+  const { agents, useCases } = useAlHasbah()
 
   const col  = statusColor(kpi.status)
   const pct  = achievementPct(kpi)
-  const agent = AH_AGENTS.find(a => a.id === kpi.agentId)
-  const linkedUCs = AH_USE_CASES.filter(u => u.agentId === kpi.agentId && u.division === kpi.division).slice(0, 4)
+  const agent = agents.find(a => a.id === kpi.agentId)
+  const linkedUCs = useCases.filter(u => u.agentId === kpi.agentId && u.division === kpi.division).slice(0, 4)
 
   const isGoodTrend = kpi.lowerIsBetter ? kpi.trend === 'down' : kpi.trend === 'up'
   const trendColor  = kpi.trend === 'flat' ? 'var(--text-muted)' : isGoodTrend ? '#007560' : '#dc2626'

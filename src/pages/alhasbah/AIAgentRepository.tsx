@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import Icon from '../../components/Icon'
-import { AH_AGENTS_MUT, type AHAgent, type AHDivision, type AHStatus } from './data'
+import { type AHAgent, type AHDivision, type AHStatus } from './data'
+import { useAlHasbah } from './AlHasbahContext'
 import AgentDetailPanel from './leadership/AgentDetailPanel'
 import AgentFormPanel   from './agents/AgentFormPanel'
 import NotificationToast, { useToast } from './NotificationToast'
@@ -160,7 +161,7 @@ function AgentCard({
 interface Props { onNavigate?: (tab: string) => void }
 
 export default function AIAgentRepository(_props: Props) {
-  const [agents,        setAgents]        = useState<AHAgent[]>(() => [...AH_AGENTS_MUT])
+  const { agents, loading, error, refreshAgents } = useAlHasbah()
   const [search,        setSearch]        = useState('')
   const [divFilter,     setDivFilter]     = useState<DivFilter>('all')
   const [statFilter,    setStatFilter]    = useState<StatFilter>('all')
@@ -168,8 +169,6 @@ export default function AIAgentRepository(_props: Props) {
   const [editingAgent,  setEditingAgent]  = useState<AHAgent | null>(null)
   const [showForm,      setShowForm]      = useState(false)
   const { toasts, dismiss, showSuccess }  = useToast()
-
-  function refresh() { setAgents([...AH_AGENTS_MUT]) }
 
   const counts = useMemo(() => ({
     total:    agents.length,
@@ -216,11 +215,15 @@ export default function AIAgentRepository(_props: Props) {
     setShowForm(true)
   }
 
-  function handleSaved(name: string) {
-    refresh()
+  async function handleSaved(name: string) {
     const wasEdit = editingAgent !== null
+    await new Promise(r => setTimeout(r, 600))
+    await refreshAgents()
     showSuccess(wasEdit ? `"${name}" updated successfully` : `"${name}" added to the portfolio`)
   }
+
+  if (loading) return <div className="ah-loading-state"><Icon name="bi-hourglass-split" /> Loading from Dataverse…</div>
+  if (error)   return <div className="ah-error-state"><Icon name="bi-exclamation-triangle" /> {error}</div>
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

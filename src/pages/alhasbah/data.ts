@@ -1,4 +1,4 @@
-// Al Hasbah — static seed data (backend integration pending)
+// Al Hasbah — type definitions and static reference data
 
 export type AHDivision = 'HR' | 'Finance' | 'Billing'
 export type AHStatus   = 'live' | 'pipeline' | 'planned'
@@ -10,6 +10,7 @@ export type AHIncidentType   = 'ai_agent' | 'sap' | 'business_process' | 'knowle
 
 export interface AHAgent {
   id: string
+  _dvId?: string  // Dataverse GUID — present when record comes from Dataverse
   name: string
   division: AHDivision
   status: AHStatus
@@ -32,6 +33,7 @@ export interface AHAgent {
 
 export interface AHUseCase {
   id: string
+  _dvId?: string  // Dataverse GUID
   agentId: string
   name: string
   division: AHDivision
@@ -57,6 +59,7 @@ export interface AHKPIHistory { period: string; actual: number; target: number }
 
 export interface AHKPI {
   id: string
+  _dvId?: string  // Dataverse GUID
   agentId: string
   division: AHDivision
   function: string
@@ -97,6 +100,7 @@ export interface AHIncidentResolution {
 
 export interface AHIncident {
   id: string
+  _dvId?: string  // Dataverse GUID
   agentId: string
   title: string
   type: AHIncidentType
@@ -707,15 +711,6 @@ export const AH_INCIDENTS: AHIncident[] = [
   },
 ]
 
-export const AH_MONTHLY_FLOW: AHMonthlyFlow[] = [
-  { month: 'Dec', aiFlows: 1850, manualFlows: 4200, fteSaved: 310, costAvoided: 48_000 },
-  { month: 'Jan', aiFlows: 3200, manualFlows: 4050, fteSaved: 520, costAvoided: 82_000 },
-  { month: 'Feb', aiFlows: 5100, manualFlows: 3800, fteSaved: 840, costAvoided: 128_000 },
-  { month: 'Mar', aiFlows: 7400, manualFlows: 3500, fteSaved: 1180, costAvoided: 185_000 },
-  { month: 'Apr', aiFlows: 9600, manualFlows: 3200, fteSaved: 1520, costAvoided: 240_000 },
-  { month: 'May', aiFlows: 11800, manualFlows: 2900, fteSaved: 1850, costAvoided: 295_000 },
-]
-
 // ── Log / rejection summary (real AlHasbah data) ──────────────────────────────
 export const AH_LOG_SUMMARY = {
   totalRecords:   6379,
@@ -838,12 +833,25 @@ function saveToStorage(key: string, data: unknown): void {
   try { localStorage.setItem(key, JSON.stringify(data)) } catch { /* ignore */ }
 }
 
-// ── Mutable arrays (seed → localStorage override) ─────────────────────────────
-export const AH_AGENTS_MUT: AHAgent[]        = loadFromStorage('ah_agents_v1',    AH_AGENTS)
-export const AH_USE_CASES_MUT: AHUseCase[]   = loadFromStorage('ah_usecases_v1',  AH_USE_CASES)
-export const AH_KPIS_MUT: AHKPI[]            = loadFromStorage('ah_kpis_v1',       AH_KPIS)
-export const AH_INCIDENTS_MUT: AHIncident[]  = loadFromStorage('ah_incidents_v1',  AH_INCIDENTS)
-export const AH_CM_ACTIVITIES_MUT: AHCMActivity[] = [...AH_CM_ACTIVITIES]
+// ── Change Management Activities — persisted in localStorage ──────────────────
+const CM_KEY = 'ah_cm_activities_v1'
+export const AH_CM_ACTIVITIES_MUT: AHCMActivity[] = loadFromStorage(CM_KEY, AH_CM_ACTIVITIES)
+
+export function addCMActivity(act: Omit<AHCMActivity, 'id'>): AHCMActivity {
+  const id = `cm-${String(AH_CM_ACTIVITIES_MUT.length + 1).padStart(3, '0')}`
+  const newAct: AHCMActivity = { ...act, id }
+  AH_CM_ACTIVITIES_MUT.push(newAct)
+  saveToStorage(CM_KEY, AH_CM_ACTIVITIES_MUT)
+  return newAct
+}
+
+export function updateCMActivity(id: string, patch: Partial<AHCMActivity>): void {
+  const idx = AH_CM_ACTIVITIES_MUT.findIndex(a => a.id === id)
+  if (idx !== -1) {
+    AH_CM_ACTIVITIES_MUT[idx] = { ...AH_CM_ACTIVITIES_MUT[idx], ...patch }
+    saveToStorage(CM_KEY, AH_CM_ACTIVITIES_MUT)
+  }
+}
 
 // ── Utility functions ──────────────────────────────────────────────────────────
 export function daysSince(dateStr: string): number {
@@ -852,66 +860,8 @@ export function daysSince(dateStr: string): number {
 }
 
 export function getAssignedTeam(type: AHIncidentType, division: AHDivision): string {
-  if (type === 'ai_agent')       return division === 'Finance' ? 'AI Engineering' : 'AI Automation'
-  if (type === 'sap')            return 'SAP Function'
-  if (type === 'knowledge_gap')  return 'AI Adoption'
+  if (type === 'ai_agent')      return division === 'Finance' ? 'AI Engineering' : 'AI Automation'
+  if (type === 'sap')           return 'SAP Function'
+  if (type === 'knowledge_gap') return 'AI Adoption'
   return `${division} Operations`
-}
-
-// ── Mutation functions ─────────────────────────────────────────────────────────
-export function addIncident(inc: Omit<AHIncident, 'id'>): AHIncident {
-  const id = `inc-${String(AH_INCIDENTS_MUT.length + 1).padStart(3, '0')}`
-  const newInc: AHIncident = { ...inc, id }
-  AH_INCIDENTS_MUT.push(newInc)
-  saveToStorage('ah_incidents_v1', AH_INCIDENTS_MUT)
-  return newInc
-}
-
-export function updateIncident(id: string, patch: Partial<AHIncident>): void {
-  const idx = AH_INCIDENTS_MUT.findIndex(i => i.id === id)
-  if (idx !== -1) {
-    AH_INCIDENTS_MUT[idx] = { ...AH_INCIDENTS_MUT[idx], ...patch }
-    saveToStorage('ah_incidents_v1', AH_INCIDENTS_MUT)
-  }
-}
-
-export function addComment(incidentId: string, comment: Omit<AHIncidentComment, 'id'>): void {
-  const inc = AH_INCIDENTS_MUT.find(i => i.id === incidentId)
-  if (inc) {
-    const id = `cmt-${Date.now()}`
-    inc.comments = [...(inc.comments ?? []), { ...comment, id }]
-    saveToStorage('ah_incidents_v1', AH_INCIDENTS_MUT)
-  }
-}
-
-export function addAgent(agent: Omit<AHAgent, 'id'>): AHAgent {
-  const id = `agt-${String(AH_AGENTS_MUT.length + 1).padStart(3, '0')}`
-  const newAgent: AHAgent = { ...agent, id }
-  AH_AGENTS_MUT.push(newAgent)
-  saveToStorage('ah_agents_v1', AH_AGENTS_MUT)
-  return newAgent
-}
-
-export function updateAgent(id: string, patch: Partial<AHAgent>): void {
-  const idx = AH_AGENTS_MUT.findIndex(a => a.id === id)
-  if (idx !== -1) {
-    AH_AGENTS_MUT[idx] = { ...AH_AGENTS_MUT[idx], ...patch }
-    saveToStorage('ah_agents_v1', AH_AGENTS_MUT)
-  }
-}
-
-export function addUseCase(uc: Omit<AHUseCase, 'id'>): AHUseCase {
-  const id = `uc-${String(AH_USE_CASES_MUT.length + 1).padStart(3, '0')}`
-  const newUC: AHUseCase = { ...uc, id }
-  AH_USE_CASES_MUT.push(newUC)
-  saveToStorage('ah_usecases_v1', AH_USE_CASES_MUT)
-  return newUC
-}
-
-export function addKPI(kpi: Omit<AHKPI, 'id'>): AHKPI {
-  const id = `kpi-${String(AH_KPIS_MUT.length + 1).padStart(3, '0')}`
-  const newKPI: AHKPI = { ...kpi, id }
-  AH_KPIS_MUT.push(newKPI)
-  saveToStorage('ah_kpis_v1', AH_KPIS_MUT)
-  return newKPI
 }

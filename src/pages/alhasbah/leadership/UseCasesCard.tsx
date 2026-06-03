@@ -1,23 +1,25 @@
 import Icon from '../../../components/Icon'
-import { AH_USE_CASES, AH_MONTHLY_FLOW } from '../data'
+import { useAlHasbah } from '../AlHasbahContext'
 
 interface Props { onNavigate: () => void }
 
 export default function UseCasesCard({ onNavigate }: Props) {
-  const live     = AH_USE_CASES.filter(u => u.status === 'live').length
-  const pipeline = AH_USE_CASES.filter(u => u.status === 'pipeline').length
-  const planned  = AH_USE_CASES.filter(u => u.status === 'planned').length
-  const total    = AH_USE_CASES.length
+  const { useCases, flowMetrics } = useAlHasbah()
 
-  const totalAI     = AH_MONTHLY_FLOW.reduce((s, m) => s + m.aiFlows, 0)
-  const totalManual = AH_MONTHLY_FLOW.reduce((s, m) => s + m.manualFlows, 0)
+  const live     = useCases.filter(u => u.status === 'live').length
+  const pipeline = useCases.filter(u => u.status === 'pipeline').length
+  const planned  = useCases.filter(u => u.status === 'planned').length
+  const total    = useCases.length
+
+  const totalAI     = flowMetrics.reduce((s, m) => s + m.aiFlows, 0)
+  const totalManual = flowMetrics.reduce((s, m) => s + m.manualFlows, 0)
   const adoptionPct = Math.round((totalAI / (totalAI + totalManual)) * 100)
   const TARGET_PCT  = 80
 
   const byAudience: { label: string; count: number; division: 'HR' | 'Finance' | 'Billing' }[] = [
-    { label: 'HR Employees',   count: AH_USE_CASES.filter(u => u.division === 'HR').length,      division: 'HR' },
-    { label: 'Finance Staff',  count: AH_USE_CASES.filter(u => u.division === 'Finance').length,  division: 'Finance' },
-    { label: 'Billing Staff',  count: AH_USE_CASES.filter(u => u.division === 'Billing').length,  division: 'Billing' },
+    { label: 'HR Employees',   count: useCases.filter(u => u.division === 'HR').length,      division: 'HR' },
+    { label: 'Finance Staff',  count: useCases.filter(u => u.division === 'Finance').length,  division: 'Finance' },
+    { label: 'Billing Staff',  count: useCases.filter(u => u.division === 'Billing').length,  division: 'Billing' },
   ]
 
   const AUDIENCE_COLORS: Record<string, string> = {

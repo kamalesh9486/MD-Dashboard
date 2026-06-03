@@ -90,5 +90,9 @@
       "Skill(codebase-research)",
       "WebFetch(domain:www.techment.com)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ],
+  "enableAllProjectMcpServers": true
 }

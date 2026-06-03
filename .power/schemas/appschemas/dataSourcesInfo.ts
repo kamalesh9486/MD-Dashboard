@@ -5,6 +5,13 @@
  */
 
 export const dataSourcesInfo = {
+  "ai_alhasbaagentkpises": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbaagentkpisid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "ai_alhasbaagentses": {
     "tableId": "",
     "version": "",
@@ -47,6 +54,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "ai_alhasbapermissionses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbapermissionsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "ai_alhasbarolepermissionses": {
     "tableId": "",
     "version": "",
@@ -58,6 +72,13 @@ export const dataSourcesInfo = {
     "tableId": "",
     "version": "",
     "primaryKey": "ai_alhasbarolesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "ai_alhasbausecaseses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbausecasesid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

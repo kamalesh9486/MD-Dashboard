@@ -1,8 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Icon from '../../components/Icon'
 import {
-  AH_INCIDENTS_MUT,
-  AH_USE_CASES_MUT,
   AH_SLA_DAYS,
   AH_SLA_LABEL,
   getAssignedTeam,
@@ -12,6 +10,7 @@ import {
   type AHIncidentType,
   type AHIncident,
 } from './data'
+import { useAlHasbah } from './AlHasbahContext'
 import IncidentDetailPanel from './incidents/IncidentDetailPanel'
 import IncidentFormPanel   from './incidents/IncidentFormPanel'
 import KnowledgeGapsPanel  from './incidents/KnowledgeGapsPanel'
@@ -92,7 +91,7 @@ interface Props {
 
 export default function Incidents({ onNavigate: _nav }: Props) {
   void _nav // prop accepted for future cross-tab navigation from sub-tabs
-  const [incidents, setIncidents]             = useState<AHIncident[]>(() => [...AH_INCIDENTS_MUT])
+  const { incidents, useCases, loading, error, refreshIncidents } = useAlHasbah()
   const [filterSeverity, setFilterSeverity]   = useState<AHSeverity | 'all'>('all')
   const [filterStatus, setFilterStatus]       = useState<AHIncidentStatus | 'all'>('all')
   const [filterType, setFilterType]           = useState<AHIncidentType | 'all'>('all')
@@ -105,13 +104,9 @@ export default function Incidents({ onNavigate: _nav }: Props) {
   const [subTab, setSubTab]                   = useState<'list' | 'knowledge-gaps' | 'change-management'>('list')
   const [slaTooltip, setSlaTooltip]           = useState<SLATooltipData | null>(null)
 
-  function refresh() { setIncidents([...AH_INCIDENTS_MUT]) }
-
-  const ucMap   = new Map(AH_USE_CASES_MUT.map(u => [u.id, u.name]))
-  const allTeams = [...new Set(AH_INCIDENTS_MUT.map(i => getAssignedTeam(i.type, i.division)))].sort()
-
-  // Derive UC options from agents that have incidents
-  const ucOptions = AH_USE_CASES_MUT.map(u => ({ label: u.name, value: u.id }))
+  const ucMap     = useMemo(() => new Map(useCases.map(u => [u.id, u.name])), [useCases])
+  const allTeams  = useMemo(() => [...new Set(incidents.map(i => getAssignedTeam(i.type, i.division)))].sort(), [incidents])
+  const ucOptions = useMemo(() => useCases.map(u => ({ label: u.name, value: u.id })), [useCases])
 
   const hasActiveFilters =
     filterSeverity !== 'all' || filterStatus !== 'all' || filterType !== 'all' ||
@@ -123,7 +118,7 @@ export default function Incidents({ onNavigate: _nav }: Props) {
     if (filterType     !== 'all' && i.type     !== filterType)     return false
     if (filterTeam     !== 'all' && getAssignedTeam(i.type, i.division) !== filterTeam) return false
     if (filterUC !== 'all') {
-      const matchedUC = AH_USE_CASES_MUT.find(u => u.id === filterUC)
+      const matchedUC = useCases.find(u => u.id === filterUC)
       if (!matchedUC || matchedUC.agentId !== i.agentId) return false
     }
     if (filterDateFrom && i.reportedDate < filterDateFrom) return false
@@ -156,6 +151,9 @@ export default function Incidents({ onNavigate: _nav }: Props) {
     { id: 'knowledge-gaps' as const,    label: 'Knowledge Gaps',      icon: 'bi-book' },
     { id: 'change-management' as const, label: 'Change Management',   icon: 'bi-flag' },
   ]
+
+  if (loading) return <div className="ah-loading-state"><Icon name="bi-hourglass-split" /> Loading from Dataverse…</div>
+  if (error)   return <div className="ah-error-state"><Icon name="bi-exclamation-triangle" /> {error}</div>
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -400,7 +398,7 @@ export default function Incidents({ onNavigate: _nav }: Props) {
                 const breached = inc.status !== 'resolved' && days > slaDays
                 const ucName   = inc.useCaseId
                   ? (ucMap.get(inc.useCaseId) ?? '—')
-                  : (AH_USE_CASES_MUT.find(u => u.agentId === inc.agentId)?.name ?? '—')
+                  : (useCases.find(u => u.agentId === inc.agentId)?.name ?? '—')
                 const team = getAssignedTeam(inc.type, inc.division)
 
                 return (
@@ -499,10 +497,11 @@ export default function Incidents({ onNavigate: _nav }: Props) {
           incident={selectedIncident}
           onClose={() => setSelectedIncident(null)}
           onUpdate={() => {
-            refresh()
-            // Refresh selected incident from mutated array
-            const updated = AH_INCIDENTS_MUT.find(i => i.id === selectedIncident.id)
-            if (updated) setSelectedIncident({ ...updated })
+            void (async () => {
+              await new Promise(r => setTimeout(r, 600))
+              await refreshIncidents()
+            })()
+            setSelectedIncident(null)
           }}
         />
       )}
@@ -510,7 +509,12 @@ export default function Incidents({ onNavigate: _nav }: Props) {
       {showForm && (
         <IncidentFormPanel
           onClose={() => setShowForm(false)}
-          onAdded={refresh}
+          onAdded={() => {
+            void (async () => {
+              await new Promise(r => setTimeout(r, 600))
+              await refreshIncidents()
+            })()
+          }}
         />
       )}
 
