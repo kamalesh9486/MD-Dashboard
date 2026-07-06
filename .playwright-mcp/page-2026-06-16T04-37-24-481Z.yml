@@ -1,0 +1,7 @@
+- generic [ref=e5] [cursor=pointer]:
+  - img "base44" [ref=e6]
+  - generic [ref=e9]:
+    - generic [ref=e10]: Edit with
+    - img "Base44" [ref=e12]
+  - button "Close badge" [ref=e13]:
+    - img [ref=e14]

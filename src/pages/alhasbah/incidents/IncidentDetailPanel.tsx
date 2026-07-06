@@ -300,9 +300,16 @@ export default function IncidentDetailPanel({ incident, onClose, onUpdate }: Pro
             }}>
               {incident.submitterName.charAt(0).toUpperCase()}
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{incident.submitterName}</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{incident.submitterEmail}</div>
+              {(incident.submitterPhone || incident.submitterDepartment || incident.submitterRole) && (
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  {incident.submitterRole && <span><strong>Role:</strong> {incident.submitterRole}</span>}
+                  {incident.submitterDepartment && <span><strong>Dept:</strong> {incident.submitterDepartment}</span>}
+                  {incident.submitterPhone && <span><strong>Phone:</strong> {incident.submitterPhone}</span>}
+                </div>
+              )}
             </div>
           </div>
 

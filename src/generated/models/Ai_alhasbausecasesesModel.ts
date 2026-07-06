@@ -15,6 +15,7 @@ export type Ai_alhasbausecasesesstatuscode = keyof typeof Ai_alhasbausecasesesst
 
 export interface Ai_alhasbausecasesesBase {
   ai_actual_go_live?: string;
+  ai_adoptionactual?: string;
   ai_agent_id?: string;
   ai_alhasbausecasesid: string;
   ai_annual_volume?: number;

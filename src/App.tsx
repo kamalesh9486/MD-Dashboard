@@ -3,6 +3,7 @@ import LaunchScreen from './components/LaunchScreen'
 import Layout from './components/Layout'
 import CommandIQ from './components/CommandIQ'
 import { CopilotDataProvider } from './context/CopilotDataContext'
+import { CoELensProvider }     from './context/CoELensContext'
 
 export default function App() {
   const [launched, setLaunched] = useState(false)
@@ -13,8 +14,10 @@ export default function App() {
 
   return (
     <CopilotDataProvider>
-      <Layout onLogout={() => setLaunched(false)} />
-      <CommandIQ />
+      <CoELensProvider>
+        <Layout onLogout={() => setLaunched(false)} />
+        <CommandIQ />
+      </CoELensProvider>
     </CopilotDataProvider>
   )
 }

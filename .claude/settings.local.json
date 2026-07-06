@@ -88,11 +88,14 @@
       "Read(//c/Users/kkama/OneDrive/Documents/alhasbah/**)",
       "Read(//c/Users/kkama/OneDrive/Documents/**)",
       "Skill(codebase-research)",
-      "WebFetch(domain:www.techment.com)"
+      "WebFetch(domain:www.techment.com)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "Bash(npx eslint *)",
+      "mcp__plugin_playwright_playwright__browser_click"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "shadcn"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

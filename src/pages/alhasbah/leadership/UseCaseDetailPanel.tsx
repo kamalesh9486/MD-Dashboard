@@ -176,10 +176,16 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
 
               <div>
                 <SectionLabel icon="bi-calendar3" title="Key Dates" />
-                <div style={{ display: 'flex', gap: 20 }}>
+                <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                  {uc.startDate && (
+                    <div>
+                      <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginBottom: 2 }}>Start Date</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{uc.startDate}</div>
+                    </div>
+                  )}
                   <div>
                     <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginBottom: 2 }}>Planned Go-Live</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{uc.plannedGoLive}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{uc.plannedGoLive || '—'}</div>
                   </div>
                   {uc.actualGoLive && (
                     <div>
@@ -187,8 +193,34 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#007560' }}>{uc.actualGoLive}</div>
                     </div>
                   )}
+                  {uc.targetEndDate && (
+                    <div>
+                      <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginBottom: 2 }}>Target End Date</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{uc.targetEndDate}</div>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {(uc.measurementType || uc.fteAvoidance) && (
+                <div>
+                  <SectionLabel icon="bi-activity" title="Measurement" />
+                  <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                    {uc.measurementType && (
+                      <div>
+                        <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginBottom: 2 }}>Measurement Type</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{uc.measurementType}</div>
+                      </div>
+                    )}
+                    {uc.fteAvoidance !== undefined && uc.fteAvoidance > 0 && (
+                      <div>
+                        <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginBottom: 2 }}>FTE Avoidance</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{uc.fteAvoidance}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <SectionLabel icon="bi-check2-square" title={`Milestones (${completedMs}/${milestones.length})`} />
@@ -206,6 +238,7 @@ export default function UseCaseDetailPanel({ uc, onClose }: Props) {
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 6, background: 'rgba(0,117,96,0.03)', border: '1px solid rgba(0,117,96,0.07)' }}>
                         <span style={{ color: msColor, flexShrink: 0 }}><Icon name={msIcon} /></span>
                         <span style={{ fontSize: 12, color: 'var(--text)', flex: 1 }}>{ms.name}</span>
+                        {ms.plannedDate && <span style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{ms.plannedDate}</span>}
                         <span className="ah-badge" style={{ background: `${msColor}14`, color: msColor, border: `1px solid ${msColor}28`, fontSize: 10 }}>
                           {ms.status === 'completed' ? 'Done' : ms.status === 'in_progress' ? 'In Progress' : 'Pending'}
                         </span>

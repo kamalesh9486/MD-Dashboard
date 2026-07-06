@@ -2,6 +2,7 @@ import AIToolsTab from './ps/AIToolsTab'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import '../people-skills.css'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing    from '../components/LensBriefing'
 
 export default function TechnologyStack() {
   return (
@@ -13,6 +14,7 @@ export default function TechnologyStack() {
         </div>
         <DataSourceBadge type="mixed" title="Microsoft Copilot agent and Rammas: live · All other tools: simulated" lastUpdated="5 May 2026" />
       </div>
+      <LensBriefing module="technology" />
       <ErrorBoundary>
         <AIToolsTab />
       </ErrorBoundary>

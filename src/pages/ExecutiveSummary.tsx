@@ -5,13 +5,15 @@ import {
 } from 'recharts'
 import Icon from '../components/Icon'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing from '../components/LensBriefing'
 import { useCurrentUser } from '../hooks/useCurrentUser'
-import { Cr978_coe_divisionsService } from '../generated/services/Cr978_coe_divisionsService'
-import type { Cr978_coe_divisions } from '../generated/models/Cr978_coe_divisionsModel'
+import { CopilotAdoptionService } from '../services/CopilotAdoptionService'
+import type { CopilotDivRow } from '../services/CopilotAdoptionService'
+import { Ai_alhasbaagentsesService } from '../generated/services/Ai_alhasbaagentsesService'
 import '../executive-summary.css'
 
 type ProgStatus = 'live' | 'pilot' | 'dev' | 'risk'
-type ActiveKpi  = 'trained' | 'projects' | 'impact' | 'adoption' | 'issues' | null
+type ActiveKpi  = 'trained' | 'projects' | 'impact' | 'adoption' | 'issues' | 'agents' | null
 type HeatCell   = { label: string; month: string; value: number; x: number; y: number } | null
 
 // ─── Static chart data ────────────────────────────────────────────────────────
@@ -139,9 +141,9 @@ function heatColor(v: number, max: number): string {
 }
 
 function adoptionBadge(rate: number): { label: string; cls: string } {
-  if (rate >= 70) return { label: 'Leading',     cls: 'es-badge--high' }
-  if (rate >= 40) return { label: 'Progressing', cls: 'es-badge--med'  }
-  return               { label: 'Lagging',      cls: 'es-badge--low'  }
+  if (rate >= 99) return { label: 'Full Adoption', cls: 'es-badge--high' }
+  if (rate >= 95) return { label: 'High Adoption', cls: 'es-badge--med'  }
+  return               { label: 'Progressing',   cls: 'es-badge--low'  }
 }
 
 // ─── Tooltip constants ────────────────────────────────────────────────────────
@@ -167,9 +169,12 @@ function TechTip({ active, payload, label }: {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function ExecutiveSummary() {
-  const [activeKpi,  setActiveKpi]  = useState<ActiveKpi>(null)
-  const [divisions,  setDivisions]  = useState<Cr978_coe_divisions[]>([])
-  const [divLoading,   setDivLoading]   = useState(true)
+  const [activeKpi,       setActiveKpi]       = useState<ActiveKpi>(null)
+  const [copilotDivs,     setCopilotDivs]     = useState<CopilotDivRow[]>([])
+  const [overallAdoption, setOverallAdoption] = useState(97)
+  const [divLoading,      setDivLoading]      = useState(true)
+  const [liveAgents,      setLiveAgents]      = useState(0)
+  const [agentsLoading,   setAgentsLoading]   = useState(true)
   const [heatCell,   setHeatCell]   = useState<HeatCell>(null)
   const [kpiMiniTip, setKpiMiniTip] = useState<{ lines: string[]; x: number; y: number } | null>(null)
   const { name } = useCurrentUser()
@@ -189,55 +194,64 @@ export default function ExecutiveSummary() {
   const refProg     = useRef<HTMLDivElement>(null)
   const refPulse    = useRef<HTMLDivElement>(null)
 
+  // Fetch live agent count from Dataverse
   useEffect(() => {
     let active = true
-    Cr978_coe_divisionsService.getAll({ filter: 'statecode eq 0' })
+    Ai_alhasbaagentsesService.getAll()
       .then(res => {
         if (!active) return
-        setDivisions(res.data ?? [])
-        setDivLoading(false)
+        const count = (res.data ?? []).filter(a => a.ai_status === 'Live').length
+        setLiveAgents(count)
+        setAgentsLoading(false)
       })
-      .catch(() => { if (active) setDivLoading(false) })
+      .catch(() => { if (active) setAgentsLoading(false) })
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    CopilotAdoptionService.fetch().then(r => {
+      if (!active) return
+      if (r.data) {
+        setCopilotDivs(r.data.divisions)
+        setOverallAdoption(Math.round(r.data.kpi.adoptionPct * 100))
+      }
+      setDivLoading(false)
+    }).catch(() => { if (active) setDivLoading(false) })
     return () => { active = false }
   }, [])
 
   // ── Derived values ──────────────────────────────────────────────────────────
-  const avgAdoptionRate = useMemo(() => {
-    const withRate = divisions.filter(d => d.cr435_adoptionrate != null)
-    if (withRate.length === 0) return 71
-    return Math.round(withRate.reduce((s, d) => s + (d.cr435_adoptionrate ?? 0), 0) / withRate.length)
-  }, [divisions])
-
   const heatRows = useMemo(() =>
     HEAT_VALS.slice(0, 7).map((row, i) => ({
-      label: divisions[i]?.cr978_divisionname ?? FALLBACK_DIV_NAMES[i] ?? `Division ${i + 1}`,
+      label: copilotDivs[i]?.division ?? FALLBACK_DIV_NAMES[i] ?? `Division ${i + 1}`,
       row,
     })),
-    [divisions]
+    [copilotDivs]
   )
 
   const sortedDivisions = useMemo(
-    () => [...divisions].sort((a, b) => (b.cr435_adoptionrate ?? 0) - (a.cr435_adoptionrate ?? 0)),
-    [divisions]
+    () => [...copilotDivs].sort((a, b) => b.adoptionPct - a.adoptionPct),
+    [copilotDivs]
   )
 
   const adoptionBuckets = useMemo(() => {
-    if (divisions.length === 0) {
+    if (copilotDivs.length === 0) {
       return [
-        { name: 'Leading (≥70%)',      value: 3, color: '#007560' },
-        { name: 'Progressing (40–69%)', value: 2, color: '#ca8a04' },
-        { name: 'Lagging (<40%)',       value: 2, color: '#c8352c' },
+        { name: 'Full Adoption (≥99%)',  value: 8, color: '#007560' },
+        { name: 'High Adoption (95–98%)', value: 4, color: '#ca8a04' },
+        { name: 'Progressing (<95%)',     value: 1, color: '#c8352c' },
       ]
     }
-    const high = divisions.filter(d => (d.cr435_adoptionrate ?? 0) >= 70).length
-    const med  = divisions.filter(d => { const r = d.cr435_adoptionrate ?? 0; return r >= 40 && r < 70 }).length
-    const low  = divisions.filter(d => (d.cr435_adoptionrate ?? 0) < 40).length
+    const full = copilotDivs.filter(d => d.adoptionPct >= 99).length
+    const high = copilotDivs.filter(d => d.adoptionPct >= 95 && d.adoptionPct < 99).length
+    const prog = copilotDivs.filter(d => d.adoptionPct < 95).length
     return [
-      { name: 'Leading (≥70%)',       value: high || 1, color: '#007560' },
-      { name: 'Progressing (40–69%)', value: med  || 1, color: '#ca8a04' },
-      { name: 'Lagging (<40%)',        value: low  || 1, color: '#c8352c' },
+      { name: 'Full Adoption (≥99%)',   value: full || 0, color: '#007560' },
+      { name: 'High Adoption (95–98%)', value: high || 0, color: '#ca8a04' },
+      { name: 'Progressing (<95%)',     value: prog || 0, color: '#c8352c' },
     ]
-  }, [divisions])
+  }, [copilotDivs])
 
   // ── KPI click handler ───────────────────────────────────────────────────────
   function handleKpiClick(kpi: ActiveKpi, ref: React.RefObject<HTMLDivElement | null>) {
@@ -256,6 +270,8 @@ export default function ExecutiveSummary() {
         </div>
         <DataSourceBadge type="simulated" title="Dummy data from backend" lastUpdated="16 May 2026" />
       </div>
+
+      <LensBriefing module="executive" />
 
       <div className="es-page">
 
@@ -337,31 +353,7 @@ export default function ExecutiveSummary() {
             </div>
 
             {/* Overall Adoption Rate — from Dataverse */}
-            <div
-              className={`es-kpi-cell es-kpi-cell--clickable${activeKpi === 'adoption' ? ' es-kpi-cell--active' : ''}`}
-              onClick={() => handleKpiClick('adoption', refAdoption)}
-            >
-              <div className="es-kpi-eyebrow">Overall adoption rate</div>
-              <div className="es-kpi-row">
-                <div className="es-kpi-value">
-                  {divLoading ? <span className="es-kpi-loading" /> : avgAdoptionRate}
-                  <span className="es-kpi-unit">%</span>
-                </div>
-                <span className="es-delta es-delta--up">+6.2 pt</span>
-              </div>
-              <svg viewBox="0 0 200 40" width="100%" height="36" preserveAspectRatio="none">
-                <circle cx="100" cy="20" r="16" fill="none" stroke="#eef0f6" strokeWidth="5"/>
-                <circle cx="100" cy="20" r="16" fill="none" stroke="#17944a" strokeWidth="5"
-                  strokeDasharray={`${avgAdoptionRate} 100`} pathLength="100"
-                  strokeLinecap="round" transform="rotate(-90 100 20)"
-                  onMouseEnter={e => showTip(e, ['Overall Adoption Rate', `${avgAdoptionRate}% avg · 7 divisions`, '+6.2 pts this quarter'])}
-                  onMouseLeave={hideTip}
-                  onMouseMove={moveTip}
-                  style={{ cursor: 'crosshair' }} />
-              </svg>
-              <div className="es-kpi-hint">View by division <Icon name="bi-arrow-right" /></div>
-            </div>
-
+            
             {/* AI Readiness Score */}
             <div
               className={`es-kpi-cell es-kpi-cell--clickable${activeKpi === 'issues' ? ' es-kpi-cell--active' : ''}`}
@@ -387,6 +379,40 @@ export default function ExecutiveSummary() {
                 <text x="160" y="18" fontSize="11" fill="#007560" fontWeight="700">78%</text>
               </svg>
               <div className="es-kpi-hint">View AI pulse <Icon name="bi-arrow-right" /></div>
+            </div>
+
+            {/* Agents in Production */}
+            <div
+              className={`es-kpi-cell es-kpi-cell--clickable${activeKpi === 'agents' ? ' es-kpi-cell--active' : ''}`}
+              onClick={() => handleKpiClick('agents', refPulse)}
+            >
+              <div className="es-kpi-eyebrow">Agents in production</div>
+              <div className="es-kpi-row">
+                <div className="es-kpi-value">
+                  {agentsLoading ? <span className="es-kpi-loading" /> : liveAgents}
+                  <span className="es-kpi-unit"> live</span>
+                </div>
+                <span className="es-delta es-delta--up">Active</span>
+              </div>
+              <svg viewBox="0 0 200 40" width="100%" height="36" preserveAspectRatio="none">
+                {Array.from({ length: Math.min(liveAgents, 10) }, (_, i) => {
+                  const cx = 20 + i * (160 / Math.max(liveAgents - 1, 1))
+                  return (
+                    <g key={i}>
+                      <circle cx={cx} cy={28} r={6} fill="#6366f1" opacity={0.85}
+                        onMouseEnter={e => showTip(e, [`Agent ${i + 1} of ${liveAgents}`, 'Status: Live', 'Al Hasbah programme'])}
+                        onMouseLeave={hideTip}
+                        onMouseMove={moveTip}
+                        style={{ cursor: 'crosshair' }} />
+                      {i < Math.min(liveAgents, 10) - 1 && (
+                        <line x1={cx + 6} y1={28} x2={20 + (i + 1) * (160 / Math.max(liveAgents - 1, 1)) - 6} y2={28}
+                          stroke="#6366f1" strokeWidth={1.5} opacity={0.3} />
+                      )}
+                    </g>
+                  )
+                })}
+              </svg>
+              <div className="es-kpi-hint">View agent portfolio <Icon name="bi-arrow-right" /></div>
             </div>
           </div>
 
@@ -444,7 +470,7 @@ export default function ExecutiveSummary() {
                 <div className="es-card-eyebrow">AI Adoption by Division</div>
                 <h3 className="es-card-title">Overall adoption rate</h3>
                 <div className="es-card-sub">
-                  {divLoading ? 'Loading divisions…' : `${divisions.length} divisions · Dataverse live`}
+                  {divLoading ? 'Loading…' : `${copilotDivs.length} divisions · M365 Copilot live`}
                 </div>
               </div>
             </div>
@@ -462,7 +488,7 @@ export default function ExecutiveSummary() {
               </ResponsiveContainer>
               <div className="es-donut-center">
                 <div className="es-donut-pct">
-                  {divLoading ? '—' : avgAdoptionRate}%
+                  {divLoading ? '—' : overallAdoption}%
                 </div>
                 <div className="es-donut-label">avg adoption</div>
               </div>
@@ -489,9 +515,9 @@ export default function ExecutiveSummary() {
               <div className="es-wf-col" style={{ textAlign: 'right' }}>
                 <span className="es-wf-col-label">Leading div.</span>
                 <span className="es-wf-col-val">
-                  {divLoading || divisions.length === 0
-                    ? 'Power Gen.'
-                    : (sortedDivisions[0]?.cr978_divisionname?.split(' ')[0] ?? '—')}
+                  {divLoading || copilotDivs.length === 0
+                    ? 'Innovation'
+                    : (sortedDivisions[0]?.division.split(' ').slice(0,2).map(w => w[0]+w.slice(1).toLowerCase()).join(' ') ?? '—')}
                 </span>
               </div>
             </div>
@@ -637,21 +663,19 @@ export default function ExecutiveSummary() {
                 {[1,2,3,4,5].map(i => <div key={i} className="es-skeleton-row" />)}
               </div>
             ) : sortedDivisions.slice(0, 7).map(div => {
-              const rate    = div.cr435_adoptionrate ?? 0
-              const projs   = div.cr435_numberofaiprojects ?? 0
-              const akdar   = div.cr435_akdarscore != null ? Math.round(div.cr435_akdarscore) : null
+              const rate = div.adoptionPct
               const { label: badgeLabel, cls: badgeCls } = adoptionBadge(rate)
               return (
-                <div key={div.cr978_coe_divisionid} className="es-pulse-row">
+                <div key={div.division} className="es-pulse-row">
                   <div className="es-pulse-info">
-                    <span className="es-pulse-name">{div.cr978_divisionname}</span>
+                    <span className="es-pulse-name">{div.division.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}</span>
                     <div className="es-pulse-meta">
-                      <span>{projs} AI proj.</span>
-                      {akdar != null && <span>ADKAR {akdar}%</span>}
+                      <span>{div.activeUsers.toLocaleString()} active</span>
+                      <span>{div.licensedUsers.toLocaleString()} licensed</span>
                     </div>
                   </div>
                   <div className="es-pulse-bar-wrap">
-                    <div className="es-pulse-bar" style={{ width: `${rate}%`, background: rate >= 70 ? '#17944a' : rate >= 40 ? '#d98c0a' : '#c8352c' }} />
+                    <div className="es-pulse-bar" style={{ width: `${rate}%`, background: rate >= 99 ? '#17944a' : rate >= 95 ? '#d98c0a' : '#c8352c' }} />
                   </div>
                   <div className="es-pulse-right">
                     <span className="es-pulse-pct">{rate}%</span>

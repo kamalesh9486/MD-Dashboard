@@ -68,6 +68,22 @@
           "x-ms-schema-name": "ai_id",
           "maxLength": 64
         },
+        "ai_kpifamily": {
+          "type": "string",
+          "title": "kpifamily",
+          "x-ms-dataverse-attribute": "ai_kpifamily",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ai_kpifamily",
+          "maxLength": 100
+        },
+        "ai_kpiscope": {
+          "type": "string",
+          "title": "kpiscope",
+          "x-ms-dataverse-attribute": "ai_kpiscope",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ai_kpiscope",
+          "maxLength": 100
+        },
         "ai_lower_is_better": {
           "type": "string",
           "title": "lower_is_better",

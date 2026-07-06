@@ -1,0 +1,219 @@
+/* CoE Lens embedded components — .lb-* (briefing) · .lic-* (chip) · .lbb-* (bottom bar) */
+
+/* ── LensBriefing ────────────────────────────────────────────────────────────── */
+
+.lb-card {
+  background: linear-gradient(135deg, #0a2e1f 0%, #0f3d2b 60%, #072418 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 117, 96, 0.3);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.lb-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle at top right, rgba(0,117,96,0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.lb-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.lb-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  overflow: visible;
+}
+
+.lb-icon {
+  color: #4ade80;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+.lb-icon-stars {
+  position: absolute;
+  top: -8px;
+  right: -9px;
+  font-size: 10px;
+  color: #facc15;
+  display: flex;
+  filter: drop-shadow(0 0 3px rgba(250,204,21,0.8));
+  pointer-events: none;
+}
+
+.lb-ai-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(0,200,130,0.12));
+  border: 1px solid rgba(74,222,128,0.32);
+  color: #4ade80;
+  line-height: 1;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.lb-live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: lb-pulse 1.5s infinite;
+}
+
+@keyframes lb-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.lb-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  background: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.lb-collapse-btn:hover { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.25); }
+
+.lb-narrative {
+  font-size: 13px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.6;
+  margin: 0 0 14px;
+  font-family: 'Dubai', 'Segoe UI', system-ui, sans-serif;
+}
+
+.lb-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lb-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 180px;
+  max-width: 320px;
+}
+
+.lb-chip--win      { background: rgba(74,222,128,0.1);  border: 1px solid rgba(74,222,128,0.22); color: #4ade80; }
+.lb-chip--watch    { background: rgba(251,191,36,0.1);  border: 1px solid rgba(251,191,36,0.22); color: #fbbf24; }
+.lb-chip--critical { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.22); color: #f87171; }
+
+.lb-chip svg, .lb-chip .icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+.lb-chip-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+
+.lb-chip-text {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.85);
+}
+
+/* Collapsed strip */
+.lb-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #0a2e1f, #0f3d2b);
+  border: 1px solid rgba(0,117,96,0.25);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.lb-strip:hover { border-color: rgba(0,117,96,0.5); }
+
+.lb-strip-icon { color: #4ade80; font-size: 13px; flex-shrink: 0; display: flex; align-items: center; position: relative; }
+
+.lb-strip-icon .lb-icon-stars {
+  top: -7px;
+  right: -8px;
+  font-size: 9px;
+}
+.lb-strip-label { font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.8); white-space: nowrap; }
+.lb-strip-sep { color: rgba(255,255,255,0.2); font-size: 12px; }
+.lb-strip-narrative { font-size: 12px; color: rgba(255,255,255,0.55); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.lb-strip-expand { font-size: 11px; color: rgba(0,200,130,0.7); white-space: nowrap; display: flex; align-items: center; gap: 3px; margin-left: auto; flex-shrink: 0; }
+
+/* ── LensInsightChip ────────────────────────────────────────────────────────── */
+
+.lic-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  margin-top: 8px;
+  font-family: 'Dubai', 'Segoe UI', system-ui, sans-serif;
+}
+
+.lic-chip--positive  { background: rgba(0,117,96,0.07);  border: 1px solid rgba(0,117,96,0.18);  color: #374151; }
+.lic-chip--attention { background: rgba(202,138,4,0.07); border: 1px solid rgba(202,138,4,0.18); color: #374151; }
+.lic-chip--critical  { background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.18); color: #374151; }
+.lic-chip--neutral   { background: rgba(0,0,0,0.03);     border: 1px solid rgba(0,0,0,0.07);     color: #374151; }
+
+.lic-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+}
+
+.lic-chip--positive  .lic-icon { color: #007560; }
+.lic-chip--attention .lic-icon { color: #ca8a04; }
+.lic-chip--critical  .lic-icon { color: #dc2626; }
+.lic-chip--neutral   .lic-icon { color: #9ca3af; }
+
+.lic-label {
+  font-weight: 700;
+  color: inherit;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.lic-text { color: #374151; }

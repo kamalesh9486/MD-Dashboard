@@ -48,6 +48,44 @@
         "workflowDisplayName": "CopilotKit_to_CoE_V1.1",
         "workflowName": "07a73e38-efa0-4630-a8dd-27283e18dffc"
       }
+    },
+    "22a81c3b-3ebc-42f1-99e1-2cec03d3fb7f": {
+      "id": "/providers/microsoft.powerapps/apis/shared_powerbi",
+      "displayName": "Power BI"
+    },
+    "556fa0a3-7c3d-45e5-b257-a29d1536d6a0": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+      "displayName": "Logic flows",
+      "dataSources": [
+        "copilotadoptiondashboard_sm"
+      ],
+      "workflowDetails": {
+        "workflowEntityId": "3198233d-2a49-d144-71e1-33a578d2ace1",
+        "workflowDisplayName": "CopilotAdoptionDashboard_SM",
+        "workflowName": "c1c6a58a-162b-f152-8df0-67e71f38ceda",
+        "dependencies": {
+          "shared_powerbi": "22a81c3b-3ebc-42f1-99e1-2cec03d3fb7f"
+        }
+      }
+    },
+    "62293ea4-74bf-4b0d-a035-439526ebd926": {
+      "id": "/providers/microsoft.powerapps/apis/shared_coeptu-5fdd2073336e0361aa-5f7f18004c3645d33f",
+      "displayName": "CoePtu"
+    },
+    "b6a11844-e0d9-40f5-ab8d-5cf1c0c07e6b": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+      "displayName": "Logic flows",
+      "dataSources": [
+        "coelens_ptu_v1_0"
+      ],
+      "workflowDetails": {
+        "workflowEntityId": "cb621bdc-1e6e-f111-ab0f-7ced8dab9eb4",
+        "workflowDisplayName": "CoELens_PTU-v1.0",
+        "workflowName": "cb621bdc-1e6e-f111-ab0f-7ced8dab9eb4",
+        "dependencies": {
+          "shared_coeptu-5fdd2073336e0361aa-5f7f18004c3645d33f": "62293ea4-74bf-4b0d-a035-439526ebd926"
+        }
+      }
     }
   },
   "databaseReferences": {
@@ -156,6 +194,11 @@
         "alhasbausecases": {
           "entitySetName": "ai_alhasbausecaseses",
           "logicalName": "ai_alhasbausecases",
+          "isHidden": false
+        },
+        "coe_applogs": {
+          "entitySetName": "ai_coe_applogs",
+          "logicalName": "ai_coe_applog",
           "isHidden": false
         }
       },

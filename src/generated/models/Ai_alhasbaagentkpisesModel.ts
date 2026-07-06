@@ -21,6 +21,8 @@ export interface Ai_alhasbaagentkpisesBase {
   ai_description?: string;
   ai_division_breakdown?: string;
   ai_id?: string;
+  ai_kpifamily?: string;
+  ai_kpiscope?: string;
   ai_lower_is_better?: boolean;
   ai_measuring_interval?: string;
   ai_name: string;

@@ -12,6 +12,7 @@ import {
 } from '../generated/models/Cr978_powerbidashboardsModel'
 import Icon from '../components/Icon'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing    from '../components/LensBriefing'
 import '../ai-command-center.css'
 
 // ── Status config ─────────────────────────────────────────────
@@ -156,6 +157,8 @@ export default function AICommandCenter() {
         </div>
         <DataSourceBadge type="live" title="Live Dataverse data" lastUpdated="15 May 2026" />
       </div>
+
+      <LensBriefing module="executive" />
 
       {/* ── Status KPIs ─────────────────────────────────── */}
       <section>

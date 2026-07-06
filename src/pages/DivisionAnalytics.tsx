@@ -4,6 +4,7 @@ import AdkarTab    from './ps/AdkarTab'
 import '../people-skills.css'
 import Icon from '../components/Icon'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing    from '../components/LensBriefing'
 
 type TabId = 'adoption' | 'adkar'
 
@@ -22,8 +23,10 @@ export default function DivisionAnalytics() {
           <h1 style={{ padding: '5px' }}>Division Analytics</h1>
           <p>AI adoption rates and ADKAR change-readiness scores across all DEWA divisions</p>
         </div>
-        <DataSourceBadge type="simulated" title="Dummy data from backend" lastUpdated="8 May 2026" />
+        <DataSourceBadge type="live" title="M365 Copilot Adoption · live via Power Automate flow" lastUpdated="24 Jun 2026" />
       </div>
+
+      <LensBriefing module="division" />
 
       <div className="ps-tab-nav" role="tablist">
         {TABS.map(tab => (

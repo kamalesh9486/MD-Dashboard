@@ -6,6 +6,7 @@ import PerformanceTab    from './ps/PerformanceTab'
 import '../people-skills.css'
 import Icon from '../components/Icon'
 import DataSourceBadge, { type DataSourceType } from '../components/DataSourceBadge'
+import LensBriefing from '../components/LensBriefing'
 
 type TabId = 'people-adoption' | 'certifications' | 'skills' | 'performance'
 
@@ -47,6 +48,8 @@ export default function PeopleSkills() {
         </div>
         <DataSourceBadge type={src.type} title={src.title} lastUpdated="12 May 2026" />
       </div>
+
+      <LensBriefing module="people" />
 
       {/* Inner tab navigation */}
       <div className="ps-tab-nav" role="tablist">

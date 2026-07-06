@@ -47,8 +47,8 @@ function toKpi(
     history,
     lowerIsBetter,
     dataSource:          r.ai_data_source,
-    kpiFamily:           r.ai_short_name ?? 'Other',
-    scope:               'division' as AHKPI['scope'],
+    kpiFamily:           r.ai_kpifamily || r.ai_short_name || 'Other',
+    scope:               (r.ai_kpiscope || 'division') as AHKPI['scope'],
     achievable:          (r.ai_achievable ?? 'yes') as AHKPI['achievable'],
     notAchievableReason: r.ai_not_achievable_reason,
     lastMeasured,
@@ -80,5 +80,7 @@ export async function createKpi(
     ai_not_achievable_reason: kpi.notAchievableReason,
     ai_short_name:            kpi.function,
     ai_data_source:           kpi.dataSource,
+    ai_kpifamily:             kpi.kpiFamily,
+    ai_kpiscope:              kpi.scope,
   } as Parameters<typeof Ai_alhasbaagentkpisesService.create>[0])
 }

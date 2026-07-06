@@ -16,20 +16,25 @@ interface Props {
 
 export default function IncidentFormPanel({ onClose, onAdded }: Props) {
   useScrollLock()
-  const { agents } = useAlHasbah()
+  const { agents, useCases } = useAlHasbah()
 
   const [agentId, setAgentId]         = useState('')
+  const [useCaseId, setUseCaseId]     = useState('')
   const [title, setTitle]             = useState('')
   const [type, setType]               = useState<AHIncidentType>('ai_agent')
   const [severity, setSeverity]       = useState<AHSeverity>('medium')
   const [description, setDescription] = useState('')
   const [submitterName, setSubmitterName] = useState('')
   const [submitterEmail, setSubmitterEmail] = useState('')
+  const [submitterPhone, setSubmitterPhone] = useState('')
+  const [submitterDept, setSubmitterDept]   = useState('')
+  const [submitterRole, setSubmitterRole]   = useState('')
   const [cmRequired, setCmRequired]   = useState(false)
   const [saving, setSaving]           = useState(false)
   const [error, setError]             = useState('')
 
   const selectedAgent = agents.find(a => a.id === agentId)
+  const agentUseCases = useCases.filter(u => u.agentId === agentId)
 
   function validate(): boolean {
     if (!agentId)           { setError('Please select an AI agent.'); return false }
@@ -50,6 +55,7 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
     try {
       await createIncident({
         agentId,
+        useCaseId: useCaseId || undefined,
         title: title.trim(),
         type,
         severity,
@@ -60,6 +66,9 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
         description: description.trim(),
         submitterName: submitterName.trim(),
         submitterEmail: submitterEmail.trim(),
+        submitterPhone: submitterPhone.trim() || undefined,
+        submitterDepartment: submitterDept.trim() || undefined,
+        submitterRole: submitterRole.trim() || undefined,
         comments: [],
       })
       onAdded()
@@ -123,7 +132,7 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
               className="ah-select"
               style={{ width: '100%' }}
               value={agentId}
-              onChange={e => setAgentId(e.target.value)}
+              onChange={e => { setAgentId(e.target.value); setUseCaseId('') }}
             >
               <option value="">Select agent...</option>
               {agents.map(a => (
@@ -131,6 +140,25 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
               ))}
             </select>
           </div>
+
+          {/* Use Case (optional) — only when the selected agent has use cases */}
+          {agentUseCases.length > 0 && (
+            <div className="ah-form-group">
+              <label className="ah-form-label" htmlFor="inc-uc">Use Case (optional)</label>
+              <select
+                id="inc-uc"
+                className="ah-select"
+                style={{ width: '100%' }}
+                value={useCaseId}
+                onChange={e => setUseCaseId(e.target.value)}
+              >
+                <option value="">All use cases</option>
+                {agentUseCases.map(u => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Title */}
           <div className="ah-form-group">
@@ -230,6 +258,46 @@ export default function IncidentFormPanel({ onClose, onAdded }: Props) {
                 placeholder="name@dewa.gov.ae"
                 value={submitterEmail}
                 onChange={e => setSubmitterEmail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Submitter Phone + Department + Role */}
+          <div className="ah-form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div>
+              <label className="ah-form-label" htmlFor="inc-phone">Phone</label>
+              <input
+                id="inc-phone"
+                type="text"
+                className="ah-select"
+                style={{ width: '100%', boxSizing: 'border-box' }}
+                placeholder="+971 …"
+                value={submitterPhone}
+                onChange={e => setSubmitterPhone(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="ah-form-label" htmlFor="inc-dept">Department</label>
+              <input
+                id="inc-dept"
+                type="text"
+                className="ah-select"
+                style={{ width: '100%', boxSizing: 'border-box' }}
+                placeholder="e.g. Human Resources"
+                value={submitterDept}
+                onChange={e => setSubmitterDept(e.target.value)}
+              />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label className="ah-form-label" htmlFor="inc-role">Role</label>
+              <input
+                id="inc-role"
+                type="text"
+                className="ah-select"
+                style={{ width: '100%', boxSizing: 'border-box' }}
+                placeholder="e.g. HR Officer, System Administrator"
+                value={submitterRole}
+                onChange={e => setSubmitterRole(e.target.value)}
               />
             </div>
           </div>

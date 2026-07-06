@@ -6,6 +6,7 @@ import { useCopilotData } from '../../context/CopilotDataContext'
 import Icon from '../../components/Icon'
 import CopilotKitPanel from '../CopilotKit'
 import RammasAtWorkPanel from './RammasAtWorkPanel'
+import CopilotAdoptionPanel from './CopilotAdoptionPanel'
 import TechStackView from './TechStackView'
 import TechStackDetailPanel from './TechStackDetailPanel'
 
@@ -69,20 +70,25 @@ function mapTool(r: Ai_coe_toolses): TechEntry {
   const lname = name.toLowerCase()
   const cat   = (r.ai_coe_tool_category ?? 'Other').trim()
 
+  // Detect Copilot Adoption Dashboard first (more specific than the broad copilot check)
+  const isCopilotAdoption = /copilot.*(adoption|dashboard)/i.test(lname)
   // Scope Copilot detection to Microsoft only — avoids matching "GitHub Copilot" etc.
-  const isCopilot = /microsoft.*(copilot|studio)/.test(lname)
+  const isCopilot = !isCopilotAdoption && /microsoft.*(copilot|studio)/.test(lname)
   const isRammas  = /rammas/.test(lname)
 
-  const color = isCopilot ? '#0078d4'
-              : isRammas  ? '#00695c'
+  const color = isCopilotAdoption ? '#0078d4'
+              : isCopilot         ? '#0078d4'
+              : isRammas          ? '#00695c'
               : catColor(cat)
 
-  const tags = isCopilot ? ['GenAI', 'Productivity']
-             : isRammas  ? ['GenAI', 'Internal AI']
+  const tags = isCopilotAdoption ? ['GenAI', 'Adoption']
+             : isCopilot         ? ['GenAI', 'Productivity']
+             : isRammas          ? ['GenAI', 'Internal AI']
              : []
 
-  const panelType: TechEntry['panelType'] = isCopilot ? 'copilot'
-                                          : isRammas  ? 'rammas'
+  const panelType: TechEntry['panelType'] = isCopilotAdoption ? 'copilot-adoption'
+                                          : isCopilot         ? 'copilot'
+                                          : isRammas          ? 'rammas'
                                           : undefined
 
   return {
@@ -113,8 +119,9 @@ export default function AIToolsTab() {
   const [view,        setView]        = useState<ViewMode>('category')
   const [activeCat,   setActiveCat]   = useState('')
   const [panelTech,   setPanelTech]   = useState<TechEntry | null>(null)
-  const [copilotOpen, setCopilotOpen] = useState(false)
-  const [rammasOpen,  setRammasOpen]  = useState(false)
+  const [copilotOpen,   setCopilotOpen]   = useState(false)
+  const [rammasOpen,    setRammasOpen]    = useState(false)
+  const [adoptionOpen,  setAdoptionOpen]  = useState(false)
   const [tools,       setTools]       = useState<TechEntry[]>([])
   const [loading,     setLoading]     = useState(true)
   const [error,       setError]       = useState<string | null>(null)
@@ -178,12 +185,14 @@ export default function AIToolsTab() {
     </div>
   )
 
-  if (copilotOpen) return <CopilotKitPanel   onBack={() => setCopilotOpen(false)} />
-  if (rammasOpen)  return <RammasAtWorkPanel  onBack={() => setRammasOpen(false)} />
+  if (adoptionOpen) return <CopilotAdoptionPanel onBack={() => setAdoptionOpen(false)} />
+  if (copilotOpen)  return <CopilotKitPanel      onBack={() => setCopilotOpen(false)} />
+  if (rammasOpen)   return <RammasAtWorkPanel     onBack={() => setRammasOpen(false)} />
 
   function handleCardClick(t: TechEntry) {
-    if (t.panelType === 'copilot') { setCopilotOpen(true); return }
-    if (t.panelType === 'rammas')  { setRammasOpen(true);  return }
+    if (t.panelType === 'copilot-adoption') { setAdoptionOpen(true); return }
+    if (t.panelType === 'copilot')          { setCopilotOpen(true);  return }
+    if (t.panelType === 'rammas')           { setRammasOpen(true);   return }
     setPanelTech(t)
   }
 

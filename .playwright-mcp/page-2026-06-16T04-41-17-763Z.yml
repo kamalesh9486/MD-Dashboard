@@ -1,0 +1,8 @@
+- iframe [ref=e2]:
+  - generic [ref=f8e2]:
+    - generic [ref=f8e3]:
+      - img [ref=f8e5]
+      - region "Notifications (F8)":
+        - list
+    - region "Notifications (F8)":
+      - list

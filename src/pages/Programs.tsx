@@ -7,6 +7,7 @@ import Icon from '../components/Icon'
 import { useScrollLock } from '../hooks/useScrollLock'
 import DataSourceBadge from '../components/DataSourceBadge'
 import ProgramDetailPanel, { dateProgress } from './prog/ProgramDetailPanel'
+import LensBriefing from '../components/LensBriefing'
 
 // ── Dataverse → Program ───────────────────────────────────────
 function mapToProgram(r: Cr978_coe_programs): Program {
@@ -288,6 +289,8 @@ export default function Programs({ onNavigateToEvents }: Props) {
           <Icon name="bi-plus-circle" /> New Program
         </button>
       </div>
+
+      <LensBriefing module="programs" />
 
       {/* ── Filter row ── */}
       <div className="prog-filter-row">

@@ -12,7 +12,7 @@ function tryParse<T>(raw: string | undefined, fallback: T): T {
 }
 
 function toIncident(r: Ai_alhasbaincidentses): AHIncident {
-  const { submitterName, submitterEmail } = decodeSubmitter(r.ai_submitter)
+  const sub = decodeSubmitter(r.ai_submitter)
   return {
     id:                      r.ai_id ?? r.ai_alhasbaincidentsid,
     _dvId:                   r.ai_alhasbaincidentsid,
@@ -29,8 +29,11 @@ function toIncident(r: Ai_alhasbaincidentses): AHIncident {
     description:             r.ai_description ?? '',
     resolution:              tryParse<AHIncidentResolution | undefined>(r.ai_resolution, undefined),
     comments:                tryParse<AHIncidentComment[]>(r.ai_comments, []),
-    submitterName,
-    submitterEmail,
+    submitterName:           sub.submitterName,
+    submitterEmail:          sub.submitterEmail,
+    submitterPhone:          sub.submitterPhone,
+    submitterDepartment:     sub.submitterDepartment,
+    submitterRole:           sub.submitterRole,
   }
 }
 
@@ -51,7 +54,7 @@ export async function createIncident(inc: Omit<AHIncident, 'id' | '_dvId'>): Pro
     ai_reported_date:               inc.reportedDate,
     ai_change_management_triggered: inc.changeManagementTriggered,
     ai_description:                 inc.description,
-    ai_submitter:                   encodeSubmitter(inc.submitterName, inc.submitterEmail),
+    ai_submitter:                   encodeSubmitter(inc),
     ai_comments:                    JSON.stringify(inc.comments ?? []),
   } as Parameters<typeof Ai_alhasbaincidentsesService.create>[0])
 }

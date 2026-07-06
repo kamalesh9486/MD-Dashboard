@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Icon from '../../components/Icon'
+import LensBriefing from '../../components/LensBriefing'
 import AgentPortfolioWidget from './leadership/AgentPortfolioWidget'
 import UseCasesCard         from './leadership/UseCasesCard'
 import KPIMonitoringCard    from './leadership/KPIMonitoringCard'
@@ -72,6 +73,8 @@ export default function LeadershipDashboard({ onNavigate }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* 1. Intro strip */}
       <IntroStrip now={now} />
+
+      <LensBriefing module="al-hasbah" />
 
       {/* 2. Agent Portfolio Widget */}
       <AgentPortfolioWidget

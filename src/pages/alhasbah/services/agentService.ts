@@ -19,12 +19,14 @@ function toAgent(r: Ai_alhasbaagentses): AHAgent {
     targetEndUsers:    r.ai_target_end_users ?? '',
     mcpServers:        parseJsonArray<string>(r.ai_mcp_servers),
     aiTools:           parseJsonArray<string>(r.ai_aitools),
+    // Derived client-side by AlHasbahContext from use-case / incident records
     totalUseCases:     0,
     liveUseCases:      0,
     openIncidents:     0,
-    annualTransactions: 0,
-    aiAdoptionPct:     0,
-    description:       '',
+    // Stored columns
+    annualTransactions: Number(r.ai_annualtransactions) || 0,
+    aiAdoptionPct:     Number(r.ai_adoptionpct) || 0,
+    description:       r.ai_description ?? '',
   }
 }
 
@@ -48,6 +50,9 @@ export async function createAgent(agent: Omit<AHAgent, 'id' | '_dvId'>): Promise
     ai_target_end_users:   agent.targetEndUsers,
     ai_mcp_servers:        stringifyArray(agent.mcpServers),
     ai_aitools:            stringifyArray(agent.aiTools),
+    ai_description:        agent.description,
+    ai_annualtransactions: String(agent.annualTransactions ?? 0),
+    ai_adoptionpct:        String(agent.aiAdoptionPct ?? 0),
   } as Parameters<typeof Ai_alhasbaagentsesService.create>[0])
 }
 
@@ -65,5 +70,8 @@ export async function updateAgent(dvId: string, patch: Partial<AHAgent>): Promis
   if (patch.targetEndUsers    !== undefined) fields.ai_target_end_users   = patch.targetEndUsers
   if (patch.mcpServers        !== undefined) fields.ai_mcp_servers        = stringifyArray(patch.mcpServers)
   if (patch.aiTools           !== undefined) fields.ai_aitools            = stringifyArray(patch.aiTools)
+  if (patch.description        !== undefined) fields.ai_description        = patch.description
+  if (patch.annualTransactions !== undefined) fields.ai_annualtransactions = String(patch.annualTransactions)
+  if (patch.aiAdoptionPct      !== undefined) fields.ai_adoptionpct        = String(patch.aiAdoptionPct)
   await Ai_alhasbaagentsesService.update(dvId, fields as Parameters<typeof Ai_alhasbaagentsesService.update>[1])
 }

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import Icon from '../../components/Icon'
-import { AH_KPI_FAMILIES, type AHKPI, type AHDivision, type AHKPIStatus } from './data'
+import { type AHKPI, type AHDivision, type AHKPIStatus } from './data'
 import { useAlHasbah } from './AlHasbahContext'
 import KPIDetailOverlay from './leadership/KPIDetailOverlay'
 import NotAchievableModal from './kpis/NotAchievableModal'
@@ -64,6 +64,20 @@ export default function KPIRepository({ onNavigate }: Props) {
   const { toasts, dismiss, showSuccess } = useToast()
 
   const families = useMemo(() => [...new Set(kpis.map(k => k.kpiFamily))].sort(), [kpis])
+
+  // Family health pills — computed from LIVE kpis (not the static AH_KPI_FAMILIES seed,
+  // whose family names don't match the Dataverse-derived kpiFamily values).
+  const familyStats = useMemo(() => {
+    const map = new Map<string, { family: string; total: number; onTrack: number }>()
+    for (const k of kpis) {
+      const fam = k.kpiFamily || 'Other'
+      const entry = map.get(fam) ?? { family: fam, total: 0, onTrack: 0 }
+      entry.total += 1
+      if (k.status === 'on_track') entry.onTrack += 1
+      map.set(fam, entry)
+    }
+    return [...map.values()].sort((a, b) => a.family.localeCompare(b.family))
+  }, [kpis])
 
   const filtered = useMemo(() => kpis.filter(k => {
     const q = search.toLowerCase()
@@ -159,8 +173,8 @@ export default function KPIRepository({ onNavigate }: Props) {
         <span style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 6, whiteSpace: 'nowrap' }}>
           KPI Families
         </span>
-        {AH_KPI_FAMILIES.map(fam => {
-          const pct      = Math.round(fam.onTrack / fam.total * 100)
+        {familyStats.map(fam => {
+          const pct      = fam.total > 0 ? Math.round(fam.onTrack / fam.total * 100) : 0
           const col      = pct >= 80 ? '#007560' : pct >= 60 ? '#ca8a04' : '#dc2626'
           const isActive = familyFilter === fam.family
           return (

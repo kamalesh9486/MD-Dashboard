@@ -14,9 +14,12 @@ export const Ai_alhasbaagentsesstatuscode = {
 export type Ai_alhasbaagentsesstatuscode = keyof typeof Ai_alhasbaagentsesstatuscode;
 
 export interface Ai_alhasbaagentsesBase {
+  ai_adoptionpct?: string;
   ai_aitools?: string;
   ai_alhasbaagentsid: string;
+  ai_annualtransactions?: string;
   ai_business_owner?: string;
+  ai_description?: string;
   ai_division?: string;
   ai_fte_savings_target?: number;
   ai_id?: string;

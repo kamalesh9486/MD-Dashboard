@@ -12,6 +12,7 @@ import type { Cr978_coe_discoveries as Discovery } from '../generated/models/Cr9
 import '../discovery-catalog.css'
 import Icon from '../components/Icon'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing    from '../components/LensBriefing'
 
 // ── Shared tooltip style ──────────────────────────────────────
 const TT_STYLE = {
@@ -517,6 +518,8 @@ export default function DiscoveryCatalog() {
         </div>
         <DataSourceBadge type="live" title="Manually fed live data" lastUpdated="11 May 2026" />
       </div>
+
+      <LensBriefing module="discovery" />
 
       {loading ? <LoadingState /> : error ? <ErrorState msg={error} onRetry={fetchData} /> : (
         <>

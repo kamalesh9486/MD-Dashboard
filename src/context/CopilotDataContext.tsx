@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { RammasAtWorkService } from '../services/RammasAtWorkService'
 import { _1Service } from '../generated/services/_1Service'
+import { CopilotAdoptionService, type CopilotAdoptionData } from '../services/CopilotAdoptionService'
 
 // ── Shapes ────────────────────────────────────────────────────
 export interface AgentDetail {
@@ -39,6 +40,9 @@ interface CopilotData {
   agentValue: AgentValue[]
   loading: boolean
   error: string | null
+  adoptionData: CopilotAdoptionData | null
+  adoptionLoading: boolean
+  adoptionError: string | null
 }
 
 // ── Context ───────────────────────────────────────────────────
@@ -47,17 +51,35 @@ const CopilotDataContext = createContext<CopilotData>({
   agentValue: [],
   loading: true,
   error: null,
+  adoptionData: null,
+  adoptionLoading: true,
+  adoptionError: null,
 })
 
 // ── Provider ──────────────────────────────────────────────────
 export function CopilotDataProvider({ children }: { children: ReactNode }) {
-  const [agentDetails, setAgentDetails] = useState<AgentDetail[]>([])
-  const [agentValue,   setAgentValue]   = useState<AgentValue[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [error,        setError]        = useState<string | null>(null)
+  const [agentDetails,    setAgentDetails]    = useState<AgentDetail[]>([])
+  const [agentValue,      setAgentValue]      = useState<AgentValue[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [error,           setError]           = useState<string | null>(null)
+  const [adoptionData,    setAdoptionData]    = useState<CopilotAdoptionData | null>(null)
+  const [adoptionLoading, setAdoptionLoading] = useState(true)
+  const [adoptionError,   setAdoptionError]   = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
+
+    async function fetchAdoption() {
+      setAdoptionLoading(true)
+      setAdoptionError(null)
+      // CopilotAdoptionService has a 5-min cache + in-flight dedup —
+      // StrictMode's second invocation joins the same promise, panel open hits cache.
+      const result = await CopilotAdoptionService.fetch()
+      if (cancelled) return
+      if (result.error) setAdoptionError(result.error)
+      else setAdoptionData(result.data)
+      setAdoptionLoading(false)
+    }
 
     async function fetchData() {
       setLoading(true)
@@ -131,6 +153,7 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
     }
 
     void fetchData()
+    void fetchAdoption()
     // Warm the Rammas cache at app startup so the panel loads instantly
     RammasAtWorkService.fetch().catch(() => {})
 
@@ -138,7 +161,7 @@ export function CopilotDataProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <CopilotDataContext.Provider value={{ agentDetails, agentValue, loading, error }}>
+    <CopilotDataContext.Provider value={{ agentDetails, agentValue, loading, error, adoptionData, adoptionLoading, adoptionError }}>
       {children}
     </CopilotDataContext.Provider>
   )

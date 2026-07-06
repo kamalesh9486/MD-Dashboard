@@ -544,6 +544,40 @@
   font-size: 12px;
 }
 
+/* ── Height-constrained (laptop / 720-800px tall screens) ───── */
+@media (max-height: 800px) {
+  .ls-left {
+    padding: 24px 48px 20px;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+  .ls-brand-logo-wrap { margin-bottom: 14px; }
+  .ls-brand-logo { height: 56px; }
+  .ls-hero-title { margin-bottom: 12px; }
+  .ls-ht-center, .ls-ht-excellence { font-size: clamp(38px, 5.5vw, 62px); letter-spacing: -2px; }
+  .ls-sub { font-size: 12px; margin-bottom: 14px; }
+  .ls-ai-pills { gap: 6px; }
+  .ls-pill { padding: 5px 10px; font-size: 10px; }
+  .ls-launch-btn { margin-top: 18px; }
+  .la-scene { padding: 16px 24px 12px; }
+  .la-tab-bar { margin-bottom: 10px; }
+  .la-status { margin-top: 10px; }
+}
+
+@media (max-height: 680px) {
+  .ls-left { padding: 16px 40px 14px; }
+  .ls-brand-logo { height: 44px; }
+  .ls-brand-logo-wrap { margin-bottom: 10px; }
+  .ls-ht-center, .ls-ht-excellence { font-size: clamp(32px, 4.8vw, 52px); letter-spacing: -2px; }
+  .ls-ht-of { font-size: clamp(14px, 2vw, 24px); }
+  .ls-sub { font-size: 11.5px; margin-bottom: 12px; }
+  .ls-launch-btn { margin-top: 14px; }
+  .ls-bottom { padding: 10px 24px; }
+  .ls-welcome-name { font-size: 16px; }
+  .la-card-file, .la-card-context { display: none; }
+  .la-card-progress { width: 200px; }
+}
+
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .ls-body { flex-direction: column; }

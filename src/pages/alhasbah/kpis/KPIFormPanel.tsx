@@ -27,6 +27,7 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
   const [achievable,           setAchievable]          = useState<AHKPI['achievable']>('yes')
   const [notAchievableReason,  setNotAchievableReason] = useState('')
   const [lowerIsBetter,        setLowerIsBetter]       = useState(false)
+  const [dataSource,           setDataSource]          = useState('')
   const [saving, setSaving] = useState(false)
   const [error,  setError]  = useState('')
 
@@ -60,7 +61,7 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
         scope,
         achievable,
         notAchievableReason: achievable === 'no' ? notAchievableReason.trim() : undefined,
-        dataSource: undefined,
+        dataSource: dataSource.trim() || undefined,
       })
       onSaved(kpiName.trim())
       onClose()
@@ -139,6 +140,7 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
               </select>
             </div>
           </div>
@@ -178,10 +180,16 @@ export default function KPIFormPanel({ onClose, onSaved }: Props) {
             </div>
           </div>
 
-          {/* Owner */}
-          <div className="ah-form-group">
-            <label className="ah-form-label">KPI Owner *</label>
-            <input className="ah-select" type="text" placeholder="Full name" value={owner} onChange={e => { setOwner(e.target.value); setError('') }} />
+          {/* Owner + Data Source */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="ah-form-group">
+              <label className="ah-form-label">KPI Owner *</label>
+              <input className="ah-select" type="text" placeholder="Full name" value={owner} onChange={e => { setOwner(e.target.value); setError('') }} />
+            </div>
+            <div className="ah-form-group">
+              <label className="ah-form-label">Data Source</label>
+              <input className="ah-select" type="text" placeholder="e.g. SAP Audit Log" value={dataSource} onChange={e => setDataSource(e.target.value)} />
+            </div>
           </div>
 
           {/* Achievability */}

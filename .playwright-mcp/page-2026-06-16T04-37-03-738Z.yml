@@ -1,0 +1,220 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - region "Notifications alt+T"
+      - generic [ref=e455]:
+        - complementary [ref=e456]:
+          - generic [ref=e457]:
+            - generic [ref=e459]:
+              - img [ref=e461]
+              - generic [ref=e463]:
+                - heading "COE" [level=1] [ref=e464]
+                - paragraph [ref=e465]: Management Platform
+            - navigation [ref=e466]:
+              - link "Dashboard" [ref=e467] [cursor=pointer]:
+                - /url: /
+                - generic [ref=e468]:
+                  - img [ref=e469]
+                  - generic [ref=e474]: Dashboard
+              - link "Program" [ref=e475] [cursor=pointer]:
+                - /url: /program
+                - generic [ref=e476]:
+                  - img [ref=e477]
+                  - generic [ref=e480]: Program
+              - link "People" [ref=e481] [cursor=pointer]:
+                - /url: /people
+                - generic [ref=e482]:
+                  - img [ref=e483]
+                  - generic [ref=e488]: People
+              - link "Analytics" [ref=e489] [cursor=pointer]:
+                - /url: /analytics
+                - generic [ref=e490]:
+                  - img [ref=e491]
+                  - generic [ref=e493]: Analytics
+            - button "Ask COE AI" [ref=e495] [cursor=pointer]:
+              - img [ref=e496]
+              - generic [ref=e498]: Ask COE AI
+        - generic [ref=e499]:
+          - banner [ref=e500]:
+            - generic [ref=e501]:
+              - generic [ref=e502]:
+                - paragraph [ref=e503]: Admin User
+                - paragraph [ref=e504]: COE Administrator
+              - generic [ref=e506]: AU
+          - main [ref=e507]:
+            - generic [ref=e508]:
+              - generic [ref=e509]:
+                - heading "Analytics & Insights" [level=1] [ref=e510]
+                - paragraph [ref=e511]: AI-powered predictive analytics and performance metrics
+              - generic [ref=e512]:
+                - heading "AI Predictive Insights" [level=2] [ref=e513]
+                - generic [ref=e514]:
+                  - generic [ref=e515]:
+                    - generic [ref=e516]:
+                      - img [ref=e517]
+                      - generic [ref=e519]:
+                        - heading "Training Demand Surge Expected" [level=3] [ref=e520]
+                        - paragraph [ref=e521]: +40% increase in cybersecurity training requests
+                        - generic [ref=e522]:
+                          - img [ref=e523]
+                          - generic [ref=e525]: Q2 2026
+                    - generic [ref=e526]:
+                      - generic [ref=e527]:
+                        - generic [ref=e528]:
+                          - generic [ref=e529]: AI Confidence
+                          - generic [ref=e530]: 87%
+                        - progressbar [ref=e531]
+                      - generic [ref=e534]:
+                        - img [ref=e535]
+                        - paragraph [ref=e539]: Schedule 6 additional sessions
+                  - generic [ref=e540]:
+                    - generic [ref=e541]:
+                      - img [ref=e542]
+                      - generic [ref=e544]:
+                        - heading "Certification Renewal Wave" [level=3] [ref=e545]
+                        - paragraph [ref=e546]: 64 certifications expiring
+                        - generic [ref=e547]:
+                          - img [ref=e548]
+                          - generic [ref=e550]: Next 90 days
+                    - generic [ref=e551]:
+                      - generic [ref=e552]:
+                        - generic [ref=e553]:
+                          - generic [ref=e554]: AI Confidence
+                          - generic [ref=e555]: 95%
+                        - progressbar [ref=e556]
+                      - generic [ref=e559]:
+                        - img [ref=e560]
+                        - paragraph [ref=e564]: Send renewal reminders now
+                  - generic [ref=e565]:
+                    - generic [ref=e566]:
+                      - img [ref=e567]
+                      - generic [ref=e569]:
+                        - heading "Skills Gap Reduction Opportunity" [level=3] [ref=e570]
+                        - paragraph [ref=e571]: "-15% gap if current training pace maintained"
+                        - generic [ref=e572]:
+                          - img [ref=e573]
+                          - generic [ref=e575]: 6 months
+                    - generic [ref=e576]:
+                      - generic [ref=e577]:
+                        - generic [ref=e578]:
+                          - generic [ref=e579]: AI Confidence
+                          - generic [ref=e580]: 78%
+                        - progressbar [ref=e581]
+                      - generic [ref=e584]:
+                        - img [ref=e585]
+                        - paragraph [ref=e589]: Continue current programs
+              - generic [ref=e590]:
+                - generic [ref=e591]:
+                  - generic [ref=e592]:
+                    - heading "Training ROI Trend" [level=2] [ref=e593]
+                    - paragraph [ref=e594]: Return on investment over the last 6 months
+                  - button "Export" [ref=e595] [cursor=pointer]:
+                    - img
+                    - text: Export
+                - generic [ref=e597]:
+                  - img [ref=e598]:
+                    - generic [ref=e603]:
+                      - generic [ref=e605]: Aug
+                      - generic [ref=e607]: Sep
+                      - generic [ref=e609]: Oct
+                      - generic [ref=e611]: Nov
+                      - generic [ref=e613]: Dec
+                      - generic [ref=e615]: Jan
+                    - generic [ref=e617]:
+                      - generic [ref=e619]: "0"
+                      - generic [ref=e621]: "0.85"
+                      - generic [ref=e623]: "1.7"
+                      - generic [ref=e625]: "2.55"
+                      - generic [ref=e627]: "3.4"
+                  - list [ref=e631]:
+                    - listitem [ref=e632]:
+                      - img [ref=e633]
+                      - text: ROI Multiplier
+                - generic [ref=e635]:
+                  - generic [ref=e636]:
+                    - paragraph [ref=e637]: Current ROI
+                    - paragraph [ref=e638]: 3.4x
+                    - generic [ref=e639]:
+                      - img [ref=e640]
+                      - generic [ref=e643]: +0.3x
+                  - generic [ref=e644]:
+                    - paragraph [ref=e645]: Total Investment
+                    - paragraph [ref=e646]: $309K
+                  - generic [ref=e647]:
+                    - paragraph [ref=e648]: Total Value
+                    - paragraph [ref=e649]: $877K
+              - generic [ref=e650]:
+                - generic [ref=e651]:
+                  - generic [ref=e652]:
+                    - heading "Skills Gap by Department" [level=2] [ref=e653]
+                    - paragraph [ref=e654]: Current vs. target skills proficiency levels
+                  - generic [ref=e655]:
+                    - img
+                    - text: AI Analysis
+                - generic [ref=e657]:
+                  - img [ref=e658]:
+                    - generic [ref=e663]:
+                      - generic [ref=e665]: Operations
+                      - generic [ref=e667]: Engineering
+                      - generic [ref=e669]: IT Security
+                      - generic [ref=e671]: Analytics
+                      - generic [ref=e673]: HR
+                    - generic [ref=e675]:
+                      - generic [ref=e677]: "0"
+                      - generic [ref=e679]: "25"
+                      - generic [ref=e681]: "50"
+                      - generic [ref=e683]: "75"
+                      - generic [ref=e685]: "100"
+                  - list [ref=e713]:
+                    - listitem [ref=e714]:
+                      - img [ref=e715]
+                      - text: Current Level
+                    - listitem [ref=e717]:
+                      - img [ref=e718]
+                      - text: Target Level
+                - generic [ref=e722]:
+                  - img [ref=e723]
+                  - generic [ref=e725]:
+                    - paragraph [ref=e726]: AI Recommendation
+                    - paragraph [ref=e727]: Engineering department shows the largest skills gap (13 points). Prioritize automation and technical training programs to close this gap within 6 months.
+              - generic [ref=e728]:
+                - generic [ref=e730]:
+                  - heading "Certification Compliance Status" [level=2] [ref=e731]
+                  - paragraph [ref=e732]: Active, expiring, and overdue certifications by category
+                - generic [ref=e733]:
+                  - generic [ref=e734]:
+                    - generic [ref=e735]:
+                      - heading "Security" [level=3] [ref=e736]
+                      - generic [ref=e737]:
+                        - generic [ref=e738]: 142 Compliant
+                        - generic [ref=e739]: 18 Expiring
+                        - generic [ref=e740]: 5 Overdue
+                    - progressbar [ref=e741]
+                  - generic [ref=e743]:
+                    - generic [ref=e744]:
+                      - heading "Technical" [level=3] [ref=e745]
+                      - generic [ref=e746]:
+                        - generic [ref=e747]: 198 Compliant
+                        - generic [ref=e748]: 12 Expiring
+                        - generic [ref=e749]: 3 Overdue
+                    - progressbar [ref=e750]
+                  - generic [ref=e752]:
+                    - generic [ref=e753]:
+                      - heading "Leadership" [level=3] [ref=e754]
+                      - generic [ref=e755]:
+                        - generic [ref=e756]: 87 Compliant
+                        - generic [ref=e757]: 7 Expiring
+                        - generic [ref=e758]: 2 Overdue
+                    - progressbar [ref=e759]
+                  - generic [ref=e761]:
+                    - generic [ref=e762]:
+                      - heading "Safety" [level=3] [ref=e763]
+                      - generic [ref=e764]:
+                        - generic [ref=e765]: 234 Compliant
+                        - generic [ref=e766]: 14 Expiring
+                        - generic [ref=e767]: 8 Overdue
+                    - progressbar [ref=e768]
+    - generic [ref=e205] [cursor=pointer]:
+      - img [ref=e206]
+      - generic [ref=e213]: Made with Manus
+  - generic [ref=e770]: "25"

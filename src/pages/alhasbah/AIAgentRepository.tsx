@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import Icon from '../../components/Icon'
+import LensInsightChip, { type LensChipType } from '../../components/LensInsightChip'
 import { type AHAgent, type AHDivision, type AHStatus } from './data'
 import { useAlHasbah } from './AlHasbahContext'
 import AgentDetailPanel from './leadership/AgentDetailPanel'
@@ -46,6 +47,21 @@ function StatBox({
       {sub && <div style={{ fontSize: 10, color: color ?? 'var(--text-muted)', marginTop: 2 }}>{sub}</div>}
     </div>
   )
+}
+
+// ── CoE Lens insight for an agent ────────────────────────────────────────────
+
+const PROG_AVG = 42
+function agentLensChip(agent: AHAgent): { text: string; type: LensChipType } {
+  if (agent.status === 'planned' || agent.aiAdoptionPct === 0)
+    return { text: 'Not yet deployed — awaiting go-live', type: 'neutral' }
+  if (agent.aiAdoptionPct >= 80)
+    return { text: `High adoption — top performer, well above ${PROG_AVG}% programme average`, type: 'positive' }
+  if (agent.aiAdoptionPct >= PROG_AVG)
+    return { text: `Above programme average (${PROG_AVG}%) — steady adoption`, type: 'positive' }
+  if (agent.aiAdoptionPct >= 30)
+    return { text: `Below programme average (${PROG_AVG}%) — change management recommended`, type: 'attention' }
+  return { text: `Sub-30% adoption — critical gap, targeted intervention needed`, type: 'critical' }
 }
 
 // ── Agent card ────────────────────────────────────────────────────────────────
@@ -153,14 +169,13 @@ function AgentCard({
           <span style={{ fontSize: 10.5, padding: '2px 8px', borderRadius: 4, background: 'rgba(0,117,96,0.06)', color: 'var(--text-muted)', border: '1px solid rgba(0,117,96,0.1)' }}>+{agent.modelsUsed.length - 2}</span>
         )}
       </div>
+      {(() => { const c = agentLensChip(agent); return <LensInsightChip text={c.text} type={c.type} /> })()}
     </div>
   )
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-interface Props { onNavigate?: (tab: string) => void }
-
-export default function AIAgentRepository(_props: Props) {
+export default function AIAgentRepository(_: { onNavigate?: (tab: string) => void }) {
   const { agents, loading, error, refreshAgents } = useAlHasbah()
   const [search,        setSearch]        = useState('')
   const [divFilter,     setDivFilter]     = useState<DivFilter>('all')

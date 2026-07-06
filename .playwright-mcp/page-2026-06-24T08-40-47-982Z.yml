@@ -1,0 +1,139 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e107]:
+      - complementary [ref=e108]:
+        - generic [ref=e109]:
+          - img [ref=e111]
+          - generic [ref=e127]:
+            - generic [ref=e128]: AI COE
+            - generic [ref=e129]: Center of Excellence
+        - navigation "Main navigation" [ref=e130]:
+          - generic [ref=e131]: Navigation
+          - button "Executive Summary" [ref=e133] [cursor=pointer]:
+            - img [ref=e134]
+            - generic [ref=e136]: Executive Summary
+          - button "Division Analytics" [ref=e138] [cursor=pointer]:
+            - img [ref=e139]
+            - generic [ref=e141]: Division Analytics
+          - generic [ref=e142]:
+            - button "Programs" [ref=e143] [cursor=pointer]:
+              - img [ref=e144]
+              - generic [ref=e146]: Programs
+              - img [ref=e147]
+            - button "Events" [ref=e149] [cursor=pointer]:
+              - img [ref=e150]
+              - text: Events
+          - button "People & Skills" [ref=e154] [cursor=pointer]:
+            - img [ref=e155]
+            - generic [ref=e157]: People & Skills
+          - button "Technology Stack" [active] [ref=e159] [cursor=pointer]:
+            - img [ref=e160]
+            - generic [ref=e163]: Technology Stack
+          - button "Discovery Catalog" [ref=e165] [cursor=pointer]:
+            - img [ref=e166]
+            - generic [ref=e169]: Discovery Catalog
+          - button "AI Incidents" [ref=e171] [cursor=pointer]:
+            - img [ref=e172]
+            - generic [ref=e175]: AI Incidents
+          - button "AI Command Center" [ref=e177] [cursor=pointer]:
+            - img [ref=e178]
+            - generic [ref=e180]: AI Command Center
+          - generic [ref=e181]:
+            - button "Al Hasbah" [ref=e182] [cursor=pointer]:
+              - img [ref=e183]
+              - generic [ref=e186]: Al Hasbah
+              - img [ref=e187]
+            - generic:
+              - button "Leadership Dashboard" [ref=e189] [cursor=pointer]:
+                - img [ref=e190]
+                - text: Leadership Dashboard
+              - button "KPI Performance" [ref=e193] [cursor=pointer]:
+                - img [ref=e194]
+                - text: KPI Performance
+              - button "KPI Repository" [ref=e196] [cursor=pointer]:
+                - img [ref=e197]
+                - text: KPI Repository
+              - button "AI Agent Repository" [ref=e199] [cursor=pointer]:
+                - img [ref=e200]
+                - text: AI Agent Repository
+              - button "Use Case Repository" [ref=e203] [cursor=pointer]:
+                - img [ref=e204]
+                - text: Use Case Repository
+              - button "AI Health & Incidents" [ref=e206] [cursor=pointer]:
+                - img [ref=e207]
+                - text: AI Health & Incidents
+        - generic [ref=e211]:
+          - generic "User" [ref=e212]: U
+          - generic [ref=e214]: User
+          - button "Logout" [ref=e215] [cursor=pointer]:
+            - img [ref=e216]
+      - generic [ref=e219]:
+        - banner [ref=e220]:
+          - generic [ref=e221]:
+            - button "Toggle sidebar" [ref=e222] [cursor=pointer]:
+              - img [ref=e223]
+            - generic [ref=e225]: Center of Excellence
+          - img "DEWA" [ref=e227]
+        - main [ref=e228]:
+          - generic [ref=e838]:
+            - generic [ref=e839]:
+              - generic [ref=e840]:
+                - heading "Technology Stack" [level=1] [ref=e841]
+                - paragraph [ref=e842]: AI tools deployed across divisions — usage, adoption and departmental coverage
+              - generic [ref=e843]:
+                - 'generic "Microsoft Copilot agent and Rammas: live · All other tools: simulated" [ref=e844]': Mixed Sources
+                - generic [ref=e845]: Last updated on 5 May 2026
+            - region "CoE Lens AI Briefing" [ref=e846]:
+              - generic [ref=e847]:
+                - generic [ref=e848]:
+                  - generic [ref=e849]:
+                    - img [ref=e850]
+                    - generic:
+                      - img
+                  - text: CoE Lens
+                  - generic [ref=e852]: AI
+                - button "Collapse" [ref=e855] [cursor=pointer]:
+                  - text: Collapse
+                  - img [ref=e856]
+              - generic [ref=e858]:
+                - paragraph [ref=e859]: 7 AI tools active with average 68% adoption. Microsoft Copilot and Custom GPTs leading deployment. Autonomous AI tools at the lowest adoption tier — significant capability gap vs Generative AI.
+                - generic [ref=e860]:
+                  - generic [ref=e861]:
+                    - img [ref=e862]
+                    - generic [ref=e864]:
+                      - generic [ref=e865]: Biggest Win
+                      - generic [ref=e866]: Generative AI tooling up 34 deployments YoY — fastest-growing category in the stack
+                  - generic [ref=e867]:
+                    - img [ref=e868]
+                    - generic [ref=e871]:
+                      - generic [ref=e872]: Watch List
+                      - generic [ref=e873]: Autonomous AI at 14 deployments vs 58 Generative AI — adoption lag limits operational potential
+                - generic [ref=e874]:
+                  - img [ref=e875]
+                  - text: Platform insight
+            - generic [ref=e877]:
+              - img [ref=e878]
+              - text: Loading technologies…
+    - generic [ref=e793] [cursor=pointer]:
+      - img [ref=e795]
+      - generic [ref=e807]: Command IQ
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - generic: Command IQ
+            - generic: DEWA COE Intelligence
+        - generic:
+          - button "Enter fullscreen":
+            - img
+          - button "Close Command IQ":
+            - img
+      - generic:
+        - generic:
+          - textbox "Ask Command IQ anything…"
+          - button "Send" [disabled]:
+            - img
+        - generic: Powered by Command IQ · DEWA COE
+  - generic [ref=e808]: "0"

@@ -83,9 +83,6 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
   const [annualTransactions, setAnnualTransactions] = useState(String(agent?.annualTransactions ?? '0'))
   const [aiAdoptionPct,      setAiAdoptionPct]      = useState(String(agent?.aiAdoptionPct ?? '0'))
   const [ptuUsage,           setPtuUsage]           = useState(String(agent?.ptuUsage ?? '0'))
-  const [totalUseCases,      setTotalUseCases]      = useState(String(agent?.totalUseCases ?? '0'))
-  const [liveUseCases,       setLiveUseCases]       = useState(String(agent?.liveUseCases ?? '0'))
-  const [openIncidents,      setOpenIncidents]      = useState(String(agent?.openIncidents ?? '0'))
   const [modelsUsed,         setModelsUsed]         = useState<string[]>(agent?.modelsUsed ?? [])
   const [systemsIntegrated,  setSystemsIntegrated]  = useState<string[]>(agent?.systemsIntegrated ?? [])
   const [mcpServers,         setMcpServers]         = useState<string[]>(agent?.mcpServers ?? [])
@@ -116,9 +113,11 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
       annualTransactions: Number(annualTransactions) || 0,
       aiAdoptionPct:     Number(aiAdoptionPct)       || 0,
       ptuUsage:          Number(ptuUsage)            || 0,
-      totalUseCases:     Number(totalUseCases)       || 0,
-      liveUseCases:      Number(liveUseCases)        || 0,
-      openIncidents:     Number(openIncidents)       || 0,
+      // totalUseCases / liveUseCases / openIncidents are auto-derived by AlHasbahContext
+      // from the use-case and incident records — never entered manually.
+      totalUseCases:     agent?.totalUseCases ?? 0,
+      liveUseCases:      agent?.liveUseCases  ?? 0,
+      openIncidents:     agent?.openIncidents ?? 0,
       modelsUsed,
       systemsIntegrated,
       mcpServers,
@@ -253,17 +252,6 @@ export default function AgentFormPanel({ agent, onClose, onSaved }: Props) {
             <div className="ah-form-group">
               <label className="ah-form-label">PTU Usage (tokens/mo)</label>
               <input className="ah-select" type="number" min="0" placeholder="0" value={ptuUsage} onChange={e => setPtuUsage(e.target.value)} />
-            </div>
-            <div className="ah-form-group">
-              <label className="ah-form-label">Open Incidents</label>
-              <input className="ah-select" type="number" min="0" placeholder="0" value={openIncidents} onChange={e => setOpenIncidents(e.target.value)} />
-            </div>
-            <div className="ah-form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="ah-form-label">Total Use Cases / Live Use Cases</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input className="ah-select" type="number" min="0" placeholder="Total" value={totalUseCases} onChange={e => setTotalUseCases(e.target.value)} style={{ flex: 1 }} />
-                <input className="ah-select" type="number" min="0" placeholder="Live"  value={liveUseCases}  onChange={e => setLiveUseCases(e.target.value)}  style={{ flex: 1 }} />
-              </div>
             </div>
           </div>
 

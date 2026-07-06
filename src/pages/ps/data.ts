@@ -298,7 +298,7 @@ export interface TechEntry {
   users: string; spend: string; uptime: string; projects: number
   integrations: number; owner: string; contract: string; sla: string
   license: string; spoc: string; tags: string[]
-  panelType?: 'copilot' | 'rammas'
+  panelType?: 'copilot' | 'rammas' | 'copilot-adoption'
   // legacy fields kept for TECH_DATA compatibility — not rendered
   initials?: string; health?: TechHealth; deployments?: number
 }

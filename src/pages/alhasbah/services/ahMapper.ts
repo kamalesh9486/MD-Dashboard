@@ -9,15 +9,45 @@ export function stringifyArray(arr: unknown[]): string {
   return JSON.stringify(arr)
 }
 
-export function encodeSubmitter(name: string, email: string): string {
-  return `${name}|${email}`
+export interface SubmitterFields {
+  submitterName: string
+  submitterEmail: string
+  submitterPhone?: string
+  submitterDepartment?: string
+  submitterRole?: string
 }
 
-export function decodeSubmitter(raw: string | undefined): { submitterName: string; submitterEmail: string } {
+// Encode the full submitter object as JSON into the single ai_submitter Dataverse column.
+export function encodeSubmitter(s: SubmitterFields): string {
+  return JSON.stringify({
+    name:       s.submitterName,
+    email:      s.submitterEmail,
+    phone:      s.submitterPhone ?? '',
+    department: s.submitterDepartment ?? '',
+    role:       s.submitterRole ?? '',
+  })
+}
+
+// Decode ai_submitter. Supports both the new JSON format and the legacy "name|email" format.
+export function decodeSubmitter(raw: string | undefined): SubmitterFields {
   if (!raw) return { submitterName: '', submitterEmail: '' }
-  const idx = raw.indexOf('|')
-  if (idx === -1) return { submitterName: raw, submitterEmail: '' }
-  return { submitterName: raw.slice(0, idx), submitterEmail: raw.slice(idx + 1) }
+  const trimmed = raw.trim()
+  if (trimmed.startsWith('{')) {
+    try {
+      const o = JSON.parse(trimmed) as Record<string, string>
+      return {
+        submitterName:       o.name ?? '',
+        submitterEmail:      o.email ?? '',
+        submitterPhone:      o.phone || undefined,
+        submitterDepartment: o.department || undefined,
+        submitterRole:       o.role || undefined,
+      }
+    } catch { /* fall through to legacy */ }
+  }
+  // Legacy "name|email"
+  const idx = trimmed.indexOf('|')
+  if (idx === -1) return { submitterName: trimmed, submitterEmail: '' }
+  return { submitterName: trimmed.slice(0, idx), submitterEmail: trimmed.slice(idx + 1) }
 }
 
 export function computeKpiStatus(

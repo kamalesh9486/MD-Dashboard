@@ -10,6 +10,7 @@ import '../events.css'
 import Icon from '../components/Icon'
 import { useScrollLock } from '../hooks/useScrollLock'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing    from '../components/LensBriefing'
 
 // ── Map Dataverse record → AppEvent ──────────────────────────
 function mapToAppEvent(r: Cr978_coe_eventses, divisionMap: Map<string, string>): AppEvent {
@@ -483,7 +484,22 @@ function EventDetailPanel({ event: ev, onClose }: { event: AppEvent; onClose: ()
     <>
       <div className="ev2-overlay" onClick={onClose} />
       <div className="ev2-panel">
-        <div className="ev2-panel-head" style={{ background: cover }} />
+        <div className="ev2-panel-head" style={{ background: cover }}>
+          <div className="ev2-panel-head-badges">
+            <span className={`ev-type ${TYPE_CLASS[ev.type]}`}>
+              <Icon name={TYPE_ICONS[ev.type]} style={{ fontSize: 11 }} />
+              {ev.type}
+            </span>
+            <span className={`prog-badge prog-badge-${ev.status.toLowerCase()}`}>
+              <span className="prog-badge-dot" />
+              {ev.status}
+            </span>
+          </div>
+          <div className="ev2-panel-head-title">{ev.title}</div>
+          <button className="ev2-panel-close" onClick={onClose} aria-label="Close">
+            <Icon name="bi-x" />
+          </button>
+        </div>
 
         <div className="ev2-panel-body">
           {/* Prominent type + status pills in body */}
@@ -858,6 +874,8 @@ export default function Events({ fromProgram, onBackToPrograms }: EventsProps = 
           <DataSourceBadge type="simulated" title="Manually seeded data" lastUpdated="14 May 2026" />
         </div>
       )}
+
+      {!fromProgram && <LensBriefing module="programs" />}
 
       {error && <div className="ev2-error">{error}</div>}
 

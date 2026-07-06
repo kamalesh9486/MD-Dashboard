@@ -103,6 +103,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "ai_coe_applogs": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_coe_applogid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cr978_coe_approles": {
     "tableId": "",
     "version": "",
@@ -166,6 +173,86 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "_0": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "",
+    "dataSourceType": "Connector",
+    "apis": {
+      "Run": {
+        "path": "/{connectionId}/triggers/manual/run",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "type": "object"
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responseInfo": {
+          "200": {
+            "type": "object"
+          },
+          "default": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "copilotadoptiondashboard_sm": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "",
+    "dataSourceType": "Connector",
+    "apis": {
+      "Run": {
+        "path": "/{connectionId}/triggers/manual/run",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "type": "object"
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responseInfo": {
+          "200": {
+            "type": "object"
+          },
+          "default": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
   "_1": {
     "tableId": "",
     "version": "",
@@ -202,6 +289,27 @@ export const dataSourcesInfo = {
           "default": {
             "type": "object"
           }
+        }
+      }
+    }
+  },
+  "coelens_ptu_v1_0": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "",
+    "dataSourceType": "Connector",
+    "apis": {
+      "Run": {
+        "path": "/{connectionId}/triggers/manual/run",
+        "method": "POST",
+        "parameters": [
+          { "name": "connectionId", "in": "path",  "required": true, "type": "string" },
+          { "name": "input",        "in": "body",   "required": true, "type": "object" },
+          { "name": "api-version",  "in": "query",  "required": true, "type": "string" }
+        ],
+        "responseInfo": {
+          "200":     { "type": "object" },
+          "default": { "type": "object" }
         }
       }
     }

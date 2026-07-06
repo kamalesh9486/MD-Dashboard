@@ -4,6 +4,7 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import Icon from '../../components/Icon'
+import LensInsightChip, { type LensChipType } from '../../components/LensInsightChip'
 import { type AHKPI, type AHDivision, type AHKPIStatus } from './data'
 import { useAlHasbah } from './AlHasbahContext'
 
@@ -86,6 +87,23 @@ function TrendChart({ kpi }: { kpi: AHKPI }) {
   )
 }
 
+// ── CoE Lens insight for a KPI ──────────────────────────────────────────────
+
+function kpiLensChip(kpi: AHKPI): { text: string; type: LensChipType } {
+  const deltaSign  = kpi.trendDelta >= 0 ? '+' : ''
+  const unitSuffix = kpi.unit === '%' ? 'pp' : kpi.unit === 'hours' ? 'h' : kpi.unit === 'days' ? 'd' : ''
+  const delta      = `${deltaSign}${kpi.trendDelta}${unitSuffix}`
+  const achiev     = achievementPct(kpi)
+  if (kpi.status === 'off_track') {
+    const reason = kpi.notAchievableReason ? kpi.notAchievableReason.split('.')[0] : `${achiev}% of target achieved`
+    return { text: `Off-track — ${reason}`, type: 'critical' }
+  }
+  if (kpi.status === 'at_risk') {
+    return { text: `At risk — trending ${delta} · ${achiev}% of target — close but not yet on track`, type: 'attention' }
+  }
+  return { text: `On track — trend ${delta} · ${achiev}% achieved · above target`, type: 'positive' }
+}
+
 // ── Expandable KPI row ───────────────────────────────────────────────────────
 
 function KPIRow({ kpi }: { kpi: AHKPI }) {
@@ -155,6 +173,9 @@ function KPIRow({ kpi }: { kpi: AHKPI }) {
 
         <Icon name={expanded ? 'bi-chevron-down' : 'bi-chevron-right'} />
       </button>
+
+      {/* CoE Lens inline insight */}
+      {!expanded && (() => { const c = kpiLensChip(kpi); return <LensInsightChip text={c.text} type={c.type} /> })()}
 
       {/* Expanded detail */}
       {expanded && (
@@ -280,9 +301,7 @@ function FilterChip({ label, active, color, onClick }: { label: string; active: 
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-interface Props { onNavigate?: (tab: string) => void }
-
-export default function KPIPerformance(_props: Props) {
+export default function KPIPerformance(_: { onNavigate?: (tab: string) => void }) {
   const { kpis, loading, error } = useAlHasbah()
   const [filterStatus,   setFilterStatus]   = useState<AHKPIStatus | 'all'>('all')
   const [filterDivision, setFilterDivision] = useState<AHDivision | 'all'>('all')

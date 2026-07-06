@@ -9,6 +9,7 @@ import type { Cr978_coe_aiincidents } from '../generated/models/Cr978_coe_aiinci
 import Icon from '../components/Icon'
 import { useScrollLock } from '../hooks/useScrollLock'
 import DataSourceBadge from '../components/DataSourceBadge'
+import LensBriefing    from '../components/LensBriefing'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -451,6 +452,8 @@ export default function AIIncident() {
         </div>
         <DataSourceBadge type="simulated" title="Dummy data fed through AI agent" lastUpdated="13 May 2026" />
       </div>
+
+      <LensBriefing module="incidents" />
 
       {error && (
         <div style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.22)', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>

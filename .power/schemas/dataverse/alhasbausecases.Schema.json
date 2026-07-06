@@ -18,6 +18,14 @@
           "x-ms-schema-name": "ai_actual_go_live",
           "maxLength": 10
         },
+        "ai_adoptionactual": {
+          "type": "string",
+          "title": "adoptionActual",
+          "x-ms-dataverse-attribute": "ai_adoptionactual",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ai_adoptionActual",
+          "maxLength": 100
+        },
         "ai_agent_id": {
           "type": "string",
           "title": "agent_id",

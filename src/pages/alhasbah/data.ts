@@ -31,6 +31,15 @@ export interface AHAgent {
   ptuUsage: number
 }
 
+export type AHMeasurementType = '' | 'Requests' | 'Transactions' | 'Device' | 'Systems'
+
+export interface AHMilestone {
+  name: string
+  status: 'completed' | 'in_progress' | 'pending'
+  plannedDate?: string
+  actualDate?: string
+}
+
 export interface AHUseCase {
   id: string
   _dvId?: string  // Dataverse GUID
@@ -39,11 +48,16 @@ export interface AHUseCase {
   division: AHDivision
   domain: string
   status: AHStatus
+  startDate?: string
   plannedGoLive: string
   actualGoLive?: string
+  targetEndDate?: string
   annualVolume: number
   expectedEfficiency: number
+  fteAvoidance?: number
+  fteSavingsTarget?: number
   targetCostSaving: number
+  measurementType?: AHMeasurementType
   description: string
   sapModule: string
   systemsForIntegration: string[]
@@ -52,7 +66,7 @@ export interface AHUseCase {
   processes: string[]
   totalDevelopmentEffort: number
   adoptionActual?: number
-  milestones: { name: string; status: 'completed' | 'in_progress' | 'pending' }[]
+  milestones: AHMilestone[]
 }
 
 export interface AHKPIHistory { period: string; actual: number; target: number }
@@ -71,7 +85,7 @@ export interface AHKPI {
   status: AHKPIStatus
   trend: AHTrend
   trendDelta: number
-  frequency: 'daily' | 'weekly' | 'monthly'
+  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly'
   owner: string
   history: AHKPIHistory[]
   lowerIsBetter?: boolean
@@ -116,6 +130,9 @@ export interface AHIncident {
   comments: AHIncidentComment[]
   submitterName: string
   submitterEmail: string
+  submitterPhone?: string
+  submitterDepartment?: string
+  submitterRole?: string
 }
 
 export interface AHMonthlyFlow {

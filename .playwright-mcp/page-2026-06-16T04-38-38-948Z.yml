@@ -1,0 +1,483 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e3]:
+      - complementary [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e9]:
+            - paragraph [ref=e10]: DEWA COE
+            - paragraph [ref=e11]: Performance Hub
+        - navigation [ref=e12]:
+          - generic [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+            - generic [ref=e19]: Executive Dashboard
+          - generic [ref=e20] [cursor=pointer]:
+            - img [ref=e21]
+            - generic [ref=e25]: Division Analysis
+          - generic [ref=e26] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e32]: Workforce & Skills
+          - generic [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - generic [ref=e37]: Technology
+          - generic [ref=e38] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e42]: Use Cases
+          - generic [ref=e43] [cursor=pointer]:
+            - img [ref=e44]
+            - generic [ref=e47]: Certifications
+          - generic [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - generic [ref=e51]: Financials & ROI
+        - generic [ref=e52]:
+          - generic [ref=e53] [cursor=pointer]:
+            - img [ref=e54]
+            - generic [ref=e57]: Settings
+          - button [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+      - generic [ref=e61]:
+        - banner [ref=e62]:
+          - heading "Executive Dashboard" [level=1] [ref=e64]
+          - generic [ref=e65]:
+            - combobox [ref=e66]:
+              - option "Period" [disabled]
+              - option "Q1 2025" [selected]
+              - option "Q2 2025"
+              - option "Q3 2025"
+              - option "Q4 2025"
+              - option "FY 2025"
+            - combobox [ref=e67]:
+              - option "Division" [disabled]
+              - option "All Divisions" [selected]
+              - option "Grid Ops"
+              - option "Customer Svc"
+              - option "IT & Digital"
+              - option "Finance"
+            - combobox [ref=e68]:
+              - option "Initiative" [disabled]
+              - option "All Types" [selected]
+              - option "Automation"
+              - option "Training"
+              - option "Process"
+              - option "Technology"
+          - generic [ref=e69]:
+            - button [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+            - button "عربي" [ref=e75] [cursor=pointer]:
+              - img [ref=e76]
+              - text: عربي
+            - generic [ref=e79]:
+              - generic [ref=e81]: AK
+              - generic [ref=e82]: Executive
+        - main [ref=e83]:
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - heading "Command Center" [level=2] [ref=e86]
+              - paragraph [ref=e87]: Good morning, Ahmed. Here's your strategic overview.
+            - generic [ref=e88]:
+              - img [ref=e89]
+              - generic [ref=e94]: "Auto-refreshes every 5 min · Last: 3 min ago"
+              - img [ref=e95]
+              - generic [ref=e98]: 08:47 GST
+          - generic [ref=e100]:
+            - generic [ref=e101]:
+              - generic [ref=e102]:
+                - img [ref=e104]
+                - generic [ref=e106]:
+                  - heading "AI Executive Briefing" [level=2] [ref=e107]
+                  - paragraph [ref=e108]: "Last refreshed: 3 minutes ago · FY 2025 Q1"
+              - button "Generate Board Pack PDF" [ref=e109] [cursor=pointer]:
+                - img [ref=e110]
+                - text: Generate Board Pack PDF
+            - paragraph [ref=e114]: This month, digital transformation initiatives are on track (92% on-time delivery). However, Grid Operations shows rising risk in certification compliance, and 2 major projects carry budget overrun risk projecting into Q2. Customer Services leads in change success rate at +18% YoY.
+            - generic [ref=e115]:
+              - generic [ref=e116] [cursor=pointer]:
+                - generic [ref=e117]: 🟢
+                - generic [ref=e118]:
+                  - paragraph [ref=e119]: Biggest Win
+                  - paragraph [ref=e120]: Smart Meter Reconciliation saved AED 4.2M — highest ROI initiative this quarter
+              - generic [ref=e121] [cursor=pointer]:
+                - generic [ref=e122]: 🟡
+                - generic [ref=e123]:
+                  - paragraph [ref=e124]: Watch List
+                  - paragraph [ref=e125]: "Grid Operations: certification compliance dropped to 74% (target: 95%) — 3 month trend"
+              - generic [ref=e126] [cursor=pointer]:
+                - generic [ref=e127]: 🔴
+                - generic [ref=e128]:
+                  - paragraph [ref=e129]: Critical Risk
+                  - paragraph [ref=e130]: 2 projects forecast to overrun budget by Q2 if current burn rate continues — AED 1.8M at risk
+            - generic [ref=e131]:
+              - generic [ref=e132]:
+                - img [ref=e133]
+                - textbox "Ask COE AI — e.g. \"Which divisions are most at risk of compliance failure?\"" [ref=e135]
+              - button "Analyze" [ref=e136] [cursor=pointer]:
+                - img [ref=e137]
+                - text: Analyze
+            - generic [ref=e139]:
+              - button "Why did change success rate drop this quarter?" [ref=e140] [cursor=pointer]:
+                - text: Why did change success rate drop this quarter?
+                - img [ref=e141]
+              - button "Which divisions are most at risk?" [ref=e143] [cursor=pointer]:
+                - text: Which divisions are most at risk?
+                - img [ref=e144]
+              - button "Show me negative ROI forecast initiatives" [ref=e146] [cursor=pointer]:
+                - text: Show me negative ROI forecast initiatives
+                - img [ref=e147]
+          - generic [ref=e149]:
+            - heading "Six Strategic Pillars" [level=3] [ref=e150]
+            - generic [ref=e151]:
+              - generic [ref=e152] [cursor=pointer]:
+                - generic [ref=e154]:
+                  - generic [ref=e155]:
+                    - img [ref=e158]
+                    - generic [ref=e160]:
+                      - heading "Digital Transformation & Change" [level=3] [ref=e161]
+                      - paragraph [ref=e162]: 23 active initiatives
+                  - img [ref=e165]
+                - generic [ref=e167]:
+                  - generic [ref=e168]:
+                    - generic [ref=e169]:
+                      - generic [ref=e170]: "92"
+                      - generic [ref=e171]: "%"
+                    - generic [ref=e172]:
+                      - img [ref=e173]
+                      - generic [ref=e176]: +4% MoM
+                    - paragraph [ref=e177]: Project Completion
+                  - generic [ref=e178]:
+                    - generic [ref=e180]: "23"
+                    - generic [ref=e181]:
+                      - img [ref=e182]
+                      - generic [ref=e185]: +3 this Q
+                    - paragraph [ref=e186]: Active Initiatives
+                  - generic [ref=e187]:
+                    - generic [ref=e188]:
+                      - generic [ref=e189]: "71"
+                      - generic [ref=e190]: "%"
+                    - generic [ref=e191]:
+                      - img [ref=e192]
+                      - generic [ref=e195]: −13% QoQ
+                    - paragraph [ref=e196]: Change Success Rate
+                  - generic [ref=e197]:
+                    - generic [ref=e198]:
+                      - generic [ref=e199]: "4.2"
+                      - generic [ref=e200]: mo
+                    - generic [ref=e201]:
+                      - img [ref=e202]
+                      - generic [ref=e203]: ±0 MoM
+                    - paragraph [ref=e204]: Avg. Impl. Time
+                - img [ref=e208]
+                - generic [ref=e211]:
+                  - img [ref=e212]
+                  - generic [ref=e214]:
+                    - text: AI Insight
+                    - paragraph [ref=e215]: 3 high-impact changes in Customer Services are at risk due to resource constraints — concurrent initiative overload detected.
+              - generic [ref=e216] [cursor=pointer]:
+                - generic [ref=e218]:
+                  - generic [ref=e219]:
+                    - img [ref=e222]
+                    - generic [ref=e224]:
+                      - heading "Risk & Compliance" [level=3] [ref=e225]
+                      - paragraph [ref=e226]: 5 open risk items
+                  - img [ref=e229]
+                - generic [ref=e231]:
+                  - generic [ref=e232]:
+                    - generic [ref=e233]:
+                      - generic [ref=e234]: "78"
+                      - generic [ref=e235]: /100
+                    - generic [ref=e236]:
+                      - img [ref=e237]
+                      - generic [ref=e240]: −5 pts MoM
+                    - paragraph [ref=e241]: Risk Heatmap Score
+                  - generic [ref=e242]:
+                    - generic [ref=e243]:
+                      - generic [ref=e244]: "81"
+                      - generic [ref=e245]: "%"
+                    - generic [ref=e246]:
+                      - img [ref=e247]
+                      - generic [ref=e250]: −3% QoQ
+                    - paragraph [ref=e251]: Compliance Score
+                  - generic [ref=e252]:
+                    - generic [ref=e254]: "5"
+                    - generic [ref=e255]:
+                      - img [ref=e256]
+                      - generic [ref=e259]: +2 new
+                    - paragraph [ref=e260]: High-Risk Items
+                  - generic [ref=e261]:
+                    - generic [ref=e263]: "18"
+                    - generic [ref=e264]:
+                      - img [ref=e265]
+                      - generic [ref=e268]: +6 this mo
+                    - paragraph [ref=e269]: Overdue Certs.
+                - img [ref=e273]
+                - generic [ref=e276]:
+                  - img [ref=e277]
+                  - generic [ref=e279]:
+                    - text: AI Recommends
+                    - paragraph [ref=e280]: "Prioritize Grid Operations — highest combined risk (78/100) and non-compliance. Systemic root cause: 3 trainers on extended leave."
+              - generic [ref=e281] [cursor=pointer]:
+                - generic [ref=e283]:
+                  - generic [ref=e284]:
+                    - img [ref=e287]
+                    - generic [ref=e292]:
+                      - heading "Workforce & Skills" [level=3] [ref=e293]
+                      - paragraph [ref=e294]: 4,842 employees tracked
+                  - img [ref=e297]
+                - generic [ref=e299]:
+                  - generic [ref=e300]:
+                    - generic [ref=e302]: "34"
+                    - generic [ref=e303]:
+                      - img [ref=e304]
+                      - generic [ref=e307]: −4 this Q
+                    - paragraph [ref=e308]: Skills Gap Index
+                  - generic [ref=e309]:
+                    - generic [ref=e310]:
+                      - generic [ref=e311]: "76"
+                      - generic [ref=e312]: "%"
+                    - generic [ref=e313]:
+                      - img [ref=e314]
+                      - generic [ref=e317]: +2% MoM
+                    - paragraph [ref=e318]: Critical Roles Cert.
+                  - generic [ref=e319]:
+                    - generic [ref=e320]:
+                      - generic [ref=e321]: "83"
+                      - generic [ref=e322]: "%"
+                    - generic [ref=e323]:
+                      - img [ref=e324]
+                      - generic [ref=e327]: +7% QoQ
+                    - paragraph [ref=e328]: Training Completion
+                  - generic [ref=e329]:
+                    - generic [ref=e330]:
+                      - generic [ref=e331]: "4.1"
+                      - generic [ref=e332]: /5
+                    - generic [ref=e333]:
+                      - img [ref=e334]
+                      - generic [ref=e335]: ±0 QoQ
+                    - paragraph [ref=e336]: Engagement Score
+                - img [ref=e340]
+                - generic [ref=e343]:
+                  - img [ref=e344]
+                  - generic [ref=e346]:
+                    - text: AI Recommends
+                    - paragraph [ref=e347]: Launch 'Advanced Automation' training for 45 employees in Grid Ops & Assets Management — highest skills gap and strategic impact.
+              - generic [ref=e348] [cursor=pointer]:
+                - generic [ref=e350]:
+                  - generic [ref=e351]:
+                    - img [ref=e354]
+                    - generic [ref=e357]:
+                      - heading "Technology & Automation" [level=3] [ref=e358]
+                      - paragraph [ref=e359]: 47 automations live
+                  - img [ref=e362]
+                - generic [ref=e364]:
+                  - generic [ref=e365]:
+                    - generic [ref=e367]: "47"
+                    - generic [ref=e368]:
+                      - img [ref=e369]
+                      - generic [ref=e372]: +5 this mo
+                    - paragraph [ref=e373]: Automations Live
+                  - generic [ref=e374]:
+                    - generic [ref=e375]:
+                      - generic [ref=e376]: "99.4"
+                      - generic [ref=e377]: "%"
+                    - generic [ref=e378]:
+                      - img [ref=e379]
+                      - generic [ref=e380]: "SLA: 99.5%"
+                    - paragraph [ref=e381]: System Uptime
+                  - generic [ref=e382]:
+                    - generic [ref=e384]: 3.8×
+                    - generic [ref=e385]:
+                      - img [ref=e386]
+                      - generic [ref=e389]: +0.3× QoQ
+                    - paragraph [ref=e390]: Automation ROI
+                  - generic [ref=e391]:
+                    - generic [ref=e393]: "7"
+                    - generic [ref=e394]:
+                      - img [ref=e395]
+                      - generic [ref=e398]: +2 new
+                    - paragraph [ref=e399]: Underutilized Sys.
+                - img [ref=e403]
+                - generic [ref=e406]:
+                  - img [ref=e407]
+                  - generic [ref=e409]:
+                    - text: AI Forecast
+                    - paragraph [ref=e410]: "7 manual processes identified as high-ROI automation candidates — estimated AED 2.1M savings potential. Power Platform agents: 12 active, 4 inactive."
+              - generic [ref=e411] [cursor=pointer]:
+                - generic [ref=e413]:
+                  - generic [ref=e414]:
+                    - img [ref=e417]
+                    - generic [ref=e420]:
+                      - heading "Use Cases & Knowledge" [level=3] [ref=e421]
+                      - paragraph [ref=e422]: 31 active use cases
+                  - img [ref=e425]
+                - generic [ref=e427]:
+                  - generic [ref=e428]:
+                    - generic [ref=e430]: "31"
+                    - generic [ref=e431]:
+                      - img [ref=e432]
+                      - generic [ref=e435]: +4 this Q
+                    - paragraph [ref=e436]: Active Use Cases
+                  - generic [ref=e437]:
+                    - generic [ref=e438]:
+                      - generic [ref=e439]: "87"
+                      - generic [ref=e440]: "%"
+                    - generic [ref=e441]:
+                      - img [ref=e442]
+                      - generic [ref=e445]: +5% QoQ
+                    - paragraph [ref=e446]: Success Rate
+                  - generic [ref=e447]:
+                    - generic [ref=e448]:
+                      - generic [ref=e449]: "6.4"
+                      - generic [ref=e450]: wks
+                    - generic [ref=e451]:
+                      - img [ref=e452]
+                      - generic [ref=e455]: −0.8 wks
+                    - paragraph [ref=e456]: Avg. Time to Impl.
+                  - generic [ref=e457]:
+                    - generic [ref=e459]: "142"
+                    - generic [ref=e460]:
+                      - img [ref=e461]
+                      - generic [ref=e464]: +18 this Q
+                    - paragraph [ref=e465]: Knowledge Articles
+                - img [ref=e469]
+                - generic [ref=e472]:
+                  - img [ref=e473]
+                  - generic [ref=e475]:
+                    - text: AI Recommends
+                    - paragraph [ref=e476]: Replicate 'Smart Meter Reconciliation' in Finance and Assets Management — AI models 94% likelihood of comparable ROI based on similar process profiles.
+              - generic [ref=e477] [cursor=pointer]:
+                - generic [ref=e479]:
+                  - generic [ref=e480]:
+                    - img [ref=e483]
+                    - generic [ref=e485]:
+                      - heading "Financials & ROI" [level=3] [ref=e486]
+                      - paragraph [ref=e487]: AED 142M portfolio
+                  - img [ref=e490]
+                - generic [ref=e492]:
+                  - generic [ref=e493]:
+                    - generic [ref=e494]:
+                      - generic [ref=e495]: "73"
+                      - generic [ref=e496]: "%"
+                    - generic [ref=e497]:
+                      - img [ref=e498]
+                      - generic [ref=e501]: On plan
+                    - paragraph [ref=e502]: Budget Utilized
+                  - generic [ref=e503]:
+                    - generic [ref=e504]:
+                      - generic [ref=e505]: "8.7"
+                      - generic [ref=e506]: M AED
+                    - generic [ref=e507]:
+                      - img [ref=e508]
+                      - generic [ref=e511]: +12% vs target
+                    - paragraph [ref=e512]: Cost Savings (YTD)
+                  - generic [ref=e513]:
+                    - generic [ref=e515]: 3.2×
+                    - generic [ref=e516]:
+                      - img [ref=e517]
+                      - generic [ref=e520]: "Target: 3.0×"
+                    - paragraph [ref=e521]: Portfolio ROI
+                  - generic [ref=e522]:
+                    - generic [ref=e523]:
+                      - generic [ref=e524]: "+4.1"
+                      - generic [ref=e525]: "%"
+                    - generic [ref=e526]:
+                      - img [ref=e527]
+                      - generic [ref=e530]: 2 at risk
+                    - paragraph [ref=e531]: Forecast Variance
+                - img [ref=e535]
+                - generic [ref=e538]:
+                  - img [ref=e539]
+                  - generic [ref=e541]:
+                    - text: AI Warning
+                    - paragraph [ref=e542]: "Budget overrun likely in Q2 for 2 projects if current burn continues. Legacy ERP: +AED 1.2M and Smart Meter Ph.2: +AED 780K projected overruns."
+          - generic [ref=e543]:
+            - heading "Deep-Dive Analytics with AI Copilot" [level=3] [ref=e544]
+            - generic [ref=e545]:
+              - generic [ref=e546]:
+                - button "Overview" [ref=e547] [cursor=pointer]
+                - button "By Division" [ref=e548] [cursor=pointer]
+                - button "Risks & Exceptions" [ref=e549] [cursor=pointer]
+                - button "ROI & Value" [ref=e550] [cursor=pointer]
+                - button "Roadmap" [ref=e551] [cursor=pointer]
+              - generic [ref=e552]:
+                - generic [ref=e555]:
+                  - generic [ref=e556]:
+                    - heading "Budget vs Actual vs Forecast (AED M)" [level=4] [ref=e557]
+                    - img [ref=e560]:
+                      - generic [ref=e565]:
+                        - generic [ref=e567]: Jul
+                        - generic [ref=e569]: Sep
+                        - generic [ref=e571]: Nov
+                        - generic [ref=e573]: Jan
+                      - generic [ref=e575]:
+                        - generic [ref=e577]: "0"
+                        - generic [ref=e579]: "5"
+                        - generic [ref=e581]: "10"
+                        - generic [ref=e583]: "15"
+                        - generic [ref=e585]: "20"
+                  - generic [ref=e604]:
+                    - heading "Initiative ROI Summary (AED M)" [level=4] [ref=e605]
+                    - img [ref=e608]:
+                      - generic [ref=e613]:
+                        - generic [ref=e615]: "-2M"
+                        - generic [ref=e617]: 0M
+                        - generic [ref=e619]: 2M
+                        - generic [ref=e621]: 4M
+                        - generic [ref=e623]: 6M
+                      - generic [ref=e625]:
+                        - generic [ref=e627]: Smart MeterRecon
+                        - generic [ref=e629]: Billing Automation
+                        - generic [ref=e631]: HRSelf-Service
+                        - generic [ref=e633]: Legacy ERP Integ.
+                        - generic [ref=e635]: Smart MeterPh.2
+                - generic [ref=e636]:
+                  - generic [ref=e637]:
+                    - img [ref=e638]
+                    - generic [ref=e640]: AI Copilot
+                  - generic [ref=e642]:
+                    - generic [ref=e643]:
+                      - paragraph [ref=e644]: On-Screen Summary
+                      - paragraph [ref=e645]: Portfolio health is 82/100 — up 4 points from last month. Budget utilization is tracking at 97.3% of plan. 23 active initiatives, 3 at risk.
+                    - generic [ref=e646]:
+                      - generic [ref=e647]:
+                        - img [ref=e648]
+                        - paragraph [ref=e650]: Anomaly Detected
+                      - paragraph [ref=e651]: Assets Management division shows consistent underperformance across all 4 pillars — Q3 trend is worsening, not stabilizing.
+                    - generic [ref=e652]:
+                      - paragraph [ref=e653]: Prioritized Actions
+                      - generic [ref=e654]:
+                        - generic [ref=e655] [cursor=pointer]:
+                          - generic [ref=e656]: "1"
+                          - text: Escalate Assets Mgmt performance review to COE Director
+                        - generic [ref=e657] [cursor=pointer]:
+                          - generic [ref=e658]: "2"
+                          - text: Convene emergency certification sprint for Grid Operations
+                        - generic [ref=e659] [cursor=pointer]:
+                          - generic [ref=e660]: "3"
+                          - text: Approve scope reset for Legacy ERP Integration project
+                    - generic [ref=e661]:
+                      - paragraph [ref=e662]: Quick Prompts
+                      - generic [ref=e663]:
+                        - button "Explain why this division is underperforming" [ref=e664] [cursor=pointer]:
+                          - img [ref=e665]
+                          - text: Explain why this division is underperforming
+                        - button "Recommend top 5 actions to improve" [ref=e667] [cursor=pointer]:
+                          - img [ref=e668]
+                          - text: Recommend top 5 actions to improve
+                        - button "Generate summary email for Division Head" [ref=e670] [cursor=pointer]:
+                          - img [ref=e671]
+                          - text: Generate summary email for Division Head
+      - button [ref=e674] [cursor=pointer]:
+        - img [ref=e675]
+      - button "Scenario Simulation" [ref=e677] [cursor=pointer]:
+        - img [ref=e678]
+        - text: Scenario Simulation
+  - complementary "Edit with Lovable" [ref=e679]:
+    - link "Edit with Lovable" [ref=e680] [cursor=pointer]:
+      - /url: https://lovable.dev/projects/904f129b-70f7-4b81-adad-521c47685a0f?utm_source=lovable-badge
+      - generic [ref=e681]: Edit with
+      - img [ref=e682]
+    - button "Dismiss" [ref=e687] [cursor=pointer]:
+      - img [ref=e688]
+  - generic [ref=e690]: Integ.

@@ -1,0 +1,33 @@
+- generic [ref=e5]:
+  - img "Organization background image" [ref=e6]
+  - generic [ref=e7]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - img "Microsoft" [ref=e16]
+        - main [ref=e17]:
+          - generic [ref=e20]:
+            - heading "Sign in" [level=1] [ref=e24]
+            - generic [ref=e25]:
+              - alert
+              - generic [ref=e27]:
+                - textbox "Enter your email, phone, or Skype." [active] [ref=e28]:
+                  - /placeholder: Email, phone, or Skype
+                - textbox [ref=e29]
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - text: No account?
+                - link "Create a Microsoft account" [ref=e35] [cursor=pointer]:
+                  - /url: https://login.live.com/oauth20_authorize.srf?scope=openid+profile+email+offline_access&response_type=code&client_id=51483342-085c-4d86-bf88-cf50c7252078&response_mode=form_post&redirect_uri=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2ffederation%2foauth2msa&state=rQQIARAAjdG7TxNxAMDx-7W0lAvYUhPCYmwiMUa89l699ppg0octV6EtUOjDgVzvfu39yu8e3F15dHAjIcaB0RATEweHTo1xME7MTAwOysREDA6gLp2M0b_A5Tt9ti_pi0eFKPfQy0bp1JzA0rzCqAzFJxiW4hVeoOSEKlIcVAVOFUVWSLJ2mAz9Prh8Hh5pmXd3Z36lbr5rx2BiE6MdGFVMfQDuaa5rOalYTJe3YNQyd6Et91xTl91_ICb3XO0jAGcAfANg4JmjGRFCyLIULSZFKiEySUrk6RalxFm5JfK0yAnw3BMsp3uuxv6NaaM-_OkJtG25o0PDPfZacL9oNbOSIHXTe-XaBm5Wpf2lajpeznXcErtOLyM6Xqo2uKUq1pbZDVzOFXFJX2cb-5Ij6QxWC09Q2XCQXIvTzXpRa3CrVouNr8N6BktdEyn6xpZcL-IGt4LadXrhvXfKtDuygfqyi0zDOfXeMS1oIDVi2WYbYRgx222MDLgpKwp0nC9ecDYGrsZmAr6Qf9YbIR7cp72pQIAMEbNEhBiNgbe-MBmCnh9fn12_zg7Bi8c3l0Hi1Bdj87ntWj6ThQWtv8YlVrm0s1ivF3BXMsrbxR3Yxx1HYXFS6vILYoo58oMj_-1Tf1B3ZBztOtGWbe460L7xg8Nx4tPE_8x5RYIBOV-Qe5WiiaBYdTWYsRml93SvqW_biWoim-a6a7ksFI3VNdTLK0MSDCfB-eQkOa5gpMquHAbMyRQxuvXm5eDzycGH68Wr4KNMJd9CfKlSwdhykNhsFeeF3kpysV9ZXlKrmVxXQ4pmluO1orIwDBEXIeJimhhNRw7DxCAMmD81&estsfed=1&uaid=7ee685fef8124268a61f16f33af0eb68&signup=1&lw=1&fl=easi2&fci=6204c1d1-4712-4c46-a7d9-3ed63d992682
+                  - text: Create one!
+              - link "Can’t access your account?" [ref=e37] [cursor=pointer]:
+                - /url: "#"
+            - button "Next" [ref=e40] [cursor=pointer]
+      - button "Sign-in options" [ref=e46] [cursor=pointer]:
+        - generic [ref=e50]: Sign-in options
+    - contentinfo [ref=e51]:
+      - generic [ref=e52]:
+        - link "Terms of use" [ref=e53] [cursor=pointer]:
+          - /url: https://www.microsoft.com/en-US/servicesagreement/
+        - link "Privacy & cookies" [ref=e54] [cursor=pointer]:
+          - /url: https://privacy.microsoft.com/en-US/privacystatement
+        - button "Click here for troubleshooting information" [ref=e55] [cursor=pointer]: ...

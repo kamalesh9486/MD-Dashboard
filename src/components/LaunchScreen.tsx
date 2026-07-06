@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
+import { Ai_coe_applogsService } from '../generated/services/Ai_coe_applogsService'
+import type { Ai_coe_applogsBase } from '../generated/models/Ai_coe_applogsModel'
 import dewaLogo from '../assets/dewa-logo.svg'
 import '../launch-screen.css'
+
 
 
 interface Props { onLaunch: () => void }
@@ -337,6 +340,15 @@ export default function LaunchScreen({ onLaunch }: Props) {
   function handleLaunch() {
     if (launching) return
     setLaunching(true)
+    // Fire-and-forget — log failure must never block the user
+    Ai_coe_applogsService.create({
+      ai_coe_name:      `Platform Login — ${user.name || user.email}`,
+      ai_coe_username:  user.name,
+      ai_coe_useremail: user.email,
+      ai_coe_userrole:  user.role,
+      ai_coe_logintime: new Date().toISOString(),
+      statecode:        0 as Ai_coe_applogsBase['statecode'],
+    } as Parameters<typeof Ai_coe_applogsService.create>[0]).catch(() => {})
     launchTimer.current = window.setTimeout(onLaunch, 700)
   }
 
