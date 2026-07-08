@@ -1,0 +1,345 @@
+/* ============================================================
+   MD View V8 — "DEWA Agentic AI Transformation" board.
+   Light COE design system, SOFTENED palette. Scoped .mdv8 and
+   paired with .mdv2 (base tokens / panel / kpi / gauge / pbar).
+   3 sticky scroll-spy tabs on one scrollable page.
+   ============================================================ */
+.mdv8{
+  /* softened tints (lighter / less saturated than the vivid board) */
+  --v8-blue:#5b9bd5; --v8-blueBg:rgba(91,155,213,.12);
+  --v8-green:#4bb18f; --v8-greenBg:rgba(75,177,143,.12);
+  --v8-gold:#d9a53b; --v8-goldBg:rgba(217,165,59,.14);
+  --v8-tealBg:rgba(0,73,55,.10);
+}
+
+/* ── board header ─────────────────────────────────────── */
+.mdv8 .board-hd{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;
+  padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.mdv8 .board-hd .logo{display:flex;align-items:center;gap:12px}
+.mdv8 .board-hd .logo .mark{width:44px;height:44px;border-radius:11px;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:22px;color:#fff;
+  background:linear-gradient(135deg,#007560,#004937)}
+.mdv8 .board-hd h1{font-size:23px;line-height:1.08;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(90deg,#007560,#ca8a04);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mdv8 .board-hd .sub{font-size:11.5px;color:var(--mut);margin-top:3px}
+.mdv8 .board-hd .quote{font-size:11px;color:var(--mut);font-style:italic;max-width:280px;text-align:right;line-height:1.4}
+.mdv8 .board-hd .quote .by{font-style:normal;font-size:9.5px;margin-top:3px;color:#94a29c}
+.mdv8 .board-hd .upd{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);text-align:right}
+.mdv8 .board-hd .upd b{display:block;font-size:12.5px;font-weight:800;color:var(--tx);margin-top:3px;letter-spacing:0}
+
+/* ── sticky tab bar ───────────────────────────────────── */
+.mdv8 .tabbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:6px;padding:9px 0;margin-bottom:14px;
+  background:#edf2f0e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.mdv8 .tab{appearance:none;border:1px solid var(--line);background:#fff;color:var(--mut);
+  font-family:inherit;font-size:12.5px;font-weight:800;letter-spacing:.02em;
+  height:40px;padding:0 16px;border-radius:10px;cursor:pointer;transition:all .18s ease;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;flex:none}
+.mdv8 .tab:hover{color:var(--tx);border-color:rgba(0,117,96,.3)}
+.mdv8 .tab.on{color:#fff;border-color:transparent;background:linear-gradient(90deg,#007560,#0a9b7f);box-shadow:0 3px 12px rgba(0,117,96,.25)}
+.mdv8 section{scroll-margin-top:74px}
+.mdv8 .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:6px 0 12px}
+
+/* ── KPI strip (4 cards, override mdv2 5-col) ─────────── */
+.mdv8 .kpis4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.mdv8 .kpi .kv{font-size:34px}
+
+/* ── layout grids ────────────────────────────────────── */
+.mdv8 .row-a{display:grid;grid-template-columns:1.05fr 1.15fr 1.1fr 1fr;gap:14px;margin-bottom:14px}
+.mdv8 .row-b{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px}
+.mdv8 .row-6040{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-bottom:14px}
+@media(max-width:1180px){.mdv8 .row-a,.mdv8 .row-b,.mdv8 .row-6040,.mdv8 .kpis4{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.mdv8 .row-a,.mdv8 .row-b,.mdv8 .row-6040,.mdv8 .kpis4,.mdv8 .board-hd{grid-template-columns:1fr}}
+
+/* ── portfolio donut body (donut + share legend) ──────── */
+.mdv8 .portfolio-body{display:flex;align-items:center;gap:24px;height:100%;min-height:230px}
+.mdv8 .donut-wrap{position:relative;flex:1;min-width:200px}
+.mdv8 .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.mdv8 .donut-center b{font-size:32px;font-weight:800;line-height:1;color:#1c1c1e}
+.mdv8 .donut-center span{font-size:11.5px;color:#62736d;margin-top:3px}
+.mdv8 .portfolio-legend{flex:1;min-width:180px;display:flex;flex-direction:column;gap:16px}
+.mdv8 .pl-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;font-size:13.5px}
+.mdv8 .pl-row .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.mdv8 .pl-row .pl-nm{font-weight:600;color:#3c4945}
+.mdv8 .pl-row .pl-val{font-weight:800;color:#1c1c1e;display:flex;align-items:baseline;gap:7px}
+.mdv8 .pl-row .pl-val em{font-style:normal;font-weight:700;font-size:11.5px;color:#62736d}
+.mdv8 .pl-track{grid-column:1 / -1;height:6px;border-radius:99px;background:rgba(0,117,96,0.08);overflow:hidden}
+.mdv8 .pl-track i{display:block;height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+@media(max-width:1180px){.mdv8 .portfolio-body{flex-direction:column;align-items:stretch;min-height:0}.mdv8 .donut-wrap,.mdv8 .portfolio-legend{min-width:0}}
+
+/* ── progress by pillars ─────────────────────────────── */
+.mdv8 .pill-bars{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.mdv8 .pbrow{display:grid;grid-template-columns:110px 1fr 42px;align-items:center;gap:10px;font-size:12px}
+.mdv8 .pbrow .nm{color:#3c4945;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdv8 .pbrow .pv{font-weight:800;text-align:right;color:var(--tx)}
+.mdv8 .pbtrack{position:relative;height:9px;border-radius:6px;background:var(--track);overflow:hidden}
+.mdv8 .pbtrack i{display:block;height:100%;border-radius:6px;animation:mv2-bar-grow .9s cubic-bezier(.4,0,.2,1) both}
+.mdv8 .pbmark{position:absolute;top:-4px;bottom:-4px;left:50%;width:2px;background:var(--gold)}
+.mdv8 .pbnote{font-size:10px;color:var(--mut);margin-top:2px}
+
+/* ── AI maturity by segment (NA grid) ─────────────────── */
+.mdv8 .seg{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:2px}
+.mdv8 .segcell{background:var(--inset);border:1px solid var(--line);border-radius:11px;padding:12px 13px;min-height:74px;
+  display:flex;flex-direction:column;justify-content:space-between}
+.mdv8 .segcell .sl{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.mdv8 .segcell .sbar{height:6px;border-radius:4px;background:var(--track)}
+
+/* ── top-line impact block ───────────────────────────── */
+.mdv8 .impact{display:flex;flex-direction:column;gap:12px;margin-top:2px}
+.mdv8 .imp{border-left:3px solid var(--cc,#007560);padding-left:11px}
+.mdv8 .imp .il{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:var(--cc,#066b57)}
+.mdv8 .imp .iv{font-size:26px;font-weight:800;line-height:1.05;color:var(--tx);display:flex;align-items:baseline;gap:5px}
+.mdv8 .imp .iv small{font-size:13px;font-weight:700;color:var(--mut)}
+.mdv8 .imp .is{font-size:10px;color:var(--mut);margin-top:2px}
+/* horizontal delivery-stage breakdown (Build/Test/Live) — top accent instead of left */
+.mdv8 .impact.impact-row{flex-direction:row;gap:14px;margin-top:6px}
+.mdv8 .impact.impact-row .imp{flex:1;border-left:none;border-top:3px solid var(--cc,#007560);padding-left:0;padding-top:9px}
+
+/* ── ranked bar list (division breakdown; handles long names) ── */
+.mdv8 .rankbars{display:flex;flex-direction:column;gap:15px;margin-top:8px}
+.mdv8 .rb-row{display:grid;grid-template-columns:1fr auto;column-gap:14px;row-gap:6px}
+.mdv8 .rb-nm{grid-column:1;grid-row:1;font-size:12.5px;font-weight:600;color:#3c4945;line-height:1.25}
+.mdv8 .rb-val{grid-column:2;grid-row:1 / span 2;align-self:center;font-size:18px;font-weight:800;color:var(--tx);text-align:right;min-width:32px}
+.mdv8 .rb-track{grid-column:1;grid-row:2;height:8px;border-radius:99px;background:rgba(0,117,96,.08);overflow:hidden}
+.mdv8 .rb-track i{display:block;height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* ── stat tiles (agent inventory + by division) ───────── */
+.mdv8 .tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.mdv8 .tile{background:var(--inset);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+.mdv8 .tile .tl{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.mdv8 .tile .tv{font-size:26px;font-weight:800;margin-top:6px;line-height:1;color:var(--ac,#1c1c1e)}
+.mdv8 .divtiles{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:12px}
+.mdv8 .dt{background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:9px 4px;text-align:center}
+.mdv8 .dt .n{display:block;font-size:18px;font-weight:800;color:var(--v8-blue);line-height:1}
+.mdv8 .dt .l{display:block;font-size:8.5px;color:var(--mut);margin-top:5px;text-transform:uppercase;letter-spacing:.02em}
+.mdv8 .subhdr{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:14px}
+@media(max-width:720px){.mdv8 .divtiles{grid-template-columns:repeat(3,1fr)}}
+
+/* ── big NA placeholder panel ────────────────────────── */
+.mdv8 .na-panel{flex:1;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:repeating-linear-gradient(45deg,transparent,transparent 9px,rgba(16,40,34,.02) 9px,rgba(16,40,34,.02) 18px);
+  border:1px dashed var(--line);border-radius:12px;margin-top:8px}
+.mdv8 .na-panel .big{font-size:34px;font-weight:800;color:#b9c4be;font-style:italic}
+.mdv8 .na-panel .cap{font-size:11px;color:var(--mut);margin-top:6px}
+
+/* ── domain breakdown cards ──────────────────────────── */
+.mdv8 .domains{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:980px){.mdv8 .domains{grid-template-columns:1fr}}
+.mdv8 .dcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  box-shadow:0 2px 16px rgba(16,40,34,.06);overflow:hidden;border-top:3px solid var(--dc,#007560)}
+.mdv8 .dcard .dh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.mdv8 .dcard .dh .dot{width:12px;height:12px;border-radius:50%;background:var(--dc)}
+.mdv8 .dcard .dh h3{font-size:16px;font-weight:800}
+.mdv8 .dcard .dh .dp{margin-left:auto;font-size:22px;font-weight:800;color:var(--dc)}
+.mdv8 .drow{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12.5px;
+  padding:9px 0;border-top:1px solid var(--line)}
+.mdv8 .drow:first-of-type{border-top:none}
+.mdv8 .drow .k{color:#3c4945} .mdv8 .drow .v{font-weight:800;color:var(--tx);text-align:right}
+.mdv8 .drow .v .g{color:var(--v8-green);font-weight:800}
+
+/* ── NA inline token ─────────────────────────────────── */
+.mdv8 .na{color:#9aa8a2;font-style:italic;font-weight:700}
+
+/* ── portfolio footnote ──────────────────────────────── */
+.mdv8 .foot{font-size:10.5px;color:var(--mut);text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.mdv8 .chartcap{font-size:10.5px;color:var(--mut);text-align:center;margin-top:6px}
+
+/* ── loading / empty ─────────────────────────────────── */
+.mdv8 .state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--mut);gap:12px}
+.mdv8 .spin{width:34px;height:34px;border:3px solid var(--track);border-top-color:var(--green);border-radius:50%;animation:mv8-spin .8s linear infinite}
+@keyframes mv8-spin{to{transform:rotate(360deg)}}
+
+/* ── MD View v2 — landing / click-to-enter screen ─────────────────────── */
+.mdv2 .mdv2-landing {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+.mdv2 .mdv2-landing-inner {
+  text-align: center;
+  max-width: 720px;
+  animation: mdv2FadeUp .5s ease both;
+}
+.mdv2 .mdv2-landing-inner .mark {
+  width: 64px; height: 64px;
+  margin: 0 auto 22px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 18px;
+  font-size: 30px; color: #fff;
+  background: linear-gradient(135deg, #007560, #004937);
+  box-shadow: 0 10px 30px rgba(0,117,96,.28);
+}
+.mdv2 .mdv2-landing-inner h1 {
+  font-size: 34px; line-height: 1.15; font-weight: 800; letter-spacing: -.4px;
+  background: linear-gradient(90deg, #007560, #004937);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  margin: 0 0 10px;
+}
+.mdv2 .mdv2-landing-inner .sub { color: #55605c; font-size: 14px; margin-bottom: 30px; }
+.mdv2 .mdv2-enter {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: inherit; font-size: 15px; font-weight: 800; color: #fff;
+  padding: 13px 26px; border: none; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(90deg, #007560, #ca8a04);
+  box-shadow: 0 8px 22px rgba(0,117,96,.26);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.mdv2 .mdv2-enter:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,117,96,.34); }
+.mdv2 .mdv2-enter .spin {
+  width: 15px; height: 15px; border-width: 2px;
+  border-style: solid; border-color: rgba(255,255,255,.4); border-top-color: #fff;
+  border-radius: 50%; display: inline-block; animation: mdv2Spin .7s linear infinite;
+}
+.mdv2 .mdv2-landing-note { margin-top: 16px; font-size: 12px; color: #8a938f; }
+@keyframes mdv2FadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes mdv2Spin { to { transform: rotate(360deg); } }
+
+/* ── v1 board tweaks: 4-tab layout, centered charts, vertical inventory ── */
+
+/* Center the Transformation Progress gauge & Progress-by-Pillars bars in the
+   panel's full height (removes the dead space below them). */
+.mdv8 .panel.vcenter { display: flex; flex-direction: column; }
+.mdv8 .panel.vcenter .vcenter-body {
+  flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px;
+}
+
+/* Agent Inventory — Active Agents by Division as a clean table (bottom rule only). */
+.mdv8 .divtiles.divtiles-v { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+.mdv8 .divtiles.divtiles-v .dt {
+  display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+  padding: 12px 4px; gap: 12px;
+  background: transparent; border: none; border-radius: 0;
+  border-bottom: 1px solid var(--line);
+}
+.mdv8 .divtiles.divtiles-v .dt:last-child { border-bottom: none; }
+.mdv8 .divtiles.divtiles-v .dt .l { text-align: left; font-size: 12.5px; color: #3c4945; flex: 1; min-width: 0; }
+.mdv8 .divtiles.divtiles-v .dt .n { font-size: 19px; line-height: 1; min-width: 34px; text-align: right; font-weight: 800; }
+
+/* Full-width single domain card per tab (reads like a table). */
+.mdv8 .dcard.dcard-wide { width: 100%; max-width: 1000px; }
+.mdv8 .dcard.dcard-wide .drow { padding-top: 13px; padding-bottom: 13px; }
+
+/* Section headings get breathing room when scrolled to via a tab click. */
+.mdv8 section { scroll-margin-top: 150px; }
+
+/* ── v2 Initiative Analytics — responsive chart grid ── */
+.mdv8 .charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 900px) { .mdv8 .charts-grid { grid-template-columns: 1fr; } }
+
+/* Executive Overview — portfolio chart beside the division list (chart no longer
+   needs full width; the freed space lets long division names show in full). */
+.mdv8 .portfolio-row {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+  align-items: stretch;
+}
+@media (max-width: 900px) { .mdv8 .portfolio-row { grid-template-columns: 1fr; } }
+/* let long division labels wrap instead of being clipped */
+.mdv8 .divtiles.divtiles-v .dt .l { white-space: normal; line-height: 1.25; }
+
+/* ── v3 KPI register ──────────────────────────────────── */
+
+/* summary strip — Total / Available / Not Available */
+.mdv8 .kpi3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
+@media (max-width: 720px) { .mdv8 .kpi3 { grid-template-columns: 1fr; } }
+
+/* section wrapper + sub-header */
+.mdv8 .reg-section { margin-bottom: 22px; }
+.mdv8 .reg-subhd {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin: 0 0 9px; padding-bottom: 7px; border-bottom: 1px solid var(--line);
+}
+.mdv8 .reg-subhd-name {
+  font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--tx);
+}
+.mdv8 .reg-subhd-counts { font-size: 11px; font-weight: 700; color: var(--mut); white-space: nowrap; }
+
+/* register panel + table */
+.mdv8 .regpanel { padding: 6px 6px 2px; }
+.mdv8 .regtable-wrap { overflow-x: auto; }
+.mdv8 .regtable { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.mdv8 .regtable th {
+  text-align: left; font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--mut);
+  font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.mdv8 .regtable td {
+  padding: 12px 14px; border-bottom: 1px solid var(--line); color: #3c4945; vertical-align: top;
+}
+.mdv8 .regtable tr:last-child td { border-bottom: none; }
+.mdv8 .regtable td.regkpi { font-weight: 700; color: var(--tx); white-space: nowrap; }
+.mdv8 .regtable td.regval {
+  font-weight: 800; color: var(--tx); font-variant-numeric: tabular-nums;
+  display: table-cell; align-items: center; gap: 5px;
+}
+.mdv8 .regtable td.regcalc { color: var(--mut); font-size: 11.5px; line-height: 1.5; max-width: 360px; }
+.mdv8 .regtable th:last-child, .mdv8 .regtable td:last-child { white-space: nowrap; }
+
+/* status pill */
+.mdv8 .regbadge {
+  display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 800; letter-spacing: .02em;
+  padding: 4px 11px; border-radius: 99px; white-space: nowrap;
+}
+.mdv8 .regbadge.ok { background: rgba(75,177,143,.14); color: #0a6e57; }
+.mdv8 .regbadge.na { background: rgba(209,101,95,.13); color: #b1463e; }
+
+/* ── MD View — data-source switch (Excel static ⇄ Dataverse live) + info ── */
+/* compact inline control that lives at the right end of the tab bar
+   (no big highlighted bar, doesn't push the board content down) */
+.tabbar-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.v3-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 0; padding: 0; background: transparent; border: none;
+}
+.v3-toggle-label { font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #55605c; }
+
+/* single on/off switch — Uiverse-style pill with a glow when live (kept DEWA
+   green instead of the reference's blue so it stays on-palette) */
+.v3-switch {
+  font-size: 15px;
+  display: inline-flex; align-items: center; gap: 10px;
+  border: none; background: transparent; cursor: pointer; font-family: inherit; padding: 4px 2px;
+}
+.v3-switch-track {
+  position: relative; box-sizing: border-box; flex: none;
+  width: 3.4em; height: 1.9em; border-radius: 50px;
+  border: 2px solid #cfd8d4; background: #edf2f0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.v3-switch.on .v3-switch-track {
+  background: #007560; border-color: #007560;
+  box-shadow: 0 0 18px rgba(0, 117, 96, 0.6);
+}
+.v3-switch-knob {
+  position: absolute; left: 0.2em; bottom: 0.2em; height: 1.3em; width: 1.3em;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.28);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+}
+.v3-switch.on .v3-switch-knob { transform: translateX(1.5em); }
+.v3-switch-txt {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 800; color: #55605c; transition: color .15s ease;
+}
+.v3-switch.on .v3-switch-txt { color: #007560; }
+
+/* info button + popover (rows/source detail lives here, not below the bar) */
+.v3-info { position: relative; display: inline-flex; margin-left: auto; }
+.v3-info-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
+  border-radius: 8px; border: 1px solid rgba(0,117,96,.18); background: #fff; color: #007560; cursor: pointer;
+  transition: background .15s ease;
+}
+.v3-info-btn:hover { background: #edf2f0; }
+.v3-info-pop {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 30;
+  width: max-content; max-width: 340px; padding: 10px 13px;
+  font-size: 11.5px; line-height: 1.5; color: #3c4945;
+  background: #fff; border: 1px solid rgba(0,117,96,.15); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+}

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEWA Agentic AI — KPI Register</title>
+<style>
+  :root{
+    --ground:#0b1118; --panel:#111b25; --panel-2:#0e1720; --head:#16222f;
+    --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.045);
+    --tx:#e7eef3; --tx-2:#b7c4cd; --mut:#8394a1; --faint:#5f6f7c;
+    --green:#57bd9a; --green-bg:rgba(75,177,143,.14); --green-bd:rgba(75,177,143,.35);
+    --red:#e0837c; --red-bg:rgba(209,101,95,.13); --red-bd:rgba(209,101,95,.34);
+    --blue:#6aa8de; --gold:#e0b155;
+    --dewa-green:#12a583; --dewa-gold:#d9a53b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  .reg{
+    font-family:'Dubai','Segoe UI',system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(1200px 480px at 80% -8%, rgba(18,165,131,.10), transparent 60%),
+      var(--ground);
+    color:var(--tx); min-height:100vh; padding:30px clamp(16px,4vw,48px) 56px;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+  .hd{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;
+    padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .hd h1{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.06;
+    text-wrap:balance;
+    background:linear-gradient(90deg,var(--dewa-green),var(--dewa-gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hd h1 .lt{color:var(--tx);-webkit-text-fill-color:var(--tx)}
+  .hd .sub{color:var(--mut);font-size:12.5px;margin-top:7px}
+  .hd .upd{text-align:right;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+  .hd .upd b{display:block;font-size:14px;font-weight:800;color:var(--tx-2);margin-top:4px;letter-spacing:.02em}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:800;margin:0 0 14px}
+  .summary{display:flex;gap:16px;flex-wrap:wrap;align-items:stretch;margin-bottom:12px}
+  .stat{flex:1;min-width:150px;background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);border-radius:15px;padding:18px 20px;position:relative;overflow:hidden}
+  .stat::before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:3px;
+    background:linear-gradient(90deg,var(--dewa-green),var(--dewa-gold))}
+  .stat.g::before{background:var(--green)} .stat.r::before{background:var(--red)}
+  .stat .n{font-size:40px;font-weight:800;line-height:1}
+  .stat.g .n{color:var(--green)} .stat.r .n{color:var(--red)}
+  .stat .l{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:9px}
+  .bar-wrap{margin:18px 0 30px}
+  .bar-top{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-bottom:7px;font-weight:600}
+  .bar-top b{color:var(--green)}
+  .bar{height:9px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--dewa-green),var(--green));
+    width:0;animation:grow 1.1s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes grow{to{width:var(--w)}}
+  .sec{margin-top:26px}
+  .sec-hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .sec-hd h2{font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--tx-2);font-weight:800;margin:0}
+  .sec-hd .meta{font-size:11px;color:var(--faint);font-weight:600}
+  .sec-hd .meta .ok{color:var(--green)} .sec-hd .meta .no{color:var(--red)}
+  .tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel-2)}
+  table{width:100%;border-collapse:collapse;min-width:720px}
+  thead th{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:800;
+    text-align:left;padding:12px 18px;background:var(--head);border-bottom:1px solid var(--line)}
+  thead th.st{text-align:right}
+  tbody td{padding:13px 18px;border-top:1px solid var(--line-2);font-size:13.5px;vertical-align:middle}
+  tbody tr:first-child td{border-top:none}
+  tbody tr:hover td{background:rgba(255,255,255,.018)}
+  .kpi{font-weight:700;color:var(--tx);width:26%}
+  .val{width:22%;font-weight:800}
+  .val.ok{color:var(--blue)} .val.gold{color:var(--gold)} .val.grn{color:var(--green)}
+  .val.na{color:var(--faint);font-style:italic;font-weight:600}
+  .calc{color:var(--mut);font-size:12.5px}
+  td.stcell{text-align:right;white-space:nowrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    padding:5px 11px;border-radius:99px;border:1px solid transparent}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%}
+  .badge.ok{color:var(--green);background:var(--green-bg);border-color:var(--green-bd)}
+  .badge.ok::before{background:var(--green)}
+  .badge.no{color:var(--red);background:var(--red-bg);border-color:var(--red-bd)}
+  .badge.no::before{background:var(--red)}
+  .foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--faint);text-align:center;line-height:1.7}
+  @media (prefers-reduced-motion:reduce){.bar i{animation:none;width:var(--w)}}
+</style>
+</head>
+<body>
+<div class="reg"><div class="wrap">
+  <div class="hd">
+    <div>
+      <h1>DEWA <span>Agentic AI</span> <span class="lt">— KPI Register</span></h1>
+      <div class="sub">Every KPI on the MD dashboard, its live value, and exactly how it is calculated · towards the 50% mandate</div>
+    </div>
+    <div class="upd">Last updated<b>25 June 2026</b></div>
+  </div>
+  <div class="eyebrow">Agentic AI Progress — Coverage</div>
+  <div class="summary">
+    <div class="stat"><div class="n" id="s-total">35</div><div class="l">Total KPIs</div></div>
+    <div class="stat g"><div class="n" id="s-ok">23</div><div class="l">Available</div></div>
+    <div class="stat r"><div class="n" id="s-no">12</div><div class="l">Not available</div></div>
+  </div>
+  <div class="bar-wrap">
+    <div class="bar-top"><span>Coverage — KPIs with a live data source</span><span><b id="cov-pct">66%</b></span></div>
+    <div class="bar"><i id="cov-bar" style="--w:66%"></i></div>
+  </div>
+  <div id="sections"></div>
+  <div class="foot">
+    All metrics sourced live from <code>aum_aiinitiatives</code> · AI portfolio = 476 non-D2D records · 50% mandate target = 238 initiatives<br>
+    "Available" = a live data column backs the value · "Not available" = no source column yet (shown as NA on the dashboard)
+  </div>
+</div></div>
+<script>
+const DATA = [
+  { name:"Overall Readiness & AI Score", rows:[
+    {k:"Overall Readiness / Transformation", v:"33%", t:"grn", c:"average of 3 pillars (30+26+44) ÷ 3 · speedometer with 50% mark", ok:true},
+    {k:"Total AI Agents", v:"75", t:"", c:"COUNT(Entity Type = Agent)", ok:true},
+    {k:"Agentic Services (Customer)", v:"30%", t:"ok", c:"35 customer-domain use cases ÷ 117", ok:true},
+    {k:"Agentic Processes", v:"26%", t:"grn", c:"30 operations-domain use cases ÷ 117", ok:true},
+    {k:"People progress", v:"44%", t:"gold", c:"52 people-domain use cases ÷ 117", ok:true},
+  ]},
+  { name:"Top-Line Impact", rows:[
+    {k:"Cost Saving", v:"AED 273.7M", t:"grn", c:"AI apps (excl. 880M outlier) 252.3M + agents 21.4M", ok:true},
+    {k:"FTE Saving", v:"≈39", t:"ok", c:"80,920 hrs ÷ 2,080", ok:true},
+    {k:"Hours Saved", v:"80,920", t:"ok", c:"Σ FTE Savings (hours column)", ok:true},
+    {k:"Cost Avoidance", v:"40.5 FTE (+AED 300K)", t:"gold", c:"Σ FTE Avoidance (117 use cases) + Other Cost Saving 300K", ok:true},
+  ]},
+  { name:"Agent Inventory & Progress", rows:[
+    {k:"Live in Production", v:"13", t:"grn", c:"Production 10 + Live 3 (deployment stage)", ok:true},
+    {k:"In Deployment", v:"88", t:"ok", c:"COUNT(Deployment Projects)", ok:true},
+    {k:"Active Agents by Division", v:"I&TF 56 · HR 28 · Finance 27 · Billing 23 · BS&HR 12", t:"ok", c:"COUNT(Agent) grouped by Division", ok:true},
+    {k:"Delivery by Stages", v:"Build 64% · Test 20% · Live 16%", t:"grn", c:"stage buckets of 81: Pre+Req / Post-ISRP / Prod+Live", ok:true},
+    {k:"Progress Trend by Month", v:"NA", t:"na", c:"monthly transformation snapshots not tracked", ok:false},
+  ]},
+  { name:"AI Maturity by Segment", rows:[
+    {k:"AI Maturity — EVP level", v:"NA", t:"na", c:"no leadership-segment maturity data", ok:false},
+    {k:"AI Maturity — VPs", v:"NA", t:"na", c:"no leadership-segment maturity data", ok:false},
+    {k:"AI Maturity — Senior mgrs", v:"NA", t:"na", c:"no leadership-segment maturity data", ok:false},
+    {k:"AI Maturity — Employees", v:"NA", t:"na", c:"no leadership-segment maturity data", ok:false},
+  ]},
+  { name:"Domain — Customer Services", rows:[
+    {k:"% services now agentic", v:"30%", t:"ok", c:"35 ÷ 117", ok:true},
+    {k:"Total interactions", v:"1.25M", t:"", c:"Σ Annual Volume = 1,245,691", ok:true},
+    {k:"Agent resolution rate", v:"NA", t:"na", c:"no resolution field in data", ok:false},
+    {k:"Avg. response time (before/after)", v:"NA", t:"na", c:"Base Line / Time-After-AI = #REF!", ok:false},
+    {k:"Customer satisfaction", v:"NA", t:"na", c:"CSAT not captured (User Satisfaction only 2 recs)", ok:false},
+  ]},
+  { name:"Domain — Processes & Operations", rows:[
+    {k:"% processes now agentic", v:"26%", t:"grn", c:"30 ÷ 117", ok:true},
+    {k:"Active AI agents by divisions", v:"75 / 15 div", t:"ok", c:"COUNT(Agent) grouped by named Division", ok:true},
+    {k:"Transformation progress by divisions", v:"I&TF leads (56)", t:"grn", c:"rank of agent count per division", ok:true},
+  ]},
+  { name:"Domain — People", rows:[
+    {k:"Leadership adoption", v:"16 sessions · 693", t:"gold", c:"COE events targeted at AI Champions / Ambassadors / EVP", ok:true},
+    {k:"No. of people trained", v:"9,150", t:"gold", c:"Σ attendees across 295 COE events", ok:true},
+    {k:"Training hours delivered", v:"16,005 person-hrs", t:"gold", c:"Σ (event duration × attendees)", ok:true},
+    {k:"Workshops / trainings", v:"295", t:"gold", c:"COUNT(COE events)", ok:true},
+    {k:"AI adoption rate", v:"NA", t:"na", c:"needs workforce headcount denominator", ok:false},
+    {k:"AI literacy maturity", v:"NA", t:"na", c:"no maturity-level field", ok:false},
+    {k:"Agentic AI certifications", v:"NA", t:"na", c:"no certification field", ok:false},
+    {k:"User satisfaction %", v:"NA", t:"na", c:"only 2 records", ok:false},
+  ]},
+  { name:"DEWA AI Portfolio", rows:[
+    {k:"Portfolio by pillar (current)", v:"Customer 35 · Processes 30 · People 52", t:"ok", c:"use-case domain split (117 total)", ok:true},
+  ]},
+];
+const esc = s => String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+let total=0, okCount=0;
+const host = document.getElementById('sections');
+DATA.forEach(sec => {
+  const a = sec.rows.filter(r=>r.ok).length, n = sec.rows.length - a;
+  total += sec.rows.length; okCount += a;
+  const rowsHtml = sec.rows.map(r => `
+    <tr>
+      <td class="kpi">${esc(r.k)}</td>
+      <td class="val ${r.t}">${esc(r.v)}</td>
+      <td class="calc">${esc(r.c)}</td>
+      <td class="stcell"><span class="badge ${r.ok?'ok':'no'}">${r.ok?'Available':'Not available'}</span></td>
+    </tr>`).join('');
+  host.insertAdjacentHTML('beforeend', `
+    <div class="sec">
+      <div class="sec-hd">
+        <h2>${esc(sec.name)}</h2>
+        <span class="meta"><span class="ok">${a} available</span> · <span class="no">${n} NA</span></span>
+      </div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>KPI</th><th>Value / Outcome</th><th>Calculation</th><th class="st">Status</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table></div>
+    </div>`);
+});
+const pct = Math.round(okCount/total*100);
+document.getElementById('s-total').textContent = total;
+document.getElementById('s-ok').textContent = okCount;
+document.getElementById('s-no').textContent = total - okCount;
+document.getElementById('cov-pct').textContent = pct + '%';
+document.getElementById('cov-bar').style.setProperty('--w', pct + '%');
+</script>
+</body>
+</html>

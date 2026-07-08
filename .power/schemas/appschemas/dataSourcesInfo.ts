@@ -5,6 +5,13 @@
  */
 
 export const dataSourcesInfo = {
+  "aum_aiinitiativeses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "aum_aiinitiativesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "ai_alhasbaagentkpises": {
     "tableId": "",
     "version": "",
@@ -252,6 +259,13 @@ export const dataSourcesInfo = {
         }
       }
     }
+  },
+  "md_masters": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "md_masterid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
   },
   "_1": {
     "tableId": "",

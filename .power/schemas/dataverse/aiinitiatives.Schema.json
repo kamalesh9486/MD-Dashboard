@@ -1,0 +1,1155 @@
+{
+  "name": "aum_aiinitiatives",
+  "title": "AI Initiatives",
+  "schema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "x-ms-dataverse-entity": true,
+      "x-ms-dataverse-entityset": "aum_aiinitiativeses",
+      "x-ms-dataverse-primary-id": "aum_aiinitiativesid",
+      "x-ms-dataverse-primary-name": "aum_initiativetitle",
+      "properties": {
+        "aum_agenticengineer": {
+          "type": "string",
+          "title": "Agentic Engineer",
+          "x-ms-dataverse-attribute": "aum_agenticengineer",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_agenticengineer",
+          "maxLength": 200
+        },
+        "aum_agentid": {
+          "type": "string",
+          "title": "Agent ID",
+          "x-ms-dataverse-attribute": "aum_agentid",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_agentid",
+          "maxLength": 100
+        },
+        "aum_aiinitiativesid": {
+          "type": "string",
+          "title": "AI Initiatives",
+          "x-ms-dataverse-attribute": "aum_aiinitiativesid",
+          "x-ms-dataverse-type": "UniqueidentifierType",
+          "x-ms-schema-name": "aum_AIInitiativesId",
+          "x-ms-dataverse-primary-id": true,
+          "required": true,
+          "x-ms-keyType": "primary"
+        },
+        "aum_aisolutiontype": {
+          "type": "string",
+          "title": "AI Solution Type",
+          "x-ms-dataverse-attribute": "aum_aisolutiontype",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_AISolutionType",
+          "enum": [
+            "Predictive",
+            "Agentic AI",
+            "WorkFlows",
+            "Analytics"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002,
+            751770003
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "9203b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "AI Solution Type",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_aisolutiontypename": {
+          "type": "string",
+          "title": "aum_aisolutiontypename",
+          "x-ms-dataverse-attribute": "aum_aisolutiontypename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_aisolutiontypeName",
+          "x-ms-read-only": true
+        },
+        "aum_aitechnology": {
+          "type": "string",
+          "title": "AI Technology",
+          "x-ms-dataverse-attribute": "aum_aitechnology",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "aum_aitechnology",
+          "maxLength": 4000
+        },
+        "aum_annualvolume": {
+          "type": "string",
+          "title": "Annual Volume",
+          "x-ms-dataverse-attribute": "aum_annualvolume",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "aum_annualvolume"
+        },
+        "aum_benefittype": {
+          "type": "string",
+          "title": "Benefit Type",
+          "x-ms-dataverse-attribute": "aum_benefittype",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_benefittype",
+          "enum": [
+            "Tangible",
+            "Intangible"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "37f7844a-2b73-f111-ab0e-7ced8dacd093",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Benefit Type",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_benefittypename": {
+          "type": "string",
+          "title": "aum_benefittypename",
+          "x-ms-dataverse-attribute": "aum_benefittypename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_benefittypeName",
+          "x-ms-read-only": true
+        },
+        "aum_businessimpactcategory": {
+          "type": "string",
+          "title": "Business Impact Category",
+          "x-ms-dataverse-attribute": "aum_businessimpactcategory",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_BusinessImpactCategory",
+          "enum": [
+            "Efficiency gain >20% or value >AED 5M",
+            "Gain 10–20% or value AED 1–5M",
+            "Gain <10% or value <AED 1M"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "9803b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Business Impact Category",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_businessimpactcategoryname": {
+          "type": "string",
+          "title": "aum_businessimpactcategoryname",
+          "x-ms-dataverse-attribute": "aum_businessimpactcategoryname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_businessimpactcategoryName",
+          "x-ms-read-only": true
+        },
+        "aum_businessimpactdetails": {
+          "type": "string",
+          "title": "Business Impact Details",
+          "x-ms-dataverse-attribute": "aum_businessimpactdetails",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_BusinessImpactDetails",
+          "maxLength": 4000
+        },
+        "aum_costincurred": {
+          "type": "string",
+          "title": "Cost Incurred",
+          "x-ms-dataverse-attribute": "aum_costincurred",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "aum_costincurred"
+        },
+        "aum_costsaving": {
+          "type": "string",
+          "title": "Cost Saving",
+          "x-ms-dataverse-attribute": "aum_costsaving",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "aum_costsaving"
+        },
+        "aum_datedeployed": {
+          "type": "string",
+          "title": "Date Deployed",
+          "x-ms-dataverse-attribute": "aum_datedeployed",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "aum_datedeployed"
+        },
+        "aum_dateofsubmission": {
+          "type": "string",
+          "title": "Date of Submission",
+          "x-ms-dataverse-attribute": "aum_dateofsubmission",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "aum_DateofSubmission"
+        },
+        "aum_demandno": {
+          "type": "string",
+          "title": "Demand No",
+          "x-ms-dataverse-attribute": "aum_demandno",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_DemandNo",
+          "maxLength": 100
+        },
+        "aum_demandtype": {
+          "type": "string",
+          "title": "Demand Type",
+          "x-ms-dataverse-attribute": "aum_demandtype",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_demandtype",
+          "enum": [
+            "Turnkey",
+            "Enhancement"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "32f7844a-2b73-f111-ab0e-7ced8dacd093",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Demand Type",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_demandtypename": {
+          "type": "string",
+          "title": "aum_demandtypename",
+          "x-ms-dataverse-attribute": "aum_demandtypename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_demandtypeName",
+          "x-ms-read-only": true
+        },
+        "aum_department": {
+          "type": "string",
+          "title": "Department",
+          "x-ms-dataverse-attribute": "aum_department",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_Department",
+          "maxLength": 100
+        },
+        "aum_division": {
+          "type": "string",
+          "title": "Division",
+          "x-ms-dataverse-attribute": "aum_division",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_Division",
+          "maxLength": 100
+        },
+        "aum_divisionheadreview": {
+          "type": "string",
+          "title": "Division Head Review",
+          "x-ms-dataverse-attribute": "aum_divisionheadreview",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "aum_DivisionHeadReview",
+          "enum": [
+            "No",
+            "Yes"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "8f03b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Division Head Review",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "aum_divisionheadreviewname": {
+          "type": "string",
+          "title": "aum_divisionheadreviewname",
+          "x-ms-dataverse-attribute": "aum_divisionheadreviewname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_divisionheadreviewName",
+          "x-ms-read-only": true
+        },
+        "aum_domain": {
+          "type": "string",
+          "title": "Domain",
+          "x-ms-dataverse-attribute": "aum_domain",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_domain",
+          "maxLength": 200
+        },
+        "aum_employeesimpactedcount": {
+          "type": "string",
+          "title": "Employees Impacted Count",
+          "x-ms-dataverse-attribute": "aum_employeesimpactedcount",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_EmployeesImpactedCount",
+          "maxLength": 100
+        },
+        "aum_entitytype": {
+          "type": "string",
+          "title": "Entity Type",
+          "x-ms-dataverse-attribute": "aum_entitytype",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_entitytype",
+          "enum": [
+            "Demand",
+            "Use Case",
+            "Deployment Project",
+            "Retreat Idea",
+            "AI Application"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002,
+            751770003,
+            751770004
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "94a32a45-2b73-f111-ab0e-7ced8dac4e22",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Entity Type",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_entitytypename": {
+          "type": "string",
+          "title": "aum_entitytypename",
+          "x-ms-dataverse-attribute": "aum_entitytypename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_entitytypeName",
+          "x-ms-read-only": true
+        },
+        "aum_estimatedtimesavingshoursmonth": {
+          "type": "string",
+          "title": "Estimated Time Savings (Hours/Month)",
+          "x-ms-dataverse-attribute": "aum_estimatedtimesavingshoursmonth",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_EstimatedTimeSavingsHoursMonth",
+          "maxLength": 100
+        },
+        "aum_feasibilitydatareadiness": {
+          "type": "string",
+          "title": "Feasibility & Data Readiness",
+          "x-ms-dataverse-attribute": "aum_feasibilitydatareadiness",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_FeasibilityDataReadiness",
+          "enum": [
+            "Data available; low system complexity",
+            "Partial data; moderate complexity",
+            "Data gaps; high complexity"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "9b03b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Feasibility & Data Readiness",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_feasibilitydatareadinessname": {
+          "type": "string",
+          "title": "aum_feasibilitydatareadinessname",
+          "x-ms-dataverse-attribute": "aum_feasibilitydatareadinessname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_feasibilitydatareadinessName",
+          "x-ms-read-only": true
+        },
+        "aum_ftecostsavings": {
+          "type": "string",
+          "title": "Productivity Value",
+          "x-ms-dataverse-attribute": "aum_ftecostsavings",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_FTECostSavings",
+          "enum": [
+            "Productivity Value ≥ AED 2M p.a.",
+            "Productivity Value AED 0.5M–2M p.a.",
+            "Productivity Value < AED 0.5M p.a."
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "a103b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "FTE & Cost Savings",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_ftecostsavingsname": {
+          "type": "string",
+          "title": "aum_ftecostsavingsname",
+          "x-ms-dataverse-attribute": "aum_ftecostsavingsname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_ftecostsavingsName",
+          "x-ms-read-only": true
+        },
+        "aum_implementationmandays": {
+          "type": "string",
+          "title": "Implementation Mandays",
+          "x-ms-dataverse-attribute": "aum_implementationmandays",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_ImplementationMandays",
+          "maxLength": 100
+        },
+        "aum_initiativedescription": {
+          "type": "string",
+          "title": "Initiative Description",
+          "x-ms-dataverse-attribute": "aum_initiativedescription",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_InitiativeDescription",
+          "maxLength": 4000
+        },
+        "aum_initiativeowner": {
+          "type": "string",
+          "title": "Initiative Owner",
+          "x-ms-dataverse-attribute": "aum_initiativeowner",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_InitiativeOwner",
+          "maxLength": 100
+        },
+        "aum_initiativetitle": {
+          "type": "string",
+          "title": "Initiative Title",
+          "x-ms-dataverse-attribute": "aum_initiativetitle",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_InitiativeTitle",
+          "x-ms-dataverse-primary-name": true,
+          "required": true,
+          "maxLength": 850
+        },
+        "aum_keymilestones": {
+          "type": "string",
+          "title": "Key Milestones",
+          "x-ms-dataverse-attribute": "aum_keymilestones",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_KeyMilestones",
+          "maxLength": 100
+        },
+        "aum_kpissuccessmetrics": {
+          "type": "string",
+          "title": "KPIs & Success Metrics",
+          "x-ms-dataverse-attribute": "aum_kpissuccessmetrics",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_KPIsSuccessMetrics",
+          "maxLength": 100
+        },
+        "aum_priority": {
+          "type": "string",
+          "title": "Priority",
+          "x-ms-dataverse-attribute": "aum_priority",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_Priority",
+          "enum": [
+            "High",
+            "Medium",
+            "Low"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "8c03b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Priority",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_priorityname": {
+          "type": "string",
+          "title": "aum_priorityname",
+          "x-ms-dataverse-attribute": "aum_priorityname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_priorityName",
+          "x-ms-read-only": true
+        },
+        "aum_problemstatement": {
+          "type": "string",
+          "title": "Problem Statement",
+          "x-ms-dataverse-attribute": "aum_problemstatement",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_ProblemStatement",
+          "maxLength": 100
+        },
+        "aum_productivitygain": {
+          "type": "string",
+          "title": "Productivity Gain",
+          "x-ms-dataverse-attribute": "aum_productivitygain",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_ProductivityGain",
+          "maxLength": 100
+        },
+        "aum_programproject": {
+          "type": "string",
+          "title": "Program / Project",
+          "x-ms-dataverse-attribute": "aum_programproject",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_programproject",
+          "enum": [
+            "Program",
+            "Project"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "f76b674e-2b73-f111-ab0e-7ced8dac4208",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Program / Project",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_programprojectname": {
+          "type": "string",
+          "title": "aum_programprojectname",
+          "x-ms-dataverse-attribute": "aum_programprojectname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_programprojectName",
+          "x-ms-read-only": true
+        },
+        "aum_progresspct": {
+          "type": "string",
+          "title": "Progress %",
+          "x-ms-dataverse-attribute": "aum_progresspct",
+          "x-ms-dataverse-type": "DecimalType",
+          "x-ms-schema-name": "aum_progresspct"
+        },
+        "aum_proposedaisolution": {
+          "type": "string",
+          "title": "Proposed AI Solution",
+          "x-ms-dataverse-attribute": "aum_proposedaisolution",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_ProposedAISolution",
+          "maxLength": 100
+        },
+        "aum_reportingyear": {
+          "type": "string",
+          "title": "Reporting Year",
+          "x-ms-dataverse-attribute": "aum_reportingyear",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "aum_reportingyear"
+        },
+        "aum_risksdependencies": {
+          "type": "string",
+          "title": "Risks & Dependencies",
+          "x-ms-dataverse-attribute": "aum_risksdependencies",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_RisksDependencies",
+          "maxLength": 100
+        },
+        "aum_source": {
+          "type": "string",
+          "title": "Source",
+          "x-ms-dataverse-attribute": "aum_source",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_source",
+          "enum": [
+            "D2D",
+            "AI Deployment",
+            "Al Hasbah",
+            "AI Retreat",
+            "State of AI"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002,
+            751770003,
+            751770004
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "8ba32a45-2b73-f111-ab0e-7ced8dac4e22",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Source",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_sourcemaster": {
+          "type": "string",
+          "title": "Source Master",
+          "x-ms-dataverse-attribute": "aum_sourcemaster",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_SourceMaster",
+          "maxLength": 100
+        },
+        "aum_sourcename": {
+          "type": "string",
+          "title": "aum_sourcename",
+          "x-ms-dataverse-attribute": "aum_sourcename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_sourceName",
+          "x-ms-read-only": true
+        },
+        "aum_stage": {
+          "type": "string",
+          "title": "Stage",
+          "x-ms-dataverse-attribute": "aum_stage",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_stage",
+          "maxLength": 100
+        },
+        "aum_startdate": {
+          "type": "string",
+          "title": "Start Date",
+          "x-ms-dataverse-attribute": "aum_startdate",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "aum_startdate"
+        },
+        "aum_status": {
+          "type": "string",
+          "title": "Status",
+          "x-ms-dataverse-attribute": "aum_status",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_Status",
+          "enum": [
+            "Planning",
+            "In Discovery",
+            "Active",
+            "Pilot",
+            "Deployed",
+            "On Hold",
+            "Completed",
+            "Cancelled"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002,
+            751770003,
+            751770004,
+            751770005,
+            751770006,
+            751770007
+          ],
+          "Color": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "8903b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Status",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_statusname": {
+          "type": "string",
+          "title": "aum_statusname",
+          "x-ms-dataverse-attribute": "aum_statusname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_statusName",
+          "x-ms-read-only": true
+        },
+        "aum_strategicalignment": {
+          "type": "string",
+          "title": "Strategic Alignment",
+          "x-ms-dataverse-attribute": "aum_strategicalignment",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_StrategicAlignment",
+          "enum": [
+            "Directly supports 2+ DEWA strategic pillars or UAE AI 2031",
+            "Supports 1 strategic pillar",
+            "Minor or indirect alignment"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "9503b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Strategic Alignment",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_strategicalignmentname": {
+          "type": "string",
+          "title": "aum_strategicalignmentname",
+          "x-ms-dataverse-attribute": "aum_strategicalignmentname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_strategicalignmentName",
+          "x-ms-read-only": true
+        },
+        "aum_supportingevidence": {
+          "type": "string",
+          "title": "Supporting Evidence",
+          "x-ms-dataverse-attribute": "aum_supportingevidence",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "aum_supportingevidence",
+          "maxLength": 2000
+        },
+        "aum_systemsintegrated": {
+          "type": "string",
+          "title": "Systems Integrated",
+          "x-ms-dataverse-attribute": "aum_systemsintegrated",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_systemsintegrated",
+          "maxLength": 500
+        },
+        "aum_targetcompletion": {
+          "type": "string",
+          "title": "Target Completion",
+          "x-ms-dataverse-attribute": "aum_targetcompletion",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "aum_TargetCompletion"
+        },
+        "aum_technology": {
+          "type": "string",
+          "title": "Technology",
+          "x-ms-dataverse-attribute": "aum_technology",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_technology",
+          "maxLength": 4000
+        },
+        "aum_timetofirstvalue": {
+          "type": "string",
+          "title": "Time to First Value",
+          "x-ms-dataverse-attribute": "aum_timetofirstvalue",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "aum_TimetoFirstValue",
+          "enum": [
+            "First value within 12 months",
+            "First value in 12–24 months",
+            "First value after 24 months"
+          ],
+          "x-ms-enum-values": [
+            751770000,
+            751770001,
+            751770002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "9e03b8d5-7870-f111-ab0f-7ced8dacd8f9",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Time to First Value",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "aum_timetofirstvaluename": {
+          "type": "string",
+          "title": "aum_timetofirstvaluename",
+          "x-ms-dataverse-attribute": "aum_timetofirstvaluename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_timetofirstvalueName",
+          "x-ms-read-only": true
+        },
+        "aum_turnkeyproject": {
+          "type": "string",
+          "title": "Turnkey Project",
+          "x-ms-dataverse-attribute": "aum_turnkeyproject",
+          "x-ms-dataverse-type": "BooleanType",
+          "x-ms-schema-name": "aum_turnkeyproject",
+          "enum": [
+            "No",
+            "Yes"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "6196586d-2a73-f111-ab0e-7ced8dac4e22",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Turnkey Project",
+          "x-ms-optionSetType": "Boolean"
+        },
+        "aum_turnkeyprojectname": {
+          "type": "string",
+          "title": "aum_turnkeyprojectname",
+          "x-ms-dataverse-attribute": "aum_turnkeyprojectname",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "aum_turnkeyprojectName",
+          "x-ms-read-only": true
+        },
+        "aum_uid": {
+          "type": "string",
+          "title": "UID",
+          "x-ms-dataverse-attribute": "aum_uid",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "aum_uid",
+          "maxLength": 100
+        },
+        "aum_useradoption": {
+          "type": "string",
+          "title": "User Adoption",
+          "x-ms-dataverse-attribute": "aum_useradoption",
+          "x-ms-dataverse-type": "MemoType",
+          "x-ms-schema-name": "aum_useradoption",
+          "maxLength": 2000
+        },
+        "cr978_aisolutiontypemaster": {
+          "type": "string",
+          "title": "Ai Solution Type Master",
+          "x-ms-dataverse-attribute": "cr978_aisolutiontypemaster",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "cr978_AiSolutionTypeMaster",
+          "maxLength": 100
+        },
+        "cr978_inactivereason": {
+          "type": "string",
+          "title": "In Active Reason",
+          "x-ms-dataverse-attribute": "cr978_inactivereason",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "cr978_InActiveReason",
+          "maxLength": 100
+        },
+        "createdby": {
+          "type": "string",
+          "title": "Created By",
+          "x-ms-dataverse-attribute": "createdby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "CreatedBy",
+          "x-ms-read-only": true
+        },
+        "createdbyname": {
+          "type": "string",
+          "title": "createdbyname",
+          "x-ms-dataverse-attribute": "createdbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "createdbyyominame": {
+          "type": "string",
+          "title": "createdbyyominame",
+          "x-ms-dataverse-attribute": "createdbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "createdon": {
+          "type": "string",
+          "title": "Created On",
+          "x-ms-dataverse-attribute": "createdon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "CreatedOn",
+          "x-ms-read-only": true
+        },
+        "createdonbehalfby": {
+          "type": "string",
+          "title": "Created By (Delegate)",
+          "x-ms-dataverse-attribute": "createdonbehalfby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "CreatedOnBehalfBy",
+          "x-ms-read-only": true
+        },
+        "createdonbehalfbyname": {
+          "type": "string",
+          "title": "createdonbehalfbyname",
+          "x-ms-dataverse-attribute": "createdonbehalfbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedOnBehalfByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "createdonbehalfbyyominame": {
+          "type": "string",
+          "title": "createdonbehalfbyyominame",
+          "x-ms-dataverse-attribute": "createdonbehalfbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "CreatedOnBehalfByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "importsequencenumber": {
+          "type": "string",
+          "title": "Import Sequence Number",
+          "x-ms-dataverse-attribute": "importsequencenumber",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "ImportSequenceNumber"
+        },
+        "modifiedby": {
+          "type": "string",
+          "title": "Modified By",
+          "x-ms-dataverse-attribute": "modifiedby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "ModifiedBy",
+          "x-ms-read-only": true
+        },
+        "modifiedbyname": {
+          "type": "string",
+          "title": "modifiedbyname",
+          "x-ms-dataverse-attribute": "modifiedbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "modifiedbyyominame": {
+          "type": "string",
+          "title": "modifiedbyyominame",
+          "x-ms-dataverse-attribute": "modifiedbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "modifiedon": {
+          "type": "string",
+          "title": "Modified On",
+          "x-ms-dataverse-attribute": "modifiedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "ModifiedOn",
+          "x-ms-read-only": true
+        },
+        "modifiedonbehalfby": {
+          "type": "string",
+          "title": "Modified By (Delegate)",
+          "x-ms-dataverse-attribute": "modifiedonbehalfby",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "ModifiedOnBehalfBy",
+          "x-ms-read-only": true
+        },
+        "modifiedonbehalfbyname": {
+          "type": "string",
+          "title": "modifiedonbehalfbyname",
+          "x-ms-dataverse-attribute": "modifiedonbehalfbyname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedOnBehalfByName",
+          "x-ms-read-only": true,
+          "maxLength": 100
+        },
+        "modifiedonbehalfbyyominame": {
+          "type": "string",
+          "title": "modifiedonbehalfbyyominame",
+          "x-ms-dataverse-attribute": "modifiedonbehalfbyyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "ModifiedOnBehalfByYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "overriddencreatedon": {
+          "type": "string",
+          "title": "Record Created On",
+          "x-ms-dataverse-attribute": "overriddencreatedon",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "OverriddenCreatedOn"
+        },
+        "ownerid": {
+          "type": "string",
+          "title": "Owner",
+          "x-ms-dataverse-attribute": "ownerid",
+          "x-ms-dataverse-type": "OwnerType",
+          "x-ms-schema-name": "OwnerId",
+          "required": true
+        },
+        "owneridname": {
+          "type": "string",
+          "title": "owneridname",
+          "x-ms-dataverse-attribute": "owneridname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwnerIdName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owneridtype": {
+          "type": "string",
+          "title": "owneridtype",
+          "x-ms-dataverse-attribute": "owneridtype",
+          "x-ms-dataverse-type": "EntityNameType",
+          "x-ms-schema-name": "OwnerIdType",
+          "required": true
+        },
+        "owneridyominame": {
+          "type": "string",
+          "title": "owneridyominame",
+          "x-ms-dataverse-attribute": "owneridyominame",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwnerIdYomiName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owningbusinessunit": {
+          "type": "string",
+          "title": "Owning Business Unit",
+          "x-ms-dataverse-attribute": "owningbusinessunit",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningBusinessUnit",
+          "x-ms-read-only": true
+        },
+        "owningbusinessunitname": {
+          "type": "string",
+          "title": "owningbusinessunitname",
+          "x-ms-dataverse-attribute": "owningbusinessunitname",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "OwningBusinessUnitName",
+          "x-ms-read-only": true,
+          "required": true,
+          "maxLength": 100
+        },
+        "owningteam": {
+          "type": "string",
+          "title": "Owning Team",
+          "x-ms-dataverse-attribute": "owningteam",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningTeam",
+          "x-ms-read-only": true
+        },
+        "owninguser": {
+          "type": "string",
+          "title": "Owning User",
+          "x-ms-dataverse-attribute": "owninguser",
+          "x-ms-dataverse-type": "LookupType",
+          "x-ms-schema-name": "OwningUser",
+          "x-ms-read-only": true
+        },
+        "statecode": {
+          "type": "string",
+          "title": "Status",
+          "x-ms-dataverse-attribute": "statecode",
+          "x-ms-dataverse-type": "StateType",
+          "x-ms-schema-name": "statecode",
+          "required": true,
+          "enum": [
+            "Active",
+            "Inactive"
+          ],
+          "x-ms-enum-values": [
+            0,
+            1
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "216c297e-9902-f111-8406-70a8a521c059",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Status",
+          "x-ms-optionSetType": "State"
+        },
+        "statecodename": {
+          "type": "string",
+          "title": "statecodename",
+          "x-ms-dataverse-attribute": "statecodename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "statecodeName",
+          "x-ms-read-only": true
+        },
+        "statuscode": {
+          "type": "string",
+          "title": "Status Reason",
+          "x-ms-dataverse-attribute": "statuscode",
+          "x-ms-dataverse-type": "StatusType",
+          "x-ms-schema-name": "statuscode",
+          "enum": [
+            "Active",
+            "Inactive"
+          ],
+          "x-ms-enum-values": [
+            1,
+            2
+          ],
+          "Color": [
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "2b6c297e-9902-f111-8406-70a8a521c059",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "Status Reason",
+          "x-ms-optionSetType": "Status"
+        },
+        "statuscodename": {
+          "type": "string",
+          "title": "statuscodename",
+          "x-ms-dataverse-attribute": "statuscodename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "statuscodeName",
+          "x-ms-read-only": true
+        },
+        "timezoneruleversionnumber": {
+          "type": "string",
+          "title": "Time Zone Rule Version Number",
+          "x-ms-dataverse-attribute": "timezoneruleversionnumber",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "TimeZoneRuleVersionNumber"
+        },
+        "utcconversiontimezonecode": {
+          "type": "string",
+          "title": "UTC Conversion Time Zone Code",
+          "x-ms-dataverse-attribute": "utcconversiontimezonecode",
+          "x-ms-dataverse-type": "IntegerType",
+          "x-ms-schema-name": "UTCConversionTimeZoneCode"
+        },
+        "versionnumber": {
+          "type": "string",
+          "title": "Version Number",
+          "x-ms-dataverse-attribute": "versionnumber",
+          "x-ms-dataverse-type": "BigIntType",
+          "x-ms-schema-name": "VersionNumber",
+          "x-ms-read-only": true
+        }
+      },
+      "required": [
+        "aum_aiinitiativesid",
+        "aum_initiativetitle",
+        "createdbyyominame",
+        "createdonbehalfbyyominame",
+        "modifiedbyyominame",
+        "modifiedonbehalfbyyominame",
+        "ownerid",
+        "owneridname",
+        "owneridtype",
+        "owneridyominame",
+        "owningbusinessunitname",
+        "statecode"
+      ]
+    }
+  }
+}
