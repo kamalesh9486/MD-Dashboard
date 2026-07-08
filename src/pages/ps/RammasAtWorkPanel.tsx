@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { RammasAtWorkService, type RammasAtWorkData } from '../../services/RammasAtWorkService'
 import Icon from '../../components/Icon'
+import RammasOverviewTab from './RammasOverviewTab'
 import RammasBrdTab from './RammasBrdTab'
 import RammasMyRammasTab from './RammasMyRammasTab'
 import RammasKmTab from './RammasKmTab'
@@ -8,9 +9,10 @@ import RammasKmTab from './RammasKmTab'
 const COLOR = '#00695c'
 const RED   = '#dc2626'
 
-type TabId = 'brd' | 'myrammas' | 'km'
+type TabId = 'overview' | 'brd' | 'myrammas' | 'km'
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
+  { id: 'overview', label: 'KPI Overview',          icon: 'bi-columns-gap'      },
   { id: 'brd',      label: 'BRD Analytics',        icon: 'bi-file-text'        },
   { id: 'myrammas', label: 'MyRammas',              icon: 'bi-robot'            },
   { id: 'km',       label: 'Knowledge Management',  icon: 'bi-book-fill'        },
@@ -20,7 +22,7 @@ export default function RammasAtWorkPanel({ onBack }: { onBack: () => void }) {
   const [data,    setData]    = useState<RammasAtWorkData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<TabId>('brd')
+  const [activeTab, setActiveTab] = useState<TabId>('overview')
 
   useEffect(() => {
     let active = true
@@ -103,6 +105,7 @@ export default function RammasAtWorkPanel({ onBack }: { onBack: () => void }) {
       )}
 
       {/* Active tab content */}
+      {data && activeTab === 'overview' && <RammasOverviewTab data={data} />}
       {data && activeTab === 'brd'      && <RammasBrdTab      data={data} />}
       {data && activeTab === 'myrammas' && <RammasMyRammasTab data={data} />}
       {data && activeTab === 'km'       && <RammasKmTab       data={data} />}
