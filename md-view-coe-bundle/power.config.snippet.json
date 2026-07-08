@@ -1,0 +1,7 @@
+{
+  "_comment": "Merge this ONE entry into power.config.json → databaseReferences → 'default.cds' → dataSources. It sits alongside the existing md_appusers / coe_* entries. This registers the md_master table so the live MD View (V8) can query it via the Dataverse connector. Verify the entitySetName against your table's Session details / metadata; the loader also auto-resolves it at runtime.",
+  "md_master": {
+    "entitySetName": "md_masters",
+    "logicalName": "md_master"
+  }
+}

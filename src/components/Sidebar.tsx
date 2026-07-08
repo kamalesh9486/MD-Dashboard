@@ -3,6 +3,7 @@ import { useCurrentUser } from '../hooks/useCurrentUser'
 import Icon from './Icon'
 
 export type TabId =
+  | 'md-view-v3' | 'md-view-v2' | 'md-view-v1'
   | 'executive-summary' | 'people-skills' | 'programs' | 'events'
   | 'discovery-catalog' | 'division-analytics' | 'technology-stack'
   | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center'
@@ -35,6 +36,11 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  {
+    id: 'md-view-v3' as TabId,
+    label: 'MD View v2',
+    icon: 'bi-table',
+  },
   {
     id: 'executive-summary' as TabId,
     label: 'Executive Summary',
@@ -107,6 +113,9 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 const PAGE_TITLES: Record<TabId, string> = {
+  'md-view-v3':    'MD View v2',
+  'md-view-v2':    'MD View (analytics)',
+  'md-view-v1':    'MD View (legacy)',
   'executive-summary': 'Executive Summary',
   'people-skills': 'People & Skills',
   programs: 'Programs',

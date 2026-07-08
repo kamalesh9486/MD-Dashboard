@@ -13,6 +13,8 @@ import Finance           from '../pages/Finance'
 import StrategicRoadmap  from '../pages/StrategicRoadmap'
 import AICommandCenter   from '../pages/AICommandCenter'
 import AlHasbah, { type AlHasbahTabId } from '../pages/AlHasbah'
+import AumBoardV2         from '../pages/AumBoardV2'
+import AumBoardV3         from '../pages/AumBoardV3'
 import Icon              from './Icon'
 import { ErrorBoundary } from './ErrorBoundary'
 import dewaLogo          from '../assets/dewa-logo.svg'
@@ -72,6 +74,10 @@ export default function Layout({ onLogout }: LayoutProps) {
 
   function renderPage() {
     switch (activeTab) {
+      case 'md-view-v3':
+        return <AumBoardV3 />
+      case 'md-view-v2':
+        return <AumBoardV2 />
       case 'executive-summary':
         return <ExecutiveSummary />
       case 'people-skills':
