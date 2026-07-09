@@ -38,8 +38,8 @@ interface SidebarProps {
 const NAV_ITEMS: NavItem[] = [
   {
     id: 'md-view-v3' as TabId,
-    label: 'MD View v2',
-    icon: 'bi-table',
+    label: 'MD Dashboard',
+    icon: 'bi-kanban',
   },
   {
     id: 'executive-summary' as TabId,
@@ -74,7 +74,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     id: 'discovery-catalog' as TabId,
     label: 'Discovery Catalog',
-    icon: 'bi-kanban',
+    icon: 'bi-activity',
   },
   {
     id: 'ai-incident' as TabId,

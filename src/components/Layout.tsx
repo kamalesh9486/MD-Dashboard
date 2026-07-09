@@ -42,7 +42,7 @@ const SUB_TO_AH: Record<AlHasbahTabId, TabId> = {
 }
 
 export default function Layout({ onLogout }: LayoutProps) {
-  const [activeTab,        setActiveTab]        = useState<TabId>('executive-summary')
+  const [activeTab,        setActiveTab]        = useState<TabId>('md-view-v3')
   const [collapsed,        setCollapsed]        = useState(false)
   const [mobileOpen,       setMobileOpen]       = useState(false)
   const [isMobile,         setIsMobile]         = useState(window.innerWidth <= 768)

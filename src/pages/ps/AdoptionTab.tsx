@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Fragment } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, LabelList,
@@ -33,6 +33,27 @@ const DIV_ABBREV: Record<string, string> = {
   'INTERNAL AUDIT':                      'IA',
   'STRATEGY & GOVERNMENT COMMUNICATION': 'S&GC',
   'LEGAL AFFAIRS':                       'Legal',
+}
+
+// ── Heatmap cell coloring: blend white → tool color by adoption fraction ──
+function hexToRgb(hex: string) {
+  const n = parseInt(hex.slice(1), 16)
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
+}
+function heatT(val: number) {
+  return Math.min(1, Math.max(0, val / 100)) * 0.9 + 0.06
+}
+function heatFill(hex: string, val: number) {
+  const t = heatT(val)
+  const { r, g, b } = hexToRgb(hex)
+  const m = (c: number) => Math.round(255 + (c - 255) * t)
+  return `rgb(${m(r)}, ${m(g)}, ${m(b)})`
+}
+function heatText(hex: string, val: number) {
+  const t = heatT(val)
+  const { r, g, b } = hexToRgb(hex)
+  const L = 0.299 * (255 + (r - 255) * t) + 0.587 * (255 + (g - 255) * t) + 0.114 * (255 + (b - 255) * t)
+  return L < 150 ? '#fff' : '#374151'
 }
 
 function CustomBarTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
@@ -107,6 +128,17 @@ export default function AdoptionTab() {
     d.pct >= 99 ? '#007560' : d.pct >= 95 ? '#ca8a04' : '#c8352c'
   )
 
+  // Fixed division order (high → low overall adoption) shared across every heatmap row
+  const orderedDivs = useMemo(
+    () => [...divisions].sort((a, b) => b.adoptionPct - a.adoptionPct).map(d => d.division),
+    [divisions]
+  )
+  const toolMap = useMemo(() => {
+    const m = new Map<string, Record<string, number>>()
+    toolData.forEach(r => m.set((r as unknown as { division: string }).division, r as unknown as Record<string, number>))
+    return m
+  }, [toolData])
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -124,13 +156,13 @@ export default function AdoptionTab() {
           )}
           {!loading && (
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={divisionAdoption} margin={{ top: 4, right: 20, left: -16, bottom: 48 }} barSize={28}>
+              <BarChart data={divisionAdoption} margin={{ top: 4, right: 20, left: -16, bottom: 12 }} barSize={28}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e8e5de" vertical={false} />
                 <XAxis
                   dataKey="division"
-                  tick={{ fontSize: 9.5, fill: '#9ca3af' }}
-                  axisLine={false} tickLine={false}
-                  angle={-35} textAnchor="end" interval={0}
+                  tick={{ fontSize: 10.5, fill: '#6b7280' }}
+                  tickFormatter={(v: string) => DIV_ABBREV[v.toUpperCase()] ?? v}
+                  axisLine={false} tickLine={false} interval={0}
                 />
                 <YAxis domain={[85, 102]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} unit="%" />
                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(0,117,96,0.04)' }} />
@@ -161,8 +193,8 @@ export default function AdoptionTab() {
       {/* ── Tool Adoption Lanes ────────────────────────────────────── */}
       <div className="ps-card">
         <div className="ps-card-header">
-          <span className="ps-card-title"><Icon name="bi-collection-fill" /> Tool Adoption Lanes</span>
-          <span style={{ fontSize: 12, color: '#9ca3af' }}>Divisions positioned by % actively using each M365 Copilot app</span>
+          <span className="ps-card-title"><Icon name="bi-collection-fill" /> Tool Adoption by Division</span>
+          <span style={{ fontSize: 12, color: '#9ca3af' }}>% of each division actively using every M365 Copilot app</span>
         </div>
 
         {loading && (
@@ -172,102 +204,69 @@ export default function AdoptionTab() {
         )}
 
         {!loading && (
-          <div style={{ padding: '4px 20px 20px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ padding: '8px 20px 16px', overflowX: 'auto' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: `150px repeat(${orderedDivs.length}, minmax(44px, 1fr))`,
+              gap: 4, minWidth: 660,
+            }}>
+              {/* Header row — division abbreviations (horizontal) */}
+              <div />
+              {orderedDivs.map(div => (
+                <div key={div} style={{ fontSize: 9.5, fontWeight: 700, color: '#6b7280', textAlign: 'center', paddingBottom: 6, whiteSpace: 'nowrap' }}>
+                  {DIV_ABBREV[div] ?? div.slice(0, 4)}
+                </div>
+              ))}
 
-            {/* Scale ticks */}
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 64px', gap: 0, paddingBottom: 2 }}>
-              <div />
-              <div style={{ position: 'relative', height: 16 }}>
-                {[0, 25, 50, 75, 100].map(tick => (
-                  <span key={tick} style={{ position: 'absolute', left: `${tick}%`, transform: 'translateX(-50%)', fontSize: 9.5, color: '#c4bfb8', fontWeight: 500, userSelect: 'none' }}>
-                    {tick}%
-                  </span>
-                ))}
-              </div>
-              <div />
+              {/* One row per tool */}
+              {TOOLS.map(tool => (
+                <Fragment key={tool.key}>
+                  {/* Tool label + org avg */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                    <span style={{ width: 30, height: 30, borderRadius: 8, background: tool.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <i className={`bi ${tool.icon}`} style={{ color: tool.color, fontSize: 16 }} />
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{tool.label}</span>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: tool.color }}>org avg {toolAvgs[tool.key]}%</span>
+                    </div>
+                  </div>
+
+                  {/* Heat cells */}
+                  {orderedDivs.map(div => {
+                    const val   = toolMap.get(div)?.[tool.key] ?? 0
+                    const isHov = hov?.division === div && hov?.toolKey === tool.key
+                    return (
+                      <div
+                        key={div}
+                        onMouseEnter={e => {
+                          const r = e.currentTarget.getBoundingClientRect()
+                          setHov({ division: div, toolKey: tool.key, pct: val, x: r.left + r.width / 2, y: r.top })
+                        }}
+                        onMouseLeave={() => setHov(null)}
+                        style={{
+                          height: 34, borderRadius: 7,
+                          background: heatFill(tool.color, val),
+                          color: heatText(tool.color, val),
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700, cursor: 'default',
+                          transition: 'box-shadow 0.15s',
+                          boxShadow: isHov ? `0 0 0 2px ${tool.color}, 0 4px 12px ${tool.color}55` : 'none',
+                        }}
+                      >
+                        {val}%
+                      </div>
+                    )
+                  })}
+                </Fragment>
+              ))}
             </div>
 
-            {TOOLS.map(tool => {
-              const avg    = toolAvgs[tool.key]
-              const sorted = toolData
-                .sort((a, b) => (a as unknown as Record<string,number>)[tool.key] - (b as unknown as Record<string,number>)[tool.key])
-                .map((row, i) => ({ row, stagger: i % 2 }))
-
-              return (
-                <div key={tool.key} style={{
-                  display: 'grid', gridTemplateColumns: '120px 1fr 64px', gap: 0,
-                  alignItems: 'center', background: tool.bg, borderRadius: 12,
-                  border: `1px solid ${tool.color}22`, padding: '10px 0', marginBottom: 4,
-                }}>
-                  {/* Tool label */}
-                  <div style={{ padding: '0 0 0 14px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <i className={`bi ${tool.icon}`} style={{ color: tool.color, fontSize: 18, flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#374151', lineHeight: 1.2 }}>{tool.short}</span>
-                    </div>
-                    <span style={{ fontSize: 9.5, fontWeight: 600, color: tool.color, background: `${tool.color}18`, padding: '1px 6px', borderRadius: 20, width: 'fit-content' }}>
-                      avg {avg}%
-                    </span>
-                  </div>
-
-                  {/* Track */}
-                  <div style={{ position: 'relative', height: 72 }}>
-                    {[25, 50, 75].map(pct => (
-                      <div key={pct} style={{ position: 'absolute', left: `${pct}%`, top: 4, bottom: 4, width: 1, background: `${tool.color}18`, pointerEvents: 'none' }} />
-                    ))}
-                    <div style={{ position: 'absolute', left: `${avg}%`, top: 4, bottom: 4, width: 2, background: tool.color, opacity: 0.35, borderRadius: 1, pointerEvents: 'none' }} />
-
-                    {sorted.map(({ row, stagger }) => {
-                      const divKey = (row as unknown as { division: string }).division
-                      const val    = (row as unknown as Record<string, number>)[tool.key]
-                      const isHov  = hov?.division === divKey && hov?.toolKey === tool.key
-                      const abbrev = DIV_ABBREV[divKey] ?? divKey.slice(0, 4)
-                      const topPx  = stagger === 0 ? 6 : 36
-
-                      return (
-                        <div
-                          key={divKey}
-                          onMouseEnter={e => {
-                            const r = e.currentTarget.getBoundingClientRect()
-                            setHov({ division: divKey, toolKey: tool.key, pct: val, x: r.left + r.width / 2, y: r.top })
-                          }}
-                          onMouseLeave={() => setHov(null)}
-                          style={{
-                            position: 'absolute',
-                            left: `calc(${val}% - 20px)`,
-                            top: topPx, width: 40, height: 28,
-                            borderRadius: 7,
-                            background: isHov ? tool.color : `${tool.color}22`,
-                            border: `1.5px solid ${isHov ? tool.color : `${tool.color}45`}`,
-                            display: 'flex', flexDirection: 'column',
-                            alignItems: 'center', justifyContent: 'center',
-                            cursor: 'default', transition: 'all 0.15s', zIndex: isHov ? 10 : 1,
-                            boxShadow: isHov ? `0 4px 12px ${tool.color}44` : 'none',
-                          }}
-                        >
-                          <span style={{ fontSize: 9, fontWeight: 800, color: isHov ? '#fff' : tool.color, lineHeight: 1 }}>{abbrev}</span>
-                          <span style={{ fontSize: 9.5, fontWeight: 700, color: isHov ? 'rgba(255,255,255,0.85)' : tool.color, lineHeight: 1.2 }}>{val}%</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  {/* Avg badge */}
-                  <div style={{ paddingRight: 14, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-                    <span style={{ fontSize: 9, color: '#9ca3af', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>org avg</span>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: tool.color, lineHeight: 1 }}>{avg}%</span>
-                  </div>
-                </div>
-              )
-            })}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 64px', marginTop: 2 }}>
-              <div />
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 1px' }}>
-                <span style={{ fontSize: 10, color: '#c4bfb8' }}>Low adoption</span>
-                <span style={{ fontSize: 10, color: '#c4bfb8' }}>Full adoption</span>
-              </div>
-              <div />
+            {/* Intensity legend */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
+              <span style={{ fontSize: 10, color: '#9ca3af' }}>Lower adoption</span>
+              <span style={{ width: 130, height: 8, borderRadius: 4, background: 'linear-gradient(90deg, #f4f2ec, #6b6f74)' }} />
+              <span style={{ fontSize: 10, color: '#9ca3af' }}>Higher adoption · hover a cell for detail</span>
             </div>
           </div>
         )}

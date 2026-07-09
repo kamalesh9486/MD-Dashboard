@@ -278,10 +278,10 @@ function ChartPanel({ title, icon, accent, data, kind, unit, subtitle, formula }
 
 const TABS = [
   { id: 'overview', label: 'Executive Overview', icon: 'bi-speedometer2' },
-  { id: 'processes', label: 'Processes & Operations', icon: 'bi-gear' },
-  { id: 'customer', label: 'Customer Services', icon: 'bi-chat-dots-fill' },
   { id: 'people', label: 'People', icon: 'bi-people-fill' },
   { id: 'people2', label: 'People', icon: 'bi-people-fill' },
+  { id: 'processes', label: 'Processes & Operations', icon: 'bi-gear' },
+  { id: 'customer', label: 'Customer Services', icon: 'bi-chat-dots-fill' },
 ] as const
 type TabId = typeof TABS[number]['id']
 
@@ -329,8 +329,7 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
         <div className="logo">
           <div className="mark"><Icon name="bi-grid-3x3-gap" /></div>
           <div>
-            <h1>DEWA AGENTIC AI TRANSFORMATION — V2</h1>
-            <div className="sub">Tabbed board · card KPIs · live event-driven People view</div>
+            <h1>DEWA AGENTIC AI TRANSFORMATION</h1>
           </div>
         </div>
         <div className="upd">Overall Readiness<b>{d.overall == null ? 'NA' : `${d.overall}%`}</b></div>
