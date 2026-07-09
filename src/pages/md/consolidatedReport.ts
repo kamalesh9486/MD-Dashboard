@@ -38,10 +38,9 @@ export const REPORT_BOARD: BoardData = {
     pct: '44%', adoption: null, leadership: '693', literacy: null,
     trained: '9,150', hours: '16,005', workshops: '295', certs: null, userSat: null,
   },
-  // Pillar split (Customer/Processes/People) is NOT evidenced in the static
-  // register — the 108/315/118 breakdown had no solid backing, so the static
-  // source leaves it empty and the panel renders NA. The live Dataverse source
-  // computes the split from actual use-case domains.
+  // Pillar split is NOT computed in the static register — leave it empty so the
+  // panel renders NA rather than a hardcoded split. The live Dataverse source
+  // computes the real split from actual use-case domains (aumBoard.ts).
   portfolio: [],
   portfolioTotal: 541, footerPortfolio: 541,
 }

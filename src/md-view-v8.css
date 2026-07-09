@@ -26,6 +26,9 @@
 .mdv8 .board-hd .quote .by{font-style:normal;font-size:9.5px;margin-top:3px;color:#94a29c}
 .mdv8 .board-hd .upd{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);text-align:right}
 .mdv8 .board-hd .upd b{display:block;font-size:12.5px;font-weight:800;color:var(--tx);margin-top:3px;letter-spacing:0}
+.mdv8 .board-hd .board-asof{grid-column:3;justify-self:end;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;font-size:12px;font-weight:600;color:var(--mut);text-align:right}
+.mdv8 .board-hd .board-asof .sep{opacity:.4}
+.mdv8 .board-hd .board-asof b{color:var(--tx);font-weight:800}
 
 /* ── sticky tab bar ───────────────────────────────────── */
 .mdv8 .tabbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:6px;padding:9px 0;margin-bottom:14px;
@@ -93,6 +96,22 @@
 /* horizontal delivery-stage breakdown (Build/Test/Live) — top accent instead of left */
 .mdv8 .impact.impact-row{flex-direction:row;gap:14px;margin-top:6px}
 .mdv8 .impact.impact-row .imp{flex:1;border-left:none;border-top:3px solid var(--cc,#007560);padding-left:0;padding-top:9px}
+
+/* ── Domain summary (Customer / Processes / People roll-up of the sub-tabs) ── */
+.mdv8 .dom-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:1180px){.mdv8 .dom-summary{grid-template-columns:1fr}}
+.mdv8 .dom-card .dc-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.mdv8 .dom-card .dc-top h3{margin:0;font-size:15px;font-weight:800;color:var(--tx)}
+.mdv8 .dom-card .dc-pct{font-size:30px;font-weight:900;line-height:1;color:var(--cc,#007560)}
+.mdv8 .dom-card .dc-pct small{font-size:15px;font-weight:800;margin-left:1px}
+.mdv8 .dom-card .dc-bar{height:6px;border-radius:6px;background:var(--inset);margin:10px 0 6px;overflow:hidden}
+.mdv8 .dom-card .dc-bar i{display:block;height:100%;border-radius:6px;background:var(--cc,#007560);transition:width .5s ease}
+.mdv8 .dom-card .dc-list{display:flex;flex-direction:column}
+.mdv8 .dom-card .dc-li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px}
+.mdv8 .dom-card .dc-li .l{color:var(--mut)}
+.mdv8 .dom-card .dc-li .v{font-weight:800;color:var(--tx);white-space:nowrap}
+.mdv8 .dom-card .dc-donut{margin-top:8px}
+.mdv8 .dom-card .dc-donut .dd-cap{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-bottom:2px}
 
 /* ── ranked bar list (division breakdown; handles long names) ── */
 .mdv8 .rankbars{display:flex;flex-direction:column;gap:15px;margin-top:8px}

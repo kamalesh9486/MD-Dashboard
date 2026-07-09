@@ -1,172 +1,21 @@
-import { useState, useEffect, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
+import type { BoardSectionId } from '../pages/md/boardV2'
 import Icon from './Icon'
 
-export type TabId =
-  | 'md-view-v3' | 'md-view-v2' | 'md-view-v1'
-  | 'executive-summary' | 'people-skills' | 'programs' | 'events'
-  | 'discovery-catalog' | 'division-analytics' | 'technology-stack'
-  | 'ai-incident' | 'finance' | 'strategic-roadmap' | 'ai-command-center'
-  | 'al-hasbah'
-  | 'ah-leadership' | 'ah-kpi-performance' | 'ah-kpi-repository'
-  | 'ah-agent-repository' | 'ah-use-case-repository' | 'ah-health'
-
-interface NavChild {
-  id: TabId
-  label: string
-  icon: string
-}
-
-interface NavItem {
-  id: TabId
-  label: string
-  icon?: string
-  svgIcon?: ReactNode
-  children?: NavChild[]
-  /** Tab to navigate to when the parent is clicked (defaults to its own id). */
-  landingTab?: TabId
-}
-
 interface SidebarProps {
-  activeTab: TabId
-  onTabChange: (tab: TabId) => void
+  sections: readonly { id: BoardSectionId; label: string; icon: string }[]
+  active: BoardSectionId
+  onSelect: (id: BoardSectionId) => void
+  /** Pinned-collapsed state (icon rail). The rail still expands on hover. */
   collapsed: boolean
   mobileOpen?: boolean
-  onLogout: () => void
 }
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    id: 'md-view-v3' as TabId,
-    label: 'MD Dashboard',
-    icon: 'bi-kanban',
-  },
-  {
-    id: 'executive-summary' as TabId,
-    label: 'Executive Summary',
-    icon: 'bi-bar-chart-line-fill',
-  },
-  
-  {
-    id: 'division-analytics' as TabId,
-    label: 'Division Analytics',
-    icon: 'bi-diagram-3-fill',
-  },
-  
-  {
-    id: 'programs' as TabId,
-    label: 'Programs',
-    icon: 'bi-folder2-open',
-    children: [
-      { id: 'events' as TabId, label: 'Events', icon: 'bi-calendar-event' },
-    ],
-  },
-  {
-    id: 'people-skills' as TabId,
-    label: 'People & Skills',
-    icon: 'bi-people-fill',
-  },
-  {
-    id: 'technology-stack' as TabId,
-    label: 'Technology Stack',
-    icon: 'bi-cpu-fill',
-  },
-  {
-    id: 'discovery-catalog' as TabId,
-    label: 'Discovery Catalog',
-    icon: 'bi-activity',
-  },
-  {
-    id: 'ai-incident' as TabId,
-    label: 'AI Incidents',
-    icon: 'bi-shield-exclamation',
-  },
- /* {
-    id: 'finance' as TabId,
-    label: 'Finance',
-    icon: 'bi-currency-dirham',
-  },
-  {
-    id: 'strategic-roadmap' as TabId,
-    label: 'Strategic Roadmap',
-    icon: 'bi-rocket-takeoff',
-  },*/
-  {
-    id: 'ai-command-center' as TabId,
-    label: 'AI Command Center',
-    icon: 'bi-columns-gap',
-  },
-  {
-    id: 'al-hasbah' as TabId,
-    label: 'Al Hasbah',
-    icon: 'bi-robot',
-    landingTab: 'ah-leadership' as TabId,
-    children: [
-      { id: 'ah-leadership' as TabId,        label: 'Leadership Dashboard',  icon: 'bi-speedometer2'       },
-      { id: 'ah-kpi-performance' as TabId,   label: 'KPI Performance',       icon: 'bi-graph-up-arrow'     },
-      { id: 'ah-kpi-repository' as TabId,    label: 'KPI Repository',        icon: 'bi-table'              },
-      { id: 'ah-agent-repository' as TabId,  label: 'AI Agent Repository',   icon: 'bi-robot'              },
-      { id: 'ah-use-case-repository' as TabId, label: 'Use Case Repository', icon: 'bi-collection-fill'    },
-      { id: 'ah-health' as TabId,            label: 'AI Health & Incidents', icon: 'bi-shield-exclamation' },
-    ],
-  },
-]
-
-const PAGE_TITLES: Record<TabId, string> = {
-  'md-view-v3':    'MD View v2',
-  'md-view-v2':    'MD View (analytics)',
-  'md-view-v1':    'MD View (legacy)',
-  'executive-summary': 'Executive Summary',
-  'people-skills': 'People & Skills',
-  programs: 'Programs',
-  events: 'Events',
-  'division-analytics': 'Division Analytics',
-  'technology-stack':   'Technology Stack',
-  'discovery-catalog':  'Discovery Catalog',
-  'ai-incident':        'AI Incidents',
-  'finance':            'Finance',
-  'strategic-roadmap':  'Strategic Roadmap',
-  'ai-command-center':  'AI Command Center',
-  'al-hasbah':          'Al Hasbah',
-  'ah-leadership':          'Al Hasbah — Leadership Dashboard',
-  'ah-kpi-performance':     'Al Hasbah — KPI Performance',
-  'ah-kpi-repository':      'Al Hasbah — KPI Repository',
-  'ah-agent-repository':    'Al Hasbah — AI Agent Repository',
-  'ah-use-case-repository': 'Al Hasbah — Use Case Repository',
-  'ah-health':              'Al Hasbah — AI Health & Incidents',
-}
-
-export { PAGE_TITLES }
-
-export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen, onLogout }: SidebarProps) {
-  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(() => ({
-    programs:    activeTab === 'programs' || activeTab === 'events',
-    'al-hasbah': activeTab === 'al-hasbah' || activeTab.startsWith('ah-'),
-  }))
-
-  // Accordion: auto-expand the menu owning the active tab and collapse the rest,
-  // so the nav stays compact (and in-page drill buttons keep the right menu open).
-  useEffect(() => {
-    if (activeTab === 'programs' || activeTab === 'events') {
-      setOpenMenus({ programs: true })
-    } else if (activeTab === 'al-hasbah' || activeTab.startsWith('ah-')) {
-      setOpenMenus({ 'al-hasbah': true })
-    }
-  }, [activeTab])
-
-  const isActive = (id: TabId) => activeTab === id
-  const childIds = (item: NavItem) => item.children?.map((c) => c.id) ?? []
-  const isParentActive = (item: NavItem) => isActive(item.id) || childIds(item).includes(activeTab)
-
-  function handleNavClick(item: NavItem) {
-    if (item.children) {
-      // Accordion toggle: open this one (closing others), or collapse if already open.
-      setOpenMenus((prev) => (prev[item.id] ? {} : { [item.id]: true }))
-      onTabChange(item.landingTab ?? item.id)
-    } else {
-      onTabChange(item.id)
-    }
-  }
+export default function Sidebar({ sections, active, onSelect, collapsed, mobileOpen }: SidebarProps) {
+  // Hover expands the collapsed rail without changing the pinned state.
+  const [hovered, setHovered] = useState(false)
+  const showExpanded = !collapsed || hovered
 
   const initials = (name: string) =>
     name
@@ -180,7 +29,11 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen,
   const avatarText = user.loading ? '··' : initials(user.name)
 
   return (
-    <aside className={`sidebar${collapsed ? ' collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`}>
+    <aside
+      className={`sidebar${!showExpanded ? ' collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {/* Header */}
       <div className="sidebar-header">
         <div className="sidebar-logo-mark">
@@ -208,69 +61,34 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen,
             <line x1="13.6" y1="19.8" x2="19.2" y2="15.8" stroke="currentColor" strokeWidth="1.2" opacity="0.4"/>
           </svg>
         </div>
-        {!collapsed && (
+        {showExpanded && (
           <div className="sidebar-brand">
             <div className="sidebar-brand-name">AI COE</div>
-            <div className="sidebar-brand-sub">Center of Excellence</div>
+            <div className="sidebar-brand-sub">MD Dashboard</div>
           </div>
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="sidebar-nav" aria-label="Main navigation">
-        {!collapsed && (
-          <div className="nav-section-label">Navigation</div>
+      {/* Navigation — MD Dashboard sections */}
+      <nav className="sidebar-nav" aria-label="Dashboard sections">
+        {showExpanded && (
+          <div className="nav-section-label">Sections</div>
         )}
 
-        {NAV_ITEMS.map((item) => {
-          const active = item.children ? isParentActive(item) : isActive(item.id)
-          const isExpanded = item.children ? !!openMenus[item.id] : false
-
-          return (
-            <div className="nav-item" key={item.id}>
-              <button
-                className={`nav-link-btn${active ? ' active' : ''}`}
-                onClick={() => handleNavClick(item)}
-                title={collapsed ? item.label : undefined}
-                aria-expanded={item.children ? isExpanded : undefined}
-              >
-                {'svgIcon' in item
-                  ? (item as { svgIcon: React.ReactNode }).svgIcon
-                  : <Icon name={(item as { icon: string }).icon} className="nav-icon" aria-hidden="true" />
-                }
-                {!collapsed && (
-                  <>
-                    <span className="nav-label">{item.label}</span>
-                    {item.children && (
-                      <Icon
-                        name="bi-chevron-down"
-                        className={`nav-chevron${isExpanded ? ' open' : ''}`}
-                        aria-hidden="true"
-                      />
-                    )}
-                  </>
-                )}
-                {collapsed && <span className="nav-tooltip">{item.label}</span>}
-              </button>
-
-              {/* Submenu */}
-              {item.children && !collapsed && (
-                <div className={`submenu${isExpanded ? ' open' : ''}`}>
-                  {item.children.map((child) => (
-                    <button
-                      key={child.id}
-                      className={`submenu-link-btn${isActive(child.id) ? ' active' : ''}`}
-                      onClick={() => onTabChange(child.id)}
-                    >
-                      <Icon name={child.icon} className="sub-icon" aria-hidden="true" />
-                      {child.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {sections.map((item) => (
+          <div className="nav-item" key={item.id}>
+            <button
+              className={`nav-link-btn${active === item.id ? ' active' : ''}`}
+              onClick={() => onSelect(item.id)}
+              title={!showExpanded ? item.label : undefined}
+              aria-current={active === item.id ? 'page' : undefined}
+            >
+              <Icon name={item.icon} className="nav-icon" aria-hidden="true" />
+              {showExpanded && <span className="nav-label">{item.label}</span>}
+              {!showExpanded && <span className="nav-tooltip">{item.label}</span>}
+            </button>
+          </div>
+        ))}
       </nav>
 
       {/* Footer – User Profile */}
@@ -279,20 +97,11 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, mobileOpen,
           <div className="user-avatar" title={user.name}>
             {avatarText}
           </div>
-          {!collapsed && (
-            <>
-              <div className="user-info">
-                <div className="user-name">{user.name}</div>
-                <div className="user-role">{user.role}</div>
-              </div>
-              <button
-                className="logout-btn"
-                title="Logout"
-                onClick={onLogout}
-              >
-                <Icon name="bi-box-arrow-right" aria-hidden="true" />
-              </button>
-            </>
+          {showExpanded && (
+            <div className="user-info">
+              <div className="user-name">{user.name}</div>
+              <div className="user-role">{user.role}</div>
+            </div>
           )}
         </div>
       </div>

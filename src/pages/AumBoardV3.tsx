@@ -6,7 +6,7 @@ import { Cr978_coe_eventsesService } from '../generated/services/Cr978_coe_event
 import type { Cr978_coe_eventses } from '../generated/models/Cr978_coe_eventsesModel'
 import type { BoardData } from './md/boardv8Data'
 import Icon from '../components/Icon'
-import { BoardViewV2 } from './md/boardV2'
+import { BoardViewV2, type BoardSectionId } from './md/boardV2'
 import { REPORT_BOARD, REPORT_PEOPLE } from './md/consolidatedReport'
 import '../md-view-v2.css'
 import '../md-view-v8.css'
@@ -45,7 +45,7 @@ function peopleFromEvents(events: Cr978_coe_eventses[]) {
  *     cr978_coe_events (like v2). Values differ until the consolidated register
  *     is loaded into Dataverse, after which the two converge.
  */
-export default function AumBoardV3() {
+export default function AumBoardV3({ section, onSectionChange }: { section?: BoardSectionId; onSectionChange?: (id: BoardSectionId) => void } = {}) {
   const [source, setSource] = useState<Source>('report')
   const [showInfo, setShowInfo] = useState(false)
   const [res, setRes] = useState<{ rows: AumRow[]; info: string } | null>(null)
@@ -118,6 +118,6 @@ export default function AumBoardV3() {
 
   return loadingLive
     ? <div className="mdv2 mdv8"><div className="state"><div className="spin" />Loading live data from Dataverse…</div></div>
-    : <BoardViewV2 data={board as BoardData} people={people as PeopleData} peopleMode="cards" toolbar={SHOW_SOURCE_TOGGLE ? toggle : undefined} />
+    : <BoardViewV2 data={board as BoardData} people={people as PeopleData} peopleMode="cards" toolbar={SHOW_SOURCE_TOGGLE ? toggle : undefined} active={section} onActiveChange={onSectionChange} />
 
 }

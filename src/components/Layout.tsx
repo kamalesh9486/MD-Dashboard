@@ -1,52 +1,18 @@
 import { useState, useEffect } from 'react'
-import Sidebar, { type TabId } from './Sidebar'
-import ExecutiveSummary from '../pages/ExecutiveSummary'
-import PeopleSkills from '../pages/PeopleSkills'
-import Programs from '../pages/Programs'
-import Events from '../pages/Events'
-import type { Program } from '../pages/prog/data'
-import DiscoveryCatalog   from '../pages/DiscoveryCatalog'
-import DivisionAnalytics  from '../pages/DivisionAnalytics'
-import TechnologyStack    from '../pages/TechnologyStack'
-import AIIncident        from '../pages/AIIncident'
-import Finance           from '../pages/Finance'
-import StrategicRoadmap  from '../pages/StrategicRoadmap'
-import AICommandCenter   from '../pages/AICommandCenter'
-import AlHasbah, { type AlHasbahTabId } from '../pages/AlHasbah'
-import AumBoardV2         from '../pages/AumBoardV2'
-import AumBoardV3         from '../pages/AumBoardV3'
-import Icon              from './Icon'
+import Sidebar from './Sidebar'
+import AumBoardV3 from '../pages/AumBoardV3'
+import { BOARD_SECTIONS, type BoardSectionId } from '../pages/md/boardV2'
+import Icon from './Icon'
 import { ErrorBoundary } from './ErrorBoundary'
-import dewaLogo          from '../assets/dewa-logo.svg'
+import dewaLogo from '../assets/dewa-logo.svg'
 import '../layout.css'
 
-interface LayoutProps { onLogout: () => void }
-
-// Map global sidebar tab IDs ↔ Al Hasbah's internal sub-tab IDs
-const AH_TO_SUB: Partial<Record<TabId, AlHasbahTabId>> = {
-  'al-hasbah':              'leadership',
-  'ah-leadership':          'leadership',
-  'ah-kpi-performance':     'kpi-performance',
-  'ah-kpi-repository':      'kpi-repository',
-  'ah-agent-repository':    'agent-repository',
-  'ah-use-case-repository': 'use-case-repository',
-  'ah-health':              'ai-health',
-}
-const SUB_TO_AH: Record<AlHasbahTabId, TabId> = {
-  'leadership':          'ah-leadership',
-  'kpi-performance':     'ah-kpi-performance',
-  'kpi-repository':      'ah-kpi-repository',
-  'agent-repository':    'ah-agent-repository',
-  'use-case-repository': 'ah-use-case-repository',
-  'ai-health':           'ah-health',
-}
-
-export default function Layout({ onLogout }: LayoutProps) {
-  const [activeTab,        setActiveTab]        = useState<TabId>('md-view-v3')
-  const [collapsed,        setCollapsed]        = useState(false)
-  const [mobileOpen,       setMobileOpen]       = useState(false)
-  const [isMobile,         setIsMobile]         = useState(window.innerWidth <= 768)
-  const [contextProgram,   setContextProgram]   = useState<Program | null>(null)
+export default function Layout() {
+  const [section, setSection] = useState<BoardSectionId>('overview')
+  // Sidebar starts closed (icon rail); it expands on hover — see Sidebar.
+  const [collapsed, setCollapsed] = useState(true)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
 
   useEffect(() => {
     function handleResize() {
@@ -58,9 +24,8 @@ export default function Layout({ onLogout }: LayoutProps) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  function handleTabChange(tab: TabId) {
-    if (tab !== 'events') setContextProgram(null)
-    setActiveTab(tab)
+  function handleSelect(id: BoardSectionId) {
+    setSection(id)
     if (isMobile) setMobileOpen(false)
   }
 
@@ -72,71 +37,14 @@ export default function Layout({ onLogout }: LayoutProps) {
     }
   }
 
-  function renderPage() {
-    switch (activeTab) {
-      case 'md-view-v3':
-        return <AumBoardV3 />
-      case 'md-view-v2':
-        return <AumBoardV2 />
-      case 'executive-summary':
-        return <ExecutiveSummary />
-      case 'people-skills':
-        return <PeopleSkills />
-      case 'programs':
-        return (
-          <Programs
-            onNavigateToEvents={(program?) => {
-              setContextProgram(program ?? null)
-              setActiveTab('events')
-            }}
-          />
-        )
-      case 'events':
-        return (
-          <Events
-            fromProgram={contextProgram}
-            onBackToPrograms={() => {
-              setContextProgram(null)
-              setActiveTab('programs')
-            }}
-          />
-        )
-      case 'division-analytics':
-        return <DivisionAnalytics />
-      case 'technology-stack':
-        return <TechnologyStack />
-      case 'discovery-catalog':
-        return <DiscoveryCatalog />
-      case 'ai-incident':
-        return <AIIncident />
-      case 'finance':
-        return <Finance />
-      case 'strategic-roadmap':
-        return <StrategicRoadmap />
-      case 'ai-command-center':
-        return <AICommandCenter />
-      case 'al-hasbah':
-      case 'ah-leadership':
-      case 'ah-kpi-performance':
-      case 'ah-kpi-repository':
-      case 'ah-agent-repository':
-      case 'ah-use-case-repository':
-      case 'ah-health':
-        return (
-          <AlHasbah
-            activeTab={AH_TO_SUB[activeTab] ?? 'leadership'}
-            onNavigate={(sub) => setActiveTab(SUB_TO_AH[sub])}
-          />
-        )
-    }
-  }
-
   const mainClass = [
     'main-wrapper',
     !isMobile && collapsed ? 'collapsed' : '',
   ]
     .filter(Boolean)
     .join(' ')
+
+  const activeLabel = BOARD_SECTIONS.find((s) => s.id === section)?.label ?? ''
 
   return (
     <div className="dewa-app">
@@ -151,11 +59,11 @@ export default function Layout({ onLogout }: LayoutProps) {
 
       {/* Sidebar */}
       <Sidebar
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
+        sections={BOARD_SECTIONS}
+        active={section}
+        onSelect={handleSelect}
         collapsed={!isMobile && collapsed}
         mobileOpen={isMobile && mobileOpen}
-        onLogout={onLogout}
       />
 
       {/* Main */}
@@ -170,17 +78,17 @@ export default function Layout({ onLogout }: LayoutProps) {
             >
               <Icon name={mobileOpen ? 'bi-x-lg' : 'bi-list'} aria-hidden="true" />
             </button>
-            <span className="topbar-page-title">Center of Excellence</span>
+            <span className="topbar-page-title">Agentic AI-MD Dashboard{activeLabel ? ` · ${activeLabel}` : ''}</span>
           </div>
           <div className="topbar-right">
             <img src={dewaLogo} alt="DEWA" className="topbar-logo" />
           </div>
         </header>
 
-        {/* Page content — wrapped in ErrorBoundary so a broken page never blanks the whole app */}
+        {/* Page content — wrapped in ErrorBoundary so a render error never blanks the whole app */}
         <main className="page-content">
-          <ErrorBoundary key={activeTab}>
-            {renderPage()}
+          <ErrorBoundary>
+            <AumBoardV3 section={section} onSectionChange={setSection} />
           </ErrorBoundary>
         </main>
       </div>
