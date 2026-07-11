@@ -144,7 +144,6 @@ export default function Icon({ name, size = 16, style, className }: IconProps) {
   const entry = ICONS[name]
   if (!entry) {
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.warn('[Icon] unknown icon:', name)
     }
     return null

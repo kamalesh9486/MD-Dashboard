@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, CartesianGrid, LabelList, AreaChart, Area, Treemap, RadialBarChart, RadialBar, Legend, PieChart, Pie } from 'recharts'
 import Icon from '../../components/Icon'
-import { C, type BoardData } from './boardv8Data'
-import type { PeopleData, Datum } from './aumPeople'
+import { C, type BoardData } from './boardTypes'
+import type { PeopleData, Datum } from './peopleAnalytics'
 
 /* mandatory dark-tooltip constants (CLAUDE.md) */
 const TT_STYLE = { background: 'rgba(28,28,30,0.93)', border: 'none', borderRadius: 9, padding: '8px 14px', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', fontSize: 12, color: '#fff' }
@@ -16,16 +16,12 @@ const show = (s: string | null): ReactNode => (s == null ? <NA /> : s)
 function Gauge({ value, naText }: { value: number | null; naText?: string }) {
   const R = 66, cx = 90, cy = 84, frac = Math.max(0, Math.min(1, (value ?? 0) / 100))
   const p = (a: number) => `${(cx + R * Math.cos(a)).toFixed(1)},${(cy - R * Math.sin(a)).toFixed(1)}`
-  const tick = Math.PI * 0.5
   return (
     <div style={{ width: '100%' }}>
-      {/* target label above the arc; only the value sits under the arc */}
-      <div style={{ textAlign: 'center', fontSize: 11.5, fontWeight: 700, letterSpacing: '.02em', color: 'var(--mut)', marginBottom: 2 }}>target 50%</div>
       <svg viewBox="0 0 180 92" width="100%" height="132" preserveAspectRatio="xMidYMid meet">
         <defs><linearGradient id="v2g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={C.gold} /><stop offset="100%" stopColor={C.green} /></linearGradient></defs>
         <path d={`M${p(Math.PI)} A${R} ${R} 0 0 1 ${p(0)}`} fill="none" stroke="var(--track)" strokeWidth="13" strokeLinecap="round" />
         {value != null && <path d={`M${p(Math.PI)} A${R} ${R} 0 0 1 ${p(Math.PI * (1 - frac))}`} fill="none" stroke="url(#v2g)" strokeWidth="13" strokeLinecap="round" />}
-        <line x1={cx + (R - 9) * Math.cos(tick)} y1={cy - (R - 9) * Math.sin(tick)} x2={cx + (R + 9) * Math.cos(tick)} y2={cy - (R + 9) * Math.sin(tick)} stroke="var(--gold)" strokeWidth="2.4" />
         <text x={cx} y={cy - 8} textAnchor="middle" style={{ fontSize: 34, fontWeight: 800, fill: naText ? 'var(--mut)' : 'var(--tx)' }}>{naText ?? (value != null ? `${value}%` : 'NA')}</text>
       </svg>
     </div>
@@ -242,8 +238,9 @@ function Viz({ kind, data, unit }: { kind: VizKind; data: Datum[]; unit?: string
 
 /* ── "i" info button → reveals the chart's calculation formula on click ──
    The user wants every chart to carry its formula behind an info button. */
-function InfoBtn({ formula }: { formula: string }) {
+function InfoBtn({ formula, align = 'right' }: { formula: string; align?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false)
+  const pos = align === 'left' ? { left: 0 } : { right: 0 }
   return (
     <span style={{ position: 'relative', marginLeft: 'auto', flexShrink: 0 }}>
       <button
@@ -255,7 +252,7 @@ function InfoBtn({ formula }: { formula: string }) {
         <Icon name="bi-info-circle" />
       </button>
       {open && (
-        <div style={{ position: 'absolute', top: 30, right: 0, zIndex: 40, width: 250, background: 'rgba(28,28,30,0.96)', color: '#fff', fontSize: 11.5, lineHeight: 1.55, padding: '10px 12px', borderRadius: 9, boxShadow: '0 8px 26px rgba(0,0,0,0.28)', textAlign: 'left', fontWeight: 500 }}>
+        <div style={{ position: 'absolute', top: 30, ...pos, zIndex: 40, width: 250, background: 'rgba(28,28,30,0.96)', color: '#fff', fontSize: 11.5, lineHeight: 1.55, padding: '10px 12px', borderRadius: 9, boxShadow: '0 8px 26px rgba(0,0,0,0.28)', textAlign: 'left', fontWeight: 500 }}>
           <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 4 }}>Formula</div>
           {formula}
         </div>
@@ -267,10 +264,10 @@ function InfoBtn({ formula }: { formula: string }) {
 /* ── panel with an NA fallback when there is no live data ──
    `unit` labels the tooltip value; `subtitle` explains the metric in the header
    so the chart is legible without hovering; `formula` sits behind the ⓘ button. */
-function ChartPanel({ title, icon, accent, data, kind, unit, subtitle, formula }: { title: string; icon: string; accent: string; data: Datum[]; kind: VizKind; unit?: string; subtitle?: string; formula?: string }) {
+function ChartPanel({ title, icon, accent, data, kind, unit, formula }: { title: string; icon: string; accent: string; data: Datum[]; kind: VizKind; unit?: string; subtitle?: string; formula?: string }) {
   return (
     <div className="panel">
-      <div className="ph"><div className="ic" style={{ background: 'var(--inset)', color: accent }}><Icon name={icon} /></div><div><h3>{title}</h3>{subtitle && <div style={{ fontSize: 11.5, color: '#8a938f', marginTop: 2 }}>{subtitle}</div>}</div>{formula && <InfoBtn formula={formula} />}</div>
+      <div className="ph"><div className="ic" style={{ background: 'var(--inset)', color: accent }}><Icon name={icon} /></div><div><h3>{title}</h3></div>{formula && <InfoBtn formula={formula} />}</div>
       {data.length ? <Viz kind={kind} data={data} unit={unit} /> : <div className="na-panel"><div className="big">NA</div><div className="cap">No live event data</div></div>}
     </div>
   )
@@ -280,8 +277,8 @@ const TABS = [
   { id: 'overview', label: 'Executive Overview', icon: 'bi-speedometer2' },
   { id: 'people', label: 'People', icon: 'bi-people-fill' },
   { id: 'people2', label: 'People', icon: 'bi-people-fill' },
-  { id: 'processes', label: 'Processes & Operations', icon: 'bi-gear' },
-  { id: 'customer', label: 'Customer Services', icon: 'bi-chat-dots-fill' },
+  { id: 'customer', label: 'Services', icon: 'bi-chat-dots-fill' },
+  { id: 'processes', label: 'Processes', icon: 'bi-gear' },
 ] as const
 export type BoardSectionId = typeof TABS[number]['id']
 type TabId = BoardSectionId
@@ -330,9 +327,6 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
   // Processes tab is NA when its backing fields are null → don't borrow the Overview byDivision here.
   const divisionData: Datum[] = d.processes.activeByDiv == null ? [] : d.byDivision.map(([name, value]) => ({ name, value }))
   const customerDivData: Datum[] = (d.divByPillar?.Customer ?? []).map(([name, value]) => ({ name, value }))
-  // Delivery-by-stages donut for the Processes summary card (Build / Test / Live).
-  const stageColor = (label: string) => (/build/i.test(label) ? C.blue : /test/i.test(label) ? C.gold : C.green)
-  const procDelivery = deliverySplit ? deliverySplit.map(s => ({ name: s.label, value: s.pct, c: stageColor(s.label) })) : null
   // "As of <Month Year>" — current month, recomputed on each render.
   const asOf = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
@@ -349,7 +343,7 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
         <div className="board-asof">
           <span>As of {asOf}</span>
           <span className="sep">|</span>
-          <span>Target:50% by April 2027</span>
+          <span>Target:50% by April 2028</span>
         </div>
       </div>
 
@@ -364,23 +358,27 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
         {toolbar && <div className="tabbar-tools">{toolbar}</div>}
       </div>
 
+      {/* mandate line — plain text, below the tabs */}
+      <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--tx)', margin: '4px 0 16px' }}>AI Transformation - <span style={{ background: 'linear-gradient(90deg,#007560,#ca8a04)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>50% Mandate</span></div>
+
       {/* ── OVERVIEW ─────────────────────────────────── */}
       {active === 'overview' && (
         <>
           <div className="row-a">
             <div className="panel vcenter">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-greenBg)', color: C.green }}><Icon name="bi-speedometer2" /></div><div><h3>Transformation Progress</h3></div>{d.overall != null && <InfoBtn formula="Overall Readiness = average of the 3 pillar %s (Customer + Processes + People) ÷ 3. Target 50%." />}</div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-greenBg)', color: C.green }}><Icon name="bi-speedometer2" /></div><div><h3>Transformation Progress</h3></div><InfoBtn formula="Gauge = average of the pillar %s that have data (Customer + Processes). Each pillar % = count ÷ (total services ÷ 2) × 100. Only Active-state services count. Target line at 50%." /></div>
               {/* When overall is NA, keep the arc filled (demo ~33%) so the gauge still reads visually, but show NA as the number. */}
               <div className="vcenter-body"><Gauge value={d.overall ?? 33} naText={d.overall == null ? 'NA' : undefined} /></div>
             </div>
             <div className="panel vcenter">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-blueBg)', color: C.blue }}><Icon name="bi-bar-chart-line" /></div><div><h3>Progress by Pillars</h3></div><InfoBtn formula="Each pillar % = use cases in that pillar ÷ 117 total use cases × 100." /></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-blueBg)', color: C.blue }}><Icon name="bi-bar-chart-line" /></div><div><h3>Progress by Pillars</h3></div><InfoBtn formula="Services = active services ÷ (total services ÷ 2) × 100. Processes = distinct processes ÷ (650 ÷ 2 = 325) × 100. People = fixed 100%. Number at the end of each bar is that pillar's half-total (the 100% scale). Target line at 50%." /></div>
               <div className="vcenter-body">
                 <div className="pill-bars">
                   {d.pillars.map((p, i) => (
                     <div className="pbrow" key={p.label}>
                       <span className="nm">{p.label}</span>
-                      <div className="pbtrack"><i style={{ width: `${p.pct ?? 0}%`, background: [C.blue, C.green, C.gold][i] }} /><span className="pbmark" /></div>
+                      <div className="pbtrack"><i style={{ width: `${p.pct ?? 0}%`, background: [C.blue, C.green, C.gold][i] }} /></div>
+                      <span className="pmax">{[d.totalHalf, d.totalHalfProc, d.peopleMax][i] || ''}</span>
                       <span className="pv">{p.pct == null ? <NA /> : `${p.pct}%`}</span>
                     </div>
                   ))}
@@ -388,30 +386,27 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
               </div>
             </div>
             <div className="panel">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-diagram-3-fill" /></div><div><h3>AI Maturity by Segment</h3></div></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-diagram-3-fill" /></div><div><h3>AI Maturity by Segment</h3></div><InfoBtn formula="No maturity-by-segment (EVP / VP / Sr Mgr / Employee) column exists in the source tables → NA." /></div>
               <div className="seg">
-                {['EVP Level', 'VPS', 'Senior Mgrs', 'Employees'].map(s => (
-                  <div className="segcell" key={s}><div className="sl">{s}</div><div className="na" style={{ fontSize: 22 }}>NA</div><div className="sbar" /></div>
+                {[{ l: 'EVPs', v: '9' }, { l: 'VPs', v: '48' }, { l: 'Senior Managers', v: '290' }, { l: 'Employees', v: '7,397' }].map(s => (
+                  <div className="segcell" key={s.l}><div className="sl">{s.l}</div><div style={{ fontSize: 22, fontWeight: 800, color: 'var(--tx)', marginTop: 2 }}>{s.v}</div></div>
                 ))}
               </div>
             </div>
             <div className="panel">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-graph-up-arrow" /></div><div><h3>Top-Line Impact</h3></div></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-graph-up-arrow" /></div><div><h3>Top-Line Impact</h3></div><InfoBtn formula="Target Cost Saving = Σ Target Cost Saving (absolute AED rows only). Target FTE Saving = Σ Target FTE Saving. Avg Productivity Gain = average of Productivity Gain % across services." /></div>
               <div className="impact">
                 <div className="imp" style={{ ['--cc' as string]: C.green }}>
-                  <div className="il">Cost Saving</div>
+                  <div className="il">Target Cost Saving</div>
                   <div className="iv"><Icon name="bi-currency-dirham" />{show(d.costSaving)}</div>
-                  <div className="is">{d.costSavingNote}</div>
                 </div>
                 <div className="imp" style={{ ['--cc' as string]: C.blue }}>
-                  <div className="il">FTE Saving</div>
+                  <div className="il">Target FTE Saving</div>
                   <div className="iv">{show(d.fteSaving)}<small>FTE</small></div>
-                  <div className="is">{d.fteSavingNote}</div>
                 </div>
                 <div className="imp" style={{ ['--cc' as string]: C.gold }}>
-                  <div className="il">Cost Avoidance</div>
-                  <div className="iv">{show(d.costAvoidance)}</div>
-                  <div className="is">{d.costAvoidanceNote}</div>
+                  <div className="il">Avg Productivity Gain</div>
+                  <div className="iv">{show(d.avgProductivity ?? null)}</div>
                 </div>
               </div>
             </div>
@@ -420,27 +415,27 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
           {/* Progress Trend by Month — parallel to Agentic Pillar + Agent Inventory & Coverage */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr', gap: 14, marginBottom: 14 }}>
             <div className="panel" style={{ display: 'flex', flexDirection: 'column' }}>
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-blueBg)', color: C.blue }}><Icon name="bi-calendar3" /></div><div><h3>Progress Trend by Month</h3><div style={{ fontSize: 11.5, color: '#8a938f', marginTop: 2 }}>AI training events delivered per month</div></div><InfoBtn formula="COUNT(training events) grouped by calendar month of cr978_coe_eventdate." /></div>
-              {people.byMonth.length
-                ? <MiniArea data={people.byMonth} unit="Events" />
-                : <div className="na-panel"><div className="big">NA</div><div className="cap">No monthly event data</div></div>}
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-blueBg)', color: C.blue }}><Icon name="bi-calendar3" /></div><div><h3>Progress Trend by Month</h3></div><InfoBtn formula="Cumulative services & processes ÷ their totals (22), averaged, per go-live month." /></div>
+              {d.progressByMonth && d.progressByMonth.length
+                ? <MiniArea data={d.progressByMonth} unit="Progress %" />
+                : <div className="na-panel"><div className="big">N/A</div><div className="cap">No dated progress data</div></div>}
             </div>
             <div className="panel">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-blueBg)', color: C.blue }}><Icon name="bi-diagram-3-fill" /></div><div><h3>Agentic Pillar</h3><div style={{ fontSize: 11.5, color: '#8a938f', marginTop: 2 }}>Use cases by pillar{d.portfolioTotal ? ` · of ${d.portfolioTotal}` : ''}</div></div><InfoBtn formula="Use cases grouped by domain into Customer / Processes / People (of 117 classified use cases)." /></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-blueBg)', color: C.blue }}><Icon name="bi-diagram-3-fill" /></div><div><h3>Agents by Pillar</h3></div><InfoBtn formula="Option B (overlap): every agent belongs to a customer service AND runs inside a process, so the same agents are counted under both pillars — not additive. People = 0." /></div>
               {d.portfolio.length ? (
                 <div className="tiles3">
                   {d.portfolio.map(p => (
                     <div className="tile" key={p.name}><div className="tl">{p.name}</div><div className="tv" style={{ color: p.c }}>{p.value}</div></div>
                   ))}
                 </div>
-              ) : <div className="na-panel"><div className="big">NA</div><div className="cap">No pillar split</div></div>}
+              ) : <div className="na-panel"><div className="big">NA</div><div className="cap">No agent data</div></div>}
             </div>
             <div className="panel">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-tealBg)', color: C.teal }}><Icon name="bi-collection-fill" /></div><div><h3>Agent Inventory &amp; Coverage</h3></div></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-tealBg)', color: C.teal }}><Icon name="bi-collection-fill" /></div><div><h3>Agent Inventory &amp; Coverage</h3></div><InfoBtn formula="Total = count of agents. In Use = agents whose linked service has an actual go-live date (live). In Built = the remaining agents (service not yet live)." /></div>
               <div className="tiles3">
-                <div className="tile"><div className="tl">Total Agents</div><div className="tv">{d.invTotal}</div></div>
-                <div className="tile"><div className="tl">Internal</div><div className="tv" style={{ color: C.green }}><NA /></div></div>
-                <div className="tile"><div className="tl">External</div><div className="tv" style={{ color: C.blue }}><NA /></div></div>
+                <div className="tile"><div className="tl">Total</div><div className="tv">{d.invTotal}</div></div>
+                <div className="tile"><div className="tl">In Build</div><div className="tv" style={{ color: C.green }}>{d.invDeployment == null ? <NA /> : d.invDeployment}</div></div>
+                <div className="tile"><div className="tl">In Use</div><div className="tv" style={{ color: C.blue }}>{show(d.invLive)}</div></div>
               </div>
             </div>
           </div>
@@ -449,58 +444,42 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
           <div className="dom-summary">
             {/* Customer Services */}
             <div className="panel dom-card" style={{ ['--cc' as string]: C.blue }}>
-              <div className="dc-top"><h3>Customer Services</h3><div className="dc-pct">{d.pillars[0]?.pct == null ? <NA /> : <>{d.pillars[0].pct}<small>%</small></>}</div></div>
+              <div className="dc-top"><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><h3>Services</h3><InfoBtn formula="Header = Services pillar % (active services ÷ (total services ÷ 2) × 100). Total Services / Fully Agentic / Partially Agentic shown as count ÷ (total services ÷ 2) — the half-total the 50% mandate is measured against (Full / Partially from Eligibility). Agent = count of agents. Avg Productivity Gain = average Productivity Gain %. Annual Transaction = Σ Annual Volume." align="left" /></div><div className="dc-pct">{d.pillars[0]?.pct == null ? <NA /> : <>{d.pillars[0].pct}<small>%</small></>}</div></div>
               <div className="dc-bar"><i style={{ width: `${d.pillars[0]?.pct ?? 0}%` }} /></div>
               <div className="dc-list">
-                <div className="dc-li"><span className="l">% service now agentic</span><span className="v">{show(d.customer.servicesAgentic)}</span></div>
-                <div className="dc-li"><span className="l">Agent resolution rate</span><span className="v"><NA /></span></div>
-                <div className="dc-li"><span className="l">Avg. response time</span><span className="v"><NA /></span></div>
-                <div className="dc-li"><span className="l">Total interactions</span><span className="v">{show(d.customer.interactions)}</span></div>
-                <div className="dc-li"><span className="l">Customer satisfaction (CSAT)</span><span className="v"><NA /></span></div>
+                <div className="dc-li"><span className="l">Total Services</span><span className="v">{show(d.customer.noServices ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Fully Agentic</span><span className="v">{show(d.customer.fullyAgentic ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Partially Agentic</span><span className="v">{show(d.customer.partiallyAgentic ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Agent</span><span className="v">{show(d.customer.agents ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Avg Productivity Gain</span><span className="v">{show(d.customer.avgProductivity ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Annual Transaction</span><span className="v">{show(d.customer.interactions)}</span></div>
               </div>
             </div>
 
             {/* Process & Operations */}
             <div className="panel dom-card" style={{ ['--cc' as string]: C.green }}>
-              <div className="dc-top"><h3>Process &amp; Operations</h3><div className="dc-pct">{d.pillars[1]?.pct == null ? <NA /> : <>{d.pillars[1].pct}<small>%</small></>}</div></div>
+              <div className="dc-top"><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><h3>Processes</h3><InfoBtn formula="Header = Processes pillar % (distinct processes ÷ (650 ÷ 2 = 325) × 100). Total Processes / Fully Agentic / Partially Agentic shown as count ÷ (650 ÷ 2 = 325) — the process half-total the 50% mandate is measured against (distinct processes among Full / Partially-Agentic services). Agent = count of agents. Avg Productivity Gain = average Productivity Gain %. Annual Transaction = Σ Annual Volume." align="left" /></div><div className="dc-pct">{d.pillars[1]?.pct == null ? <NA /> : <>{d.pillars[1].pct}<small>%</small></>}</div></div>
               <div className="dc-bar"><i style={{ width: `${d.pillars[1]?.pct ?? 0}%` }} /></div>
               <div className="dc-list">
-                <div className="dc-li"><span className="l">% service now agentic</span><span className="v">{show(d.processes.processesAgentic)}</span></div>
-                <div className="dc-li"><span className="l">Active AI agents by divisions</span><span className="v">{show(d.processes.activeByDiv)}</span></div>
-                <div className="dc-li"><span className="l">Transformation Progress</span><span className="v">{show(d.processes.transformByDiv)}</span></div>
+                <div className="dc-li"><span className="l">Total Processes</span><span className="v">{show(d.processes.noProcess ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Fully Agentic</span><span className="v">{show(d.processes.fullyAgentic ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Partially Agentic</span><span className="v">{show(d.processes.partiallyAgentic ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Agent</span><span className="v">{show(d.processes.aiAgents ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Avg Productivity Gain</span><span className="v">{show(d.processes.avgProductivity ?? null)}</span></div>
+                <div className="dc-li"><span className="l">Annual Transaction</span><span className="v">{show(d.processes.interactions ?? null)}</span></div>
               </div>
-              {procDelivery && (
-                <div className="dc-donut">
-                  <div className="dd-cap">Delivery by stages</div>
-                  <ResponsiveContainer width="100%" height={130}>
-                    <PieChart>
-                      <Pie data={procDelivery} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={34} outerRadius={54} paddingAngle={2} stroke="none">
-                        {procDelivery.map((s, i) => <Cell key={i} fill={s.c} />)}
-                      </Pie>
-                      <Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', marginTop: 2 }}>
-                    {procDelivery.map(s => (
-                      <span key={s.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: 'var(--mut)' }}>
-                        <span style={{ width: 9, height: 9, borderRadius: 3, background: s.c, display: 'inline-block' }} />{s.name} {s.value}%
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* People */}
             <div className="panel dom-card" style={{ ['--cc' as string]: C.gold }}>
-              <div className="dc-top"><h3>People</h3><div className="dc-pct">{d.pillars[2]?.pct == null ? <NA /> : <>{d.pillars[2].pct}<small>%</small></>}</div></div>
+              <div className="dc-top"><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><h3>People</h3><InfoBtn formula="Header = NA (no people-pillar data in the two tables). Rows come from cr978_coe_events: People trained = Σ attendees; Training hours = Σ (duration × attendees); Workshop/Trainings = event count; Leadership adoption = leadership-audience attendees. Adoption / literacy / certifications / satisfaction: no column → NA." align="left" /></div><div className="dc-pct">{d.pillars[2]?.pct == null ? <NA /> : <>{d.pillars[2].pct}<small>%</small></>}</div></div>
               <div className="dc-bar"><i style={{ width: `${d.pillars[2]?.pct ?? 0}%` }} /></div>
               <div className="dc-list">
-                <div className="dc-li"><span className="l">AI adoption rate</span><span className="v">{show(d.people.adoption)}</span></div>
-                <div className="dc-li"><span className="l">Leadership adoption</span><span className="v">{show(d.people.leadership)}</span></div>
-                <div className="dc-li"><span className="l">AI literacy maturity</span><span className="v">{show(d.people.literacy)}</span></div>
-                <div className="dc-li"><span className="l">People trained</span><span className="v">{show(d.people.trained)}</span></div>
-                <div className="dc-li"><span className="l">Training hours delivered</span><span className="v">{show(d.people.hours)}</span></div>
+                <div className="dc-li"><span className="l">AI Adoption Rate</span><span className="v">{show(d.people.adoption)}</span></div>
+                <div className="dc-li"><span className="l">Leadership Adoption</span><span className="v">{show(d.people.leadership)}</span></div>
+                <div className="dc-li"><span className="l">AI Literacy Maturity</span><span className="v">{show(d.people.literacy)}</span></div>
+                <div className="dc-li"><span className="l">People Trained</span><span className="v">{show(d.people.trained)}</span></div>
+                <div className="dc-li"><span className="l">Training Hours Delivered</span><span className="v">{show(d.people.hours)}</span></div>
                 <div className="dc-li"><span className="l">Workshop / Trainings</span><span className="v">{show(d.people.workshops)}</span></div>
                 <div className="dc-li"><span className="l">Certifications Earned</span><span className="v">{show(d.people.certs)}</span></div>
                 <div className="dc-li"><span className="l">User Satisfaction</span><span className="v">{show(d.people.userSat)}</span></div>
@@ -511,27 +490,27 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
           {/* Key Metrics next to Active Agents by Division */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
             <div className="panel">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-tealBg)', color: C.teal }}><Icon name="bi-speedometer2" /></div><div><h3>Key Metrics</h3></div></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-tealBg)', color: C.teal }}><Icon name="bi-speedometer2" /></div><div><h3>Overall Metrics</h3></div><InfoBtn formula="Service = active services ÷ 22 (actual total services) × 100. Process = distinct processes ÷ 650 (actual total processes) × 100. People = 59.9% (fixed). Overall Readiness = average of Service, Process and People. Total Agents = count of agents. All rounded." /></div>
               <div className="impact">
-                <div className="imp" style={{ ['--cc' as string]: C.blue }}>
-                  <div className="il">Overall Readiness</div>
-                  <div className="iv">{d.overall == null ? <NA /> : `${d.overall}%`}</div>
-                  <div className="is">avg of 3 pillar %s</div>
-                </div>
                 <div className="imp" style={{ ['--cc' as string]: C.teal }}>
-                  <div className="il">Total AI Agents</div>
-                  <div className="iv">{d.kpiAgents}</div>
-                  <div className="is">{d.kpiAgentsSub}</div>
+                  <div className="il">Overall Readiness</div>
+                  <div className="iv">{d.overallReadiness == null ? <NA /> : `${d.overallReadiness}%`}</div>
                 </div>
                 <div className="imp" style={{ ['--cc' as string]: C.blue }}>
-                  <div className="il">Agentic Services</div>
+                  <div className="il">Services</div>
                   <div className="iv">{d.agenticServicesPct == null ? <NA /> : `${d.agenticServicesPct}%`}</div>
-                  <div className="is">{d.agenticServicesSub}</div>
                 </div>
                 <div className="imp" style={{ ['--cc' as string]: C.green }}>
-                  <div className="il">Agentic Processes</div>
+                  <div className="il">Processes</div>
                   <div className="iv">{d.agenticProcessesPct == null ? <NA /> : `${d.agenticProcessesPct}%`}</div>
-                  <div className="is">{d.agenticProcessesSub}</div>
+                </div>
+                <div className="imp" style={{ ['--cc' as string]: C.gold }}>
+                  <div className="il">People</div>
+                  <div className="iv">{d.peopleMetricPct == null ? <NA /> : `${d.peopleMetricPct}%`}</div>
+                </div>
+                <div className="imp" style={{ ['--cc' as string]: C.teal }}>
+                  <div className="il">Total Agents</div>
+                  <div className="iv">{d.kpiAgents}</div>
                 </div>
               </div>
             </div>
@@ -545,23 +524,31 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
             </div>
           </div>
 
-          {/* DEWA AI Portfolio — full width */}
+          {/* DEWA AI Portfolio Growth — month-wise, clustered by pillar */}
           <div className="panel">
-            <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-bar-chart-line-fill" /></div><div><h3>DEWA AI Portfolio Growth{d.portfolio.length ? ` (${d.portfolioTotal} initiatives)` : ''}</h3></div><InfoBtn formula="Use cases grouped by domain into Customer / Processes / People (of 117 classified use cases)." /></div>
-            {d.portfolio.length ? (
-              <ResponsiveContainer width="100%" height={230}>
-                <BarChart data={d.portfolio} layout="vertical" margin={{ top: 6, right: 44, left: 6, bottom: 6 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,117,96,0.07)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#62736d' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 13, fill: '#3c4945', fontWeight: 600 }} axisLine={false} tickLine={false} width={96} />
+            <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-bar-chart-line-fill" /></div><div><h3>DEWA Agentic AI Portfolio Growth</h3></div><InfoBtn formula="Cumulative distinct services (Customer), processes (Processes) and People, bucketed by go-live month." /></div>
+            {d.portfolioGrowth && d.portfolioGrowth.length ? (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={d.portfolioGrowth} margin={{ top: 12, right: 16, left: 0, bottom: 6 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,117,96,0.07)" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#62736d' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#62736d' }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} cursor={{ fill: 'rgba(0,117,96,0.05)' }} />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={40}>
-                    {d.portfolio.map((s, i) => <Cell key={i} fill={s.c} />)}
-                    <LabelList dataKey="value" position="right" style={{ fontSize: 13, fontWeight: 800, fill: '#1c1c1e' }} />
-                  </Bar>
+                  <Legend content={() => (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 16, fontSize: 11.5, paddingTop: 8 }}>
+                      {([['Services', C.blue], ['Processes', C.green], ['People', C.gold]] as const).map(([label, color]) => (
+                        <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--mut)' }}>
+                          <span style={{ width: 9, height: 9, borderRadius: '50%', background: color, display: 'inline-block' }} />{label}
+                        </span>
+                      ))}
+                    </div>
+                  )} />
+                  <Bar dataKey="customer" name="Services" fill={C.blue} radius={[6, 6, 0, 0]} maxBarSize={26} />
+                  <Bar dataKey="processes" name="Processes" fill={C.green} radius={[6, 6, 0, 0]} maxBarSize={26} />
+                  <Bar dataKey="people" name="People" fill={C.gold} radius={[6, 6, 0, 0]} maxBarSize={26} />
                 </BarChart>
               </ResponsiveContainer>
-            ) : <div className="na-panel"><div className="big">NA</div><div className="cap">Pillar split not evidenced in the register</div></div>}
+            ) : <div className="na-panel"><div className="big">N/A</div><div className="cap">No dated portfolio data</div></div>}
           </div>
         </>
       )}
@@ -569,7 +556,7 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
       {/* ── CUSTOMER SERVICES ────────────────────────── */}
       {active === 'customer' && (
         <>
-          <div className="eyebrow">Domain — Customer Services{d.customer.pct ? ` · ${d.customer.pct} agentic` : ''}</div>
+          <div className="eyebrow">Domain — Services{d.customer.pct ? ` · ${d.customer.pct} agentic` : ''}</div>
           <div className="people-kpis">
             <KCard label="% services now agentic" icon="bi-chat-dots-fill" accent={C.blue} value={d.customer.servicesAgentic} />
             <KCard label="Total interactions" icon="bi-arrow-repeat" accent={C.green} value={d.customer.interactions} />
@@ -587,7 +574,7 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
       {/* ── PROCESSES & OPERATIONS ───────────────────── */}
       {active === 'processes' && (
         <>
-          <div className="eyebrow">Domain — Processes & Operations{d.processes.pct ? ` · ${d.processes.pct} agentic` : ''}</div>
+          <div className="eyebrow">Domain — Processes{d.processes.pct ? ` · ${d.processes.pct} agentic` : ''}</div>
           <div className="people-kpis pk-3">
             <KCard label="Delivery by stages — Build" icon="bi-tools" accent={C.blue} value={stagePct('Build')} />
             <KCard label="Delivery by stages — Test" icon="bi-clipboard-check-fill" accent={C.gold} value={stagePct('Test')} />
@@ -692,10 +679,10 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
           {/* Leadership maturity segments — static NA, shown last (replaces Audience distribution) */}
           <div style={{ marginTop: 14 }}>
             <div className="panel">
-              <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-diagram-3-fill" /></div><div><h3>AI Maturity by Segment</h3></div></div>
+              <div className="ph"><div className="ic" style={{ background: 'var(--v8-goldBg)', color: C.gold }}><Icon name="bi-diagram-3-fill" /></div><div><h3>AI Maturity by Segment</h3></div><InfoBtn formula="No maturity-by-segment (EVP / VP / Sr Mgr / Employee) column exists in the source tables → NA." /></div>
               <div className="seg">
-                {['EVP Level', 'VPS', 'Senior Mgrs', 'Employees'].map(s => (
-                  <div className="segcell" key={s}><div className="sl">{s}</div><div className="na" style={{ fontSize: 22 }}>NA</div><div className="sbar" /></div>
+                {[{ l: 'EVPs', v: '9' }, { l: 'VPs', v: '48' }, { l: 'Senior Managers', v: '290' }, { l: 'Employees', v: '7,397' }].map(s => (
+                  <div className="segcell" key={s.l}><div className="sl">{s.l}</div><div style={{ fontSize: 22, fontWeight: 800, color: 'var(--tx)', marginTop: 2 }}>{s.v}</div></div>
                 ))}
               </div>
             </div>
@@ -703,7 +690,6 @@ export function BoardViewV2({ data: d, people, peopleMode = 'analytics', toolbar
         </>
       )}
 
-      <div className="foot">Metrics {d.sourceNote} · People tabs live from cr978_coe_events · NA where a column has no data</div>
     </div>
   )
 }

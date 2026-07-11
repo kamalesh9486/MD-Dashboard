@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
-import type { BoardSectionId } from '../pages/md/boardV2'
+import type { BoardSectionId } from '../pages/md/Board'
 import Icon from './Icon'
 
 interface SidebarProps {

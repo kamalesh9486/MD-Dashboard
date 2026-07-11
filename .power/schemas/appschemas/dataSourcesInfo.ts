@@ -25,5 +25,19 @@ export const dataSourcesInfo = {
     "primaryKey": "cr978_coe_personid",
     "dataSourceType": "Dataverse",
     "apis": {}
+  },
+  "mdview_mdagentses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "mdview_mdagentsid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "mdview_mdserviceses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "mdview_mdservicesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
   }
 };

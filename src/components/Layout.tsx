@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Sidebar from './Sidebar'
-import AumBoardV3 from '../pages/AumBoardV3'
-import { BOARD_SECTIONS, type BoardSectionId } from '../pages/md/boardV2'
+import MdDashboard from '../pages/MdDashboard'
+import { BOARD_SECTIONS, type BoardSectionId } from '../pages/md/Board'
 import Icon from './Icon'
 import { ErrorBoundary } from './ErrorBoundary'
 import dewaLogo from '../assets/dewa-logo.svg'
@@ -88,7 +88,7 @@ export default function Layout() {
         {/* Page content — wrapped in ErrorBoundary so a render error never blanks the whole app */}
         <main className="page-content">
           <ErrorBoundary>
-            <AumBoardV3 section={section} onSectionChange={setSection} />
+            <MdDashboard section={section} onSectionChange={setSection} />
           </ErrorBoundary>
         </main>
       </div>

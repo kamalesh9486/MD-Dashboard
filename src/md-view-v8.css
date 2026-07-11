@@ -71,8 +71,9 @@
 
 /* ── progress by pillars ─────────────────────────────── */
 .mdv8 .pill-bars{display:flex;flex-direction:column;gap:14px;margin-top:4px}
-.mdv8 .pbrow{display:grid;grid-template-columns:110px 1fr 42px;align-items:center;gap:10px;font-size:12px}
+.mdv8 .pbrow{display:grid;grid-template-columns:110px 1fr auto 46px;align-items:center;gap:10px;font-size:12px}
 .mdv8 .pbrow .nm{color:#3c4945;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdv8 .pbrow .pmax{font-size:11px;font-weight:700;color:var(--mut);text-align:right;min-width:16px}
 .mdv8 .pbrow .pv{font-weight:800;text-align:right;color:var(--tx)}
 .mdv8 .pbtrack{position:relative;height:9px;border-radius:6px;background:var(--track);overflow:hidden}
 .mdv8 .pbtrack i{display:block;height:100%;border-radius:6px;animation:mv2-bar-grow .9s cubic-bezier(.4,0,.2,1) both}
@@ -83,13 +84,13 @@
 .mdv8 .seg{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:2px}
 .mdv8 .segcell{background:var(--inset);border:1px solid var(--line);border-radius:11px;padding:12px 13px;min-height:74px;
   display:flex;flex-direction:column;justify-content:space-between}
-.mdv8 .segcell .sl{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.mdv8 .segcell .sl{font-size:10px;letter-spacing:.02em;color:var(--mut);font-weight:700}
 .mdv8 .segcell .sbar{height:6px;border-radius:4px;background:var(--track)}
 
 /* ── top-line impact block ───────────────────────────── */
 .mdv8 .impact{display:flex;flex-direction:column;gap:12px;margin-top:2px}
 .mdv8 .imp{border-left:3px solid var(--cc,#007560);padding-left:11px}
-.mdv8 .imp .il{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:var(--cc,#066b57)}
+.mdv8 .imp .il{font-size:11px;font-weight:700;color:var(--cc,#066b57)}
 .mdv8 .imp .iv{font-size:26px;font-weight:800;line-height:1.05;color:var(--tx);display:flex;align-items:baseline;gap:5px}
 .mdv8 .imp .iv small{font-size:13px;font-weight:700;color:var(--mut)}
 .mdv8 .imp .is{font-size:10px;color:var(--mut);margin-top:2px}
@@ -124,7 +125,7 @@
 /* ── stat tiles (agent inventory + by division) ───────── */
 .mdv8 .tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
 .mdv8 .tile{background:var(--inset);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
-.mdv8 .tile .tl{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.mdv8 .tile .tl{font-size:10.5px;letter-spacing:.02em;color:var(--mut);font-weight:700}
 .mdv8 .tile .tv{font-size:26px;font-weight:800;margin-top:6px;line-height:1;color:var(--ac,#1c1c1e)}
 .mdv8 .divtiles{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:12px}
 .mdv8 .dt{background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:9px 4px;text-align:center}

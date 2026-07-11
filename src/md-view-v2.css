@@ -29,9 +29,9 @@
 
 /* card base + signature accent bar */
 .mdv2 .panel,.mdv2 .kpi{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;
-  box-shadow:0 2px 16px rgba(16,40,34,.06);overflow:hidden}
+  box-shadow:0 2px 16px rgba(16,40,34,.06)}
 .mdv2 .panel::before,.mdv2 .kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,#007560,#ca8a04)}
+  border-radius:14px 14px 0 0;background:linear-gradient(90deg,#007560,#ca8a04)}
 .mdv2 .panel{padding:16px 18px}
 .mdv2 .panel .ph{display:flex;align-items:center;gap:10px;margin-bottom:13px}
 .mdv2 .panel .ph .ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}

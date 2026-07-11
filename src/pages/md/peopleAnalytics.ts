@@ -1,10 +1,11 @@
-/* People-tab analytics for MD View v2 — 100% live data, no dummy/fallback.
-   Every KPI is computed from real cr978_coe_events rows or aum_aiinitiatives
-   rows; anything with no backing data returns null → renders as NA. */
+/* People-tab analytics for the MD Dashboard — 100% live from cr978_coe_events.
+   Anything with no backing data returns null → renders as NA. */
 import type { Cr978_coe_eventses } from '../../generated/models/Cr978_coe_eventsesModel'
 import { Cr978_coe_eventsescr978_coe_eventtype as EVTYPE } from '../../generated/models/Cr978_coe_eventsesModel'
-import type { AumRow } from './aumFetch'
-import { C } from './boardv8Data'
+import { C } from './boardTypes'
+
+/** Minimal shape for the optional automation time-savings rows (was AumRow). */
+interface TimeSavingRow { timesavingshrsmonth: number }
 
 const n = (x: unknown): number => (typeof x === 'number' ? x : Number(x)) || 0
 const int = (v: number): string => Math.round(v).toLocaleString('en-US')
@@ -117,7 +118,7 @@ function isAiEvent(e: Cr978_coe_eventses): boolean {
  *  event column → excluded/NA). The one exception is the "Hours saved" arrow,
  *  which uses the aum time-savings column (automation impact) and is labelled
  *  as such so it isn't confused with event-based "Training hours delivered". */
-export function peopleAnalytics(events: Cr978_coe_eventses[], rows: AumRow[]): PeopleData {
+export function peopleAnalytics(events: Cr978_coe_eventses[], rows: TimeSavingRow[] = []): PeopleData {
   // ── event-sourced aggregates ──────────────────────────
   const attendees = events.reduce((s, e) => s + n(e.cr978_coe_nofattendees), 0) // total reach, all events
   const hours = events.reduce((s, e) => s + n(e.cr978_coe_eventduration) * n(e.cr978_coe_nofattendees), 0)

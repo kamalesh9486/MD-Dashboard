@@ -21,9 +21,14 @@
           "entitySetName": "cr978_coe_persons",
           "logicalName": "cr978_coe_person"
         },
-        "aiinitiatives": {
-          "entitySetName": "aum_aiinitiativeses",
-          "logicalName": "aum_aiinitiatives",
+        "mdservices": {
+          "entitySetName": "mdview_mdserviceses",
+          "logicalName": "mdview_mdservices",
+          "isHidden": false
+        },
+        "mdagents": {
+          "entitySetName": "mdview_mdagentses",
+          "logicalName": "mdview_mdagents",
           "isHidden": false
         }
       },

@@ -4,12 +4,14 @@
  */
 
 // Models
-export * as Aum_aiinitiativesesModel from './models/Aum_aiinitiativesesModel';
 export * as CommonModels from './models/CommonModels';
 export * as Cr978_coe_eventsesModel from './models/Cr978_coe_eventsesModel';
 export * as Cr978_coe_personsModel from './models/Cr978_coe_personsModel';
+export * as Mdview_mdagentsesModel from './models/Mdview_mdagentsesModel';
+export * as Mdview_mdservicesesModel from './models/Mdview_mdservicesesModel';
 
 // Services
-export * from './services/Aum_aiinitiativesesService';
 export * from './services/Cr978_coe_eventsesService';
 export * from './services/Cr978_coe_personsService';
+export * from './services/Mdview_mdagentsesService';
+export * from './services/Mdview_mdservicesesService';
