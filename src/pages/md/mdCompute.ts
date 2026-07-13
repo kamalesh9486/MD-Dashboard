@@ -9,6 +9,7 @@ import { PILLAR_C } from './boardTypes'
 import type { Mdview_mdserviceses } from '../../generated/models/Mdview_mdservicesesModel'
 import type { Mdview_mdagentses } from '../../generated/models/Mdview_mdagentsesModel'
 import type { Cr978_coe_eventses } from '../../generated/models/Cr978_coe_eventsesModel'
+import { durationHours } from './peopleAnalytics'
 
 const round = (n: number) => Math.round(n)
 const num = (n: number) => Math.round(n).toLocaleString('en-US')
@@ -37,7 +38,7 @@ function monthKey(s?: string | null): { sort: number; label: string } | null {
 export function peopleFromEvents(events: Cr978_coe_eventses[]): BoardData['people'] {
   const n = (x: unknown) => Number(x) || 0
   const trained = events.reduce((s, e) => s + n(e.cr978_coe_nofattendees), 0)
-  const hours = events.reduce((s, e) => s + n(e.cr978_coe_eventduration) * n(e.cr978_coe_nofattendees), 0)
+  const hours = events.reduce((s, e) => s + durationHours(e.cr978_coe_eventduration) * n(e.cr978_coe_nofattendees), 0)
   const workshops = events.length
   const lead = events.filter(e => /champion|ambassador|evp|leader/i.test(e.cr978_coe_targetedaudience ?? ''))
   const leadAtt = lead.reduce((s, e) => s + n(e.cr978_coe_nofattendees), 0)
@@ -211,9 +212,21 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
     let carry = { s: 0, p: 0 }
     for (let sort = start; sort <= maxSort; sort++) {
       if (cumAt.has(sort)) carry = cumAt.get(sort) as { s: number; p: number }
+      // The final (current) month reflects the TRUE active totals — S services and
+      // P processes — not just the dated subset, so it matches the Executive cards
+      // (services with no go-live/planned/submission date are otherwise dropped).
+      const eff = sort === maxSort ? { s: Math.max(carry.s, S), p: Math.max(carry.p, P) } : carry
       const month = labelOf(sort)
-      portfolioGrowth.push({ month, customer: carry.s, processes: carry.p, people: 0 })
-      progressByMonth.push({ name: month, value: round(((TOT ? (carry.s / TOT) * 100 : 0) + (TOT ? (carry.p / TOT) * 100 : 0)) / 2) })
+      portfolioGrowth.push({ month, customer: eff.s, processes: eff.p, people: 0 })
+      // Same pillar maths as the Transformation Progress gauge (Services ÷ half-total,
+      // Processes ÷ 325, People fixed 100), using each month's cumulative counts.
+      // People's fixed 100 only applies to the CURRENT month (so the trend ends at
+      // the gauge value); past months average Services + Processes only, so they
+      // show the real build-up instead of a flat People-driven floor.
+      const cS = TOT ? (eff.s / (TOT / 2)) * 100 : 0
+      const cP = (eff.p / (TOT_P / 2)) * 100
+      const value = sort === maxSort ? round((cS + cP + PEOPLE_PILLAR) / 3) : round((cS + cP) / 2)
+      progressByMonth.push({ name: month, value })
     }
   }
 

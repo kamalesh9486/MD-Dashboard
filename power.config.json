@@ -30,6 +30,11 @@
           "entitySetName": "mdview_mdagentses",
           "logicalName": "mdview_mdagents",
           "isHidden": false
+        },
+        "coe_divisions": {
+          "entitySetName": "cr978_coe_divisions",
+          "logicalName": "cr978_coe_division",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

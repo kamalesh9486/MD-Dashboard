@@ -5,12 +5,13 @@ import { Mdview_mdagentsesService } from '../generated/services/Mdview_mdagentse
 import type { Mdview_mdagentses } from '../generated/models/Mdview_mdagentsesModel'
 import { Cr978_coe_eventsesService } from '../generated/services/Cr978_coe_eventsesService'
 import type { Cr978_coe_eventses } from '../generated/models/Cr978_coe_eventsesModel'
+import { Cr978_coe_divisionsService } from '../generated/services/Cr978_coe_divisionsService'
+import type { Cr978_coe_divisions } from '../generated/models/Cr978_coe_divisionsModel'
 import { computeMetrics, peopleFromEvents } from './md/mdCompute'
-import { peopleAnalytics, type PeopleData } from './md/peopleAnalytics'
+import { peopleAnalytics, eventCountByMonth, type PeopleData } from './md/peopleAnalytics'
 import type { BoardData } from './md/boardTypes'
 import { BoardViewV2, type BoardSectionId } from './md/Board'
-import '../md-view-v2.css'
-import '../md-view-v8.css'
+import '../md-redesign.css'
 
 const TIMEOUT = Symbol('timeout')
 function withTimeout<T>(p: Promise<T>, ms = 8000): Promise<T | typeof TIMEOUT> {
@@ -27,6 +28,7 @@ export default function MdDashboard({ section, onSectionChange }: { section?: Bo
   const [master, setMaster] = useState<Mdview_mdserviceses[] | null>(null)
   const [agents, setAgents] = useState<Mdview_mdagentses[] | null>(null)
   const [events, setEvents] = useState<Cr978_coe_eventses[] | null>(null)
+  const [divisions, setDivisions] = useState<Cr978_coe_divisions[] | null>(null)
 
   useEffect(() => {
     let active = true
@@ -36,21 +38,40 @@ export default function MdDashboard({ section, onSectionChange }: { section?: Bo
       grab<Mdview_mdserviceses>(Mdview_mdservicesesService.getAll()),
       grab<Mdview_mdagentses>(Mdview_mdagentsesService.getAll()),
       grab<Cr978_coe_eventses>(Cr978_coe_eventsesService.getAll()),
-    ]).then(([m, a, e]) => { if (!active) return; setMaster(m); setAgents(a); setEvents(e) })
+      grab<Cr978_coe_divisions>(Cr978_coe_divisionsService.getAll()),
+    ]).then(([m, a, e, d]) => { if (!active) return; setMaster(m); setAgents(a); setEvents(e); setDivisions(d) })
     return () => { active = false }
   }, [])
+
+  // Division lookup GUID → display label (People view). Long names fall back to
+  // the shorter alias so the chart labels stay fully readable.
+  const divisionMap = useMemo(
+    () => new Map((divisions ?? []).map(d => {
+      const name = (d.cr978_divisionname ?? '').trim()
+      const alias = (d.cr978_divisionname_alias ?? '').trim()
+      const label = name.length > 22 && alias ? alias : (name || alias)
+      return [d.cr978_coe_divisionid, label] as [string, string]
+    })),
+    [divisions],
+  )
 
   const board: BoardData | null = useMemo(() => {
     if (!master || !agents) return null
     const b = computeMetrics(master, agents)
-    if (events) b.people = peopleFromEvents(events)
+    if (events) {
+      b.people = peopleFromEvents(events)
+      // Wire the People series of the Portfolio Growth chart to the monthly count
+      // of training events (cr978_coe_events), matched by the "Mon YY" month label.
+      const ev = eventCountByMonth(events)
+      if (b.portfolioGrowth) b.portfolioGrowth = b.portfolioGrowth.map(m => ({ ...m, people: ev.get(m.month) ?? 0 }))
+    }
     return b
   }, [master, agents, events])
 
-  const people: PeopleData | null = useMemo(() => (events ? peopleAnalytics(events, []) : null), [events])
+  const people: PeopleData | null = useMemo(() => (events ? peopleAnalytics(events, [], divisionMap) : null), [events, divisionMap])
 
   if (!board || !people) {
-    return <div className="mdv2 mdv8"><div className="state"><div className="spin" />Loading data from Dataverse…</div></div>
+    return <div className="mdx-loading"><div className="spin" />Loading data from Dataverse…</div>
   }
-  return <BoardViewV2 data={board} people={people} peopleMode="cards" active={section} onActiveChange={onSectionChange} />
+  return <BoardViewV2 data={board} people={people} active={section} onActiveChange={onSectionChange} />
 }

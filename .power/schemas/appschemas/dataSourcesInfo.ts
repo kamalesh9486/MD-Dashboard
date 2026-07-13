@@ -12,6 +12,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "cr978_coe_divisions": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "cr978_coe_divisionid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cr978_coe_eventses": {
     "tableId": "",
     "version": "",
