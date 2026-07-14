@@ -74,29 +74,27 @@ export function TrendArea({ data, unit = 'Value', height = 200 }: { data: Datum[
   )
 }
 
-/* ── stacked portfolio-growth bars with toggle chips ───────
+/* ── stacked portfolio-growth bars ─────────────────────────
    One stacked column per month: Services + Processes (cumulative counts) and
-   Training Events (events delivered that month). Only the topmost visible
-   segment gets rounded corners so the stack reads as one bar. */
+   Training Events (events delivered that month). Only the topmost segment gets
+   rounded corners so the stack reads as one bar. Legend is a static label row
+   (no filtering). */
 type Series = 'customer' | 'processes' | 'people'
 export function PortfolioBars({ data }: { data: { month: string; customer: number; processes: number; people: number }[] }) {
-  const [on, setOn] = useState<Record<Series, boolean>>({ customer: true, processes: true, people: true })
   const defs: { id: Series; label: string; color: string }[] = [
     { id: 'customer', label: 'Services', color: PILLAR.Services },
     { id: 'processes', label: 'Processes', color: PILLAR.Processes },
     { id: 'people', label: 'People', color: PILLAR.People },
   ]
   if (!data.length) return <NaBox note="No dated portfolio data" />
-  const visible = defs.filter(s => on[s.id])
   return (
     <>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
         {defs.map(s => (
-          <button key={s.id} onClick={() => setOn(o => ({ ...o, [s.id]: !o[s.id] }))}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: `1px solid ${T.border}`, background: on[s.id] ? T.card : T.bgSlate, borderRadius: 999, padding: '6px 12px', cursor: 'pointer', opacity: on[s.id] ? 1 : 0.45 }}>
+          <span key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
             <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color }} />
             <span style={{ font: `600 12px ${BODY_FONT}`, color: T.mut2 }}>{s.label}</span>
-          </button>
+          </span>
         ))}
       </div>
       <ResponsiveContainer width="100%" height={280}>
@@ -105,9 +103,9 @@ export function PortfolioBars({ data }: { data: { month: string; customer: numbe
           <XAxis dataKey="month" tick={AXIS} axisLine={false} tickLine={false} />
           <YAxis tick={AXIS} axisLine={false} tickLine={false} allowDecimals={false} width={34} />
           <Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} cursor={{ fill: 'rgba(16,32,26,0.04)' }} />
-          {visible.map((s, i) => (
+          {defs.map((s, i) => (
             <Bar key={s.id} dataKey={s.id} name={s.label} stackId="pg" fill={s.color}
-              radius={i === visible.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} maxBarSize={54} />
+              radius={i === defs.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} maxBarSize={54} />
           ))}
         </BarChart>
       </ResponsiveContainer>

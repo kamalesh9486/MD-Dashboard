@@ -67,7 +67,7 @@ export interface PeopleView {
 }
 
 /** Fixed unique-employee count for the "Employees Trained on Agentic AI" KPI. */
-const UNIQUE_TRAINED = 307
+const UNIQUE_TRAINED = 6041
 
 /** Participant-reach aggregates for the People view (attendees grouped by program /
  *  month / technology / division). Sourced only from event columns; NA when empty. */

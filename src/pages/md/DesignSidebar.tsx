@@ -4,7 +4,8 @@
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import Icon from '../../components/Icon'
 import type { BoardSectionId } from './Board'
-import coeLogo from '../../assets/coe-logo.webp'
+import coeRing from '../../assets/coe-ring-white.png'
+import dewaLogo from '../../assets/dewa-logo-white.webp'
 
 const NAV: { id: BoardSectionId; icon: string; label: string }[] = [
   { id: 'overview', icon: 'bi-speedometer2', label: 'Overview' },
@@ -22,8 +23,8 @@ export default function DesignSidebar({ active, onSelect }: { active: BoardSecti
     <aside className="mdx-rail">
       <div className="mdx-rail-inner">
         <div className="mdx-rail-brand">
-          <span className="mdx-rail-slot"><img className="mdx-rail-logo" src={coeLogo} alt="COE" /></span>
-          <span className="mdx-rail-brandtext"><b>Agentic AI</b><small>MD Dashboard</small></span>
+          <span className="mdx-rail-slot"><img className="mdx-rail-logo" src={coeRing} alt="DEWA" /></span>
+          <span className="mdx-rail-fulllogo"><img src={dewaLogo} alt="DEWA" /></span>
         </div>
 
         <nav className="mdx-rail-nav">

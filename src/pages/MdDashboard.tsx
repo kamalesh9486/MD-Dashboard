@@ -7,6 +7,8 @@ import { Cr978_coe_eventsesService } from '../generated/services/Cr978_coe_event
 import type { Cr978_coe_eventses } from '../generated/models/Cr978_coe_eventsesModel'
 import { Cr978_coe_divisionsService } from '../generated/services/Cr978_coe_divisionsService'
 import type { Cr978_coe_divisions } from '../generated/models/Cr978_coe_divisionsModel'
+import { Ai_alhasbausecasesesService } from '../generated/services/Ai_alhasbausecasesesService'
+import type { Ai_alhasbausecaseses } from '../generated/models/Ai_alhasbausecasesesModel'
 import { computeMetrics, peopleFromEvents } from './md/mdCompute'
 import { peopleAnalytics, eventCountByMonth, type PeopleData } from './md/peopleAnalytics'
 import type { BoardData } from './md/boardTypes'
@@ -29,6 +31,7 @@ export default function MdDashboard({ section, onSectionChange }: { section?: Bo
   const [agents, setAgents] = useState<Mdview_mdagentses[] | null>(null)
   const [events, setEvents] = useState<Cr978_coe_eventses[] | null>(null)
   const [divisions, setDivisions] = useState<Cr978_coe_divisions[] | null>(null)
+  const [alhasba, setAlhasba] = useState<Ai_alhasbausecaseses[] | null>(null)
 
   useEffect(() => {
     let active = true
@@ -39,7 +42,8 @@ export default function MdDashboard({ section, onSectionChange }: { section?: Bo
       grab<Mdview_mdagentses>(Mdview_mdagentsesService.getAll()),
       grab<Cr978_coe_eventses>(Cr978_coe_eventsesService.getAll()),
       grab<Cr978_coe_divisions>(Cr978_coe_divisionsService.getAll()),
-    ]).then(([m, a, e, d]) => { if (!active) return; setMaster(m); setAgents(a); setEvents(e); setDivisions(d) })
+      grab<Ai_alhasbausecaseses>(Ai_alhasbausecasesesService.getAll()),
+    ]).then(([m, a, e, d, h]) => { if (!active) return; setMaster(m); setAgents(a); setEvents(e); setDivisions(d); setAlhasba(h) })
     return () => { active = false }
   }, [])
 
@@ -57,7 +61,7 @@ export default function MdDashboard({ section, onSectionChange }: { section?: Bo
 
   const board: BoardData | null = useMemo(() => {
     if (!master || !agents) return null
-    const b = computeMetrics(master, agents)
+    const b = computeMetrics(master, agents, alhasba ?? [])
     if (events) {
       b.people = peopleFromEvents(events)
       // Wire the People series of the Portfolio Growth chart to the monthly count
@@ -66,7 +70,7 @@ export default function MdDashboard({ section, onSectionChange }: { section?: Bo
       if (b.portfolioGrowth) b.portfolioGrowth = b.portfolioGrowth.map(m => ({ ...m, people: ev.get(m.month) ?? 0 }))
     }
     return b
-  }, [master, agents, events])
+  }, [master, agents, events, alhasba])
 
   const people: PeopleData | null = useMemo(() => (events ? peopleAnalytics(events, [], divisionMap) : null), [events, divisionMap])
 

@@ -12,6 +12,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "ai_alhasbausecaseses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "ai_alhasbausecasesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "cr978_coe_divisions": {
     "tableId": "",
     "version": "",

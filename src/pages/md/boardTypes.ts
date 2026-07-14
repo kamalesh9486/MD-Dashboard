@@ -18,6 +18,8 @@ export interface BoardData {
   pillars: { label: string; pct: number | null }[]
   costSaving: string | null
   fteSaving: string | null
+  /** Total time saving in hours (Σ mdview_timesaveddescription). */
+  timeSaving?: string | null
   invTotal: number; invLive: string | null; invDeployment: number | null
   byDivision: [string, number][]
   /** Optional per-pillar division breakdown (used by the Services sub-tab chart). */

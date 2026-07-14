@@ -35,6 +35,11 @@
           "entitySetName": "cr978_coe_divisions",
           "logicalName": "cr978_coe_division",
           "isHidden": false
+        },
+        "alhasbausecases": {
+          "entitySetName": "ai_alhasbausecaseses",
+          "logicalName": "ai_alhasbausecases",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""
