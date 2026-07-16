@@ -40,6 +40,11 @@
           "entitySetName": "ai_alhasbausecaseses",
           "logicalName": "ai_alhasbausecases",
           "isHidden": false
+        },
+        "mdl3processes": {
+          "entitySetName": "mdview_mdl3processeses",
+          "logicalName": "mdview_mdl3processes",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""

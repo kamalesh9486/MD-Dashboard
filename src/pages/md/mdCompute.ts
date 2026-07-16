@@ -9,7 +9,7 @@ import { PILLAR_C } from './boardTypes'
 import type { Mdview_mdserviceses } from '../../generated/models/Mdview_mdservicesesModel'
 import type { Mdview_mdagentses } from '../../generated/models/Mdview_mdagentsesModel'
 import type { Cr978_coe_eventses } from '../../generated/models/Cr978_coe_eventsesModel'
-import type { Ai_alhasbausecaseses } from '../../generated/models/Ai_alhasbausecasesesModel'
+import type { Mdview_mdl3processeses } from '../../generated/models/Mdview_mdl3processesesModel'
 import { durationHours } from './peopleAnalytics'
 
 const round = (n: number) => Math.round(n)
@@ -26,6 +26,21 @@ const pct = (v: number | null) => (v == null ? null : `${v}%`)
 const avg = (xs: number[]): number | null => (xs.length ? round(xs.reduce((a, b) => a + b, 0) / xs.length) : null)
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** Monthly CUMULATIVE unique employees reached, for the People pillar of the Progress
+ *  Trend. Base = 4,324 (all of 2025); each 2026 month's already-cumulative figure is added
+ *  to the base (Jan = 4324+209, Feb = 4324+646, … Jul = 4324+1717 = 6,041). Keyed by the
+ *  chart's "Mon YY" label so the People pillar ramps month-over-month, not a flat jump. */
+const PEOPLE_CUM: Record<string, number> = (() => {
+  const base = 4324
+  const cum: [string, number][] = [
+    ['Jan 26', 209], ['Feb 26', 646], ['Mar 26', 990], ['Apr 26', 1286],
+    ['May 26', 1394], ['Jun 26', 1682], ['Jul 26', 1717],
+  ]
+  const out: Record<string, number> = {}
+  for (const [label, v] of cum) out[label] = base + v
+  return out
+})()
 /** Parse a date cell → { sort, label } for month bucketing (null if unparseable). */
 function monthKey(s?: string | null): { sort: number; label: string } | null {
   if (!s) return null
@@ -49,7 +64,7 @@ export function peopleFromEvents(events: Cr978_coe_eventses[]): BoardData['peopl
     leadership: leadAtt ? num(leadAtt) : null,
     literacy: null,
     trained: trained ? num(trained) : null,
-    hours: hours ? `${num(hours)} person-hrs` : null,
+    hours: hours ? `${num(hours)}` : null,
     workshops: workshops ? num(workshops) : null,
     certs: '730', // fixed
     userSat: null,
@@ -69,7 +84,7 @@ function dedupe<T>(rows: T[], key: (r: T) => string): T[] {
   return out
 }
 
-export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdview_mdagentses[], alhasbaRaw: Ai_alhasbausecaseses[] = []): BoardData {
+export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdview_mdagentses[], l3Raw: Mdview_mdl3processeses[] = []): BoardData {
   // Data hygiene: exclude Inactive (statecode = 1) rows and collapse duplicate
   // import rows so re-imported / soft rows can't inflate the counts. If a table
   // genuinely holds N distinct active rows this keeps N (clean it in Dataverse).
@@ -94,31 +109,33 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
   // TOT = total services in the table (live row count). Processes use their own fixed
   // total of 650 (half = 325). People pillar is a fixed 100%.
   const TOT = allServices.length
-  const TOT_P = 650
+  const TOT_P = 600
   const PEOPLE_PILLAR = 151
   const PEOPLE_MAX = 4000
   const PEOPLE_METRIC = 59.9 // fixed People value for the Overall Metrics section
   const S = master.length
-  const processesSet = new Set(master.map(m => (m.mdview_relatedprocess ?? '').trim().toLowerCase()).filter(Boolean))
-  const P = processesSet.size
+  // Processes come from the standalone mdview_l3processes table. Count DISTINCT process
+  // names (mdview_processname) among record-active rows — two rows with the same name
+  // count once. Blank names are excluded.
+  const l3 = dedupe(
+    l3Raw.filter(x => x.statecode !== 1 && (x.mdview_processname ?? '').trim() !== ''),
+    x => (x.mdview_processname ?? '').trim().toLowerCase(),
+  )
+  const P = l3.length
+  // Overall row count of the l3-processes table (record-active), NOT name-deduped.
+  // Kept for future enhancement of the "Agents by Pillar" tiles (currently fixed).
+  // const l3Count = l3Raw.filter(x => x.statecode !== 1).length
   const A = agents.length
-
-  // ── Al-Hasba use cases count as agentic PROCESSES ─────
-  // Only LIVE ones (ai_status = "Live") and record-active rows count toward progress.
-  const alhasbaLive = alhasbaRaw.filter(u => u.statecode !== 1 && /live/i.test((u.ai_status ?? '').trim()))
-  const L = alhasbaLive.length
-  // Total agentic processes now = distinct service-processes + live Al-Hasba use cases.
-  const procNow = P + L
 
   // ── §3 top KPI cards ─────────────────────────────────
   const agenticServicesPct = TOT ? round((S / TOT) * 100) : null
   // 1-decimal so a tiny value like 3 ÷ 650 = 0.46% shows as 0.5% instead of rounding to 0.
-  const agenticProcessesPct = Math.round((procNow / TOT_P) * 100 * 10) / 10
+  const agenticProcessesPct = Math.round((P / TOT_P) * 100 * 10) / 10
 
   // Progress by Pillars — uses HALF the total, 50% target. Services scale = total services;
-  // Processes scale = 650; People = fixed 100%. Processes numerator includes Al-Hasba.
+  // Processes scale = 650; People = fixed 100%.
   const custPillar = TOT ? round((S / (TOT / 2)) * 100) : null
-  const procPillar = round((procNow / (TOT_P / 2)) * 100)
+  const procPillar = round((P / (TOT_P / 2)) * 100)
 
   // Transformation Progress gauge = average of the pillar values, including People.
   const gauge = avg([custPillar, procPillar, PEOPLE_PILLAR].filter((x): x is number => x != null))
@@ -126,19 +143,36 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
   // Overall Readiness = average of the three.
   const overallReadiness = avg([agenticServicesPct, agenticProcessesPct, PEOPLE_METRIC].filter((x): x is number => x != null))
 
-  // ── Active Agents by Division: agent → service (by initiative title) → division ──
-  const titleToDiv = new Map<string, string>()
-  for (const m of master) {
-    const t = (m.mdview_initiativetitle ?? '').trim().toLowerCase()
-    if (t) titleToDiv.set(t, (m.mdview_division ?? '').trim() || 'Unknown')
-  }
-  const divCount = new Map<string, number>()
-  for (const a of agents) {
-    const t = (a.mdview_initiativetitle ?? '').trim().toLowerCase()
-    const dv = titleToDiv.get(t) || 'Unknown'
-    divCount.set(dv, (divCount.get(dv) ?? 0) + 1)
-  }
-  const byDivision = [...divCount.entries()].sort((a, b) => b[1] - a[1])
+  // ── Active Agents by Division — FIXED for now (overall 1,240). ──
+  // Total Copilot agents per division, ranked high → low.
+  const byDivision: [string, number][] = [
+    ['I&TF', 398],
+    ['TP', 314],
+    ['DP', 203],
+    ['IA', 74],
+    ['PWP', 59],
+    ['BD&E', 54],
+    ['BS&HR', 41],
+    ['Generation', 26],
+    ['Finance', 24],
+    ['Billing Services', 19],
+    ['S&GC', 11],
+    ['W&C', 11],
+    ['LA', 6],
+  ]
+  // Data-driven logic kept for future use — agent → service (by initiative title) → division:
+  // const titleToDiv = new Map<string, string>()
+  // for (const m of master) {
+  //   const t = (m.mdview_initiativetitle ?? '').trim().toLowerCase()
+  //   if (t) titleToDiv.set(t, (m.mdview_division ?? '').trim() || 'Unknown')
+  // }
+  // const divCount = new Map<string, number>()
+  // for (const a of agents) {
+  //   const t = (a.mdview_initiativetitle ?? '').trim().toLowerCase()
+  //   const dv = titleToDiv.get(t) || 'Unknown'
+  //   divCount.set(dv, (divCount.get(dv) ?? 0) + 1)
+  // }
+  // const byDivision = [...divCount.entries()].sort((a, b) => b[1] - a[1])
 
   // Agent inventory: In Use = agents whose service has an actual go-live date; In Built = the rest.
   const liveTitles = new Set(
@@ -155,11 +189,10 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
   // Target FTE Saving: Σ then round (see §5.1 caveat on the "Smart Response" row).
   const fteRows = master.map(m => toNum(m.mdview_targetftesaving)).filter(v => v > 0)
   const fteSaving = fteRows.length ? num(round(fteRows.reduce((a, b) => a + b, 0))) : null
-  // Total Time Saving (hours): Σ of the time-saved column (mdview_timesaveddescription),
-  // shown in millions of hours (e.g. 3,700,000 → "3.7M").
+  // Avg Time Saving (hours): AVERAGE of the time-saved column (mdview_timesaveddescription)
+  // over services that recorded a value, magnitude-formatted (e.g. 52,000 → "52K").
   const timeRows = master.map(m => toNum(m.mdview_timesaveddescription)).filter(v => v > 0)
-  const timeHrs = timeRows.reduce((a, b) => a + b, 0)
-  const timeSaving = timeRows.length ? `${(timeHrs / 1e6).toFixed(1)}M` : null
+  const timeSaving = timeRows.length ? aed(timeRows.reduce((a, b) => a + b, 0) / timeRows.length) : null
   // Avg Productivity Gain: per-value scale-normalise (0–1 ratio → ×100), then average.
   const prodRows = master.map(m => toNum(m.mdview_productivitygainpercentage)).filter(v => v > 0).map(v => (v <= 1.5 ? v * 100 : v))
   const avgProd = avg(prodRows)
@@ -192,27 +225,29 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
   const ratioS = (n: number) => (TOT ? `${n}/${Math.round(TOT / 2)}` : null)
   const ratioP = (n: number) => `${n}/${Math.round(TOT_P / 2)}`
 
-  // ── Month-wise growth: bucket services by go-live (→ planned → submission) date,
-  //    accumulate distinct services (Customer) and processes (Processes) per month.
+  // ── Month-wise growth: services bucketed by go-live (→ planned → submission) date;
+  //    processes (mdview_l3processes) bucketed by their own go-live date.
   const svcMonth = (m: Mdview_mdserviceses) =>
     monthKey(m.mdview_actualgolivedate ?? m.mdview_plannedcompletiondate ?? m.mdview_submissiondate)
   const datedSvc = master.map(m => ({ m, k: svcMonth(m) })).filter((x): x is { m: Mdview_mdserviceses; k: { sort: number; label: string } } => x.k != null)
-  // Live Al-Hasba use cases dated by their ACTUAL go-live — they add to the process count.
-  const datedUC = alhasbaLive
-    .map(u => monthKey(u.ai_actual_go_live))
+  // L3 processes are dated by mdview_golivedateformatted (a real datetime). Fall back to
+  // the raw "YYYYMMDD" go-live / planned go-live fields if the formatted one is blank.
+  const ymd = (v: unknown) => {
+    const raw = String(v ?? '').trim()
+    const m = raw.match(/^(\d{4})(\d{2})(\d{2})$/)
+    return m ? monthKey(`${m[1]}-${m[2]}-${m[3]}`) : monthKey(raw)
+  }
+  const datedProc = l3
+    .map(x => monthKey(x.mdview_golivedateformatted) ?? ymd(x.mdview_golivedate) ?? ymd(x.mdview_plannedgolivedate))
     .filter((k): k is { sort: number; label: string } => k != null)
-  // Cumulative service / process (incl. Al-Hasba) counts at each data month.
-  const dataSorts = [...new Set([...datedSvc.map(x => x.k.sort), ...datedUC.map(k => k.sort)])].sort((a, b) => a - b)
-  let cumSvc = 0, cumUC = 0
-  const seenProc = new Set<string>()
-  // p = distinct service-processes seen so far + cumulative live Al-Hasba use cases.
+  // Cumulative service / process counts at each data month.
+  const dataSorts = [...new Set([...datedSvc.map(x => x.k.sort), ...datedProc.map(k => k.sort)])].sort((a, b) => a - b)
+  let cumSvc = 0, cumProc = 0
   const cumAt = new Map<number, { s: number; p: number }>()
   for (const sort of dataSorts) {
-    const inMonth = datedSvc.filter(x => x.k.sort === sort)
-    cumSvc += inMonth.length
-    for (const x of inMonth) { const p = (x.m.mdview_relatedprocess ?? '').trim().toLowerCase(); if (p) seenProc.add(p) }
-    cumUC += datedUC.filter(k => k.sort === sort).length
-    cumAt.set(sort, { s: cumSvc, p: seenProc.size + cumUC })
+    cumSvc += datedSvc.filter(x => x.k.sort === sort).length
+    cumProc += datedProc.filter(k => k.sort === sort).length
+    cumAt.set(sort, { s: cumSvc, p: cumProc })
   }
   // Walk a CONTINUOUS month axis (≥ 6 months ending at the latest data month) carrying the
   // running cumulative, so even a single data point renders as a line / bar series.
@@ -225,26 +260,28 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
     const maxSort = dataSorts[dataSorts.length - 1]
     const yearMax = Math.floor(maxSort / 12)
     // Chart starts in MARCH of the latest data year (or the earliest data month if that's
-    // before March, so no real data is cut off). People joins from APRIL onward.
+    // before March, so no real data is cut off).
     const marchSort = (maxSort % 12 >= 2 ? yearMax : yearMax - 1) * 12 + 2
-    const aprilSort = marchSort + 1
     const start = Math.min(dataSorts[0], marchSort)
+    // People ramps month-over-month by cumulative unique employees (PEOPLE_CUM), scaled so
+    // the CURRENT month equals the gauge's People pillar (PEOPLE_PILLAR) — no April jump.
+    const peopleRef = PEOPLE_CUM[labelOf(maxSort)] ?? Math.max(0, ...Object.values(PEOPLE_CUM))
     let carry = { s: 0, p: 0 }
     for (let sort = start; sort <= maxSort; sort++) {
       if (cumAt.has(sort)) carry = cumAt.get(sort) as { s: number; p: number }
       // The final (current) month reflects the TRUE active totals — S services and
-      // procNow processes (distinct service-processes + all live Al-Hasba) — not just the
-      // dated subset, so it matches the gauge / Executive cards.
-      const eff = sort === maxSort ? { s: Math.max(carry.s, S), p: Math.max(carry.p, procNow) } : carry
+      // P processes — not just the dated subset, so it matches the gauge / Executive cards.
+      const eff = sort === maxSort ? { s: Math.max(carry.s, S), p: Math.max(carry.p, P) } : carry
       const month = labelOf(sort)
       portfolioGrowth.push({ month, customer: eff.s, processes: eff.p, people: 0 })
-      // Same pillar maths as the Transformation Progress gauge (Services ÷ half-total,
-      // Processes ÷ 325, People fixed 100), using each month's cumulative counts. People's
-      // fixed 100 is included from APRIL onward; March (and any earlier month) averages
-      // Services + Processes only, so the line builds up instead of a flat People floor.
+      // Pillar maths matching the gauge (Services ÷ half-total, Processes ÷ 325). People is
+      // that month's cumulative-unique share of PEOPLE_PILLAR, so it climbs each month and
+      // lands on the gauge value at the current month.
       const cS = TOT ? (eff.s / (TOT / 2)) * 100 : 0
       const cP = (eff.p / (TOT_P / 2)) * 100
-      const parts = sort >= aprilSort ? [cS, cP, PEOPLE_PILLAR] : [cS, cP]
+      const cum = PEOPLE_CUM[month]
+      const parts = [cS, cP]
+      if (cum != null && peopleRef) parts.push(PEOPLE_PILLAR * (cum / peopleRef))
       progressByMonth.push({ name: month, value: round(parts.reduce((a, b) => a + b, 0) / parts.length) })
     }
   }
@@ -270,12 +307,18 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
     byDivision,
     totalHalf: TOT ? Math.round(TOT / 2) : 0, totalHalfProc: Math.round(TOT_P / 2), peopleMax: PEOPLE_MAX,
     peopleMetricPct: PEOPLE_METRIC,
-    // Agents by Pillar — Option B (overlap): every agent serves a service AND a process.
-    portfolio: A ? [
-      { name: 'Services', value: A, c: PILLAR_C.Customer },
-      { name: 'Processes', value: A, c: PILLAR_C.Processes },
-      { name: 'People', value: 3714, c: PILLAR_C.People }, // fixed People agent count
-    ] : [],
+    // Agents by Pillar — FIXED counts for now (Services 8, Processes 6, People 3714).
+    portfolio: [
+      { name: 'Services', value: 3, c: PILLAR_C.Customer },
+      { name: 'Processes', value: 12, c: PILLAR_C.Processes },
+      { name: 'People', value: 1225, c: PILLAR_C.People },
+    ],
+    // Data-driven logic kept for future enhancement:
+    // portfolio: A ? [
+    //   { name: 'Services', value: A, c: PILLAR_C.Customer },
+    //   { name: 'Processes', value: l3Count, c: PILLAR_C.Processes }, // overall l3-processes table count
+    //   { name: 'People', value: 3714, c: PILLAR_C.People },
+    // ] : [],
     customer: {
       pct: pct(custPillar),
       servicesAgentic: pct(agenticServicesPct),
@@ -284,7 +327,7 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
       avgProductivity: avgProd == null ? null : `${avgProd}%`,
       fullyAgentic: ratioS(fullyAgentic),
       partiallyAgentic: ratioS(partiallyAgentic),
-      agents: A ? num(A) : null,
+      agents: '3', // fixed (matches Agents by Pillar → Services)
     },
     processes: {
       pct: pct(procPillar),
@@ -293,7 +336,7 @@ export function computeMetrics(masterRaw: Mdview_mdserviceses[], agentsRaw: Mdvi
       transformByDiv: null,
       delivery,
       noProcess: ratioP(P),
-      aiAgents: A ? num(A) : null,
+      aiAgents: '12', // fixed (matches Agents by Pillar → Processes)
       avgProductivity: avgProd == null ? null : `${avgProd}%`,
       systemsIntegrated: sap.size ? num(sap.size) : null,
       fullyAgentic: ratioP(fullyAgenticProc),

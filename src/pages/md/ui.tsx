@@ -33,12 +33,13 @@ export function Tip({ text, tone = 'light' }: { text: string; tone?: 'light' | '
 /** Card head: eyebrow + title (+ optional info tip). */
 export function Head({ eyebrow, title, tip, tone = 'light' }: { eyebrow: string; title: string; tip?: string; tone?: 'light' | 'dark' }) {
   const eyeColor = tone === 'dark' ? '#8FE0B6' : T.mut
-  const titleColor = tone === 'dark' ? '#fff' : T.ink
+  // Card titles are uppercased; dark-tone cards keep white text, light cards use #222222.
+  const titleColor = tone === 'dark' ? '#fff' : '#222222'
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <div>
         <div style={{ font: `600 10px/1 ${BODY_FONT}`, letterSpacing: '.13em', textTransform: 'uppercase', color: eyeColor }}>{eyebrow}</div>
-        <div style={{ font: `600 15px/1.25 ${HEAD_FONT}`, color: titleColor, marginTop: 6 }}>{title}</div>
+        <div style={{ font: `600 15px/1.25 ${HEAD_FONT}`, color: titleColor, marginTop: 6, textTransform: 'uppercase' }}>{title}</div>
       </div>
       {tip && <Tip text={tip} tone={tone} />}
     </div>

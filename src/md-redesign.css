@@ -198,7 +198,7 @@ html { scrollbar-gutter: stable; }
    because the shell is zoomed to 0.85, each real px shows ~1.18 effective px,
    so the thresholds are set lower than the visual width they gate. */
 .g4  { display: grid; gap: 20px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.gHero { display: grid; gap: 20px; grid-template-columns: 1.6fr 1fr 1fr; }
+.gHero { display: grid; gap: 20px; grid-template-columns: 1.5fr 0.82fr 1.58fr; }
 .g3  { display: grid; gap: 20px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .g2  { display: grid; gap: 20px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .gP3 { display: grid; gap: 20px; grid-template-columns: 1fr 1.3fr; }

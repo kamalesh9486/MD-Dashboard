@@ -47,6 +47,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "mdview_mdl3processeses": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "mdview_mdl3processesid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "mdview_mdserviceses": {
     "tableId": "",
     "version": "",

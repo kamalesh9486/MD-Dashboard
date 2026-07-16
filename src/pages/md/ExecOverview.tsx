@@ -11,9 +11,10 @@ import { Gauge, TrendArea, PortfolioBars, ReachDonut } from './charts'
 
 /* one row in a pillar-detail card / overall-metrics list */
 function Stat({ label, value }: { label: string; value: string | null | undefined }) {
+  const isTotal = /^total/i.test(label.trim()) && !/training hours/i.test(label)
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${T.inset}` }}>
-      <span style={{ font: `500 12.5px/1.3 ${BODY_FONT}`, color: T.mut2 }}>{label}</span>
+      <span style={{ font: `${isTotal ? 700 : 500} 12.5px/1.3 ${BODY_FONT}`, color: isTotal ? T.ink : T.mut2 }}>{label}</span>
       <span style={{ font: `700 13px ${BODY_FONT}`, color: T.ink }}><Show v={value} /></span>
     </div>
   )
@@ -25,7 +26,7 @@ function PillarCard({ name, color, pct, stats }: { name: string; color: string; 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <span style={{ width: 10, height: 10, borderRadius: 3, background: color }} />
-          <span style={{ font: `600 15px ${HEAD_FONT}`, color: T.ink }}>{name}</span>
+          <span style={{ font: `600 15px ${HEAD_FONT}`, color: '#222222', textTransform: 'uppercase' }}>{name}</span>
         </div>
         <span style={{ font: `800 22px ${HEAD_FONT}`, color }}><Num v={pct == null ? null : `${pct}%`} /></span>
       </div>
@@ -42,11 +43,11 @@ export default function ExecOverview({ d }: { d: BoardData }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* ROW 1 */}
-      <div className="g4">
+      <div className="g3">
         {/* gauge */}
         <div className="mdx-card" style={{ display: 'flex', flexDirection: 'column' }}>
           <Head eyebrow="Overall" title="Transformation Progress" tip="Average of the pillar %s (Services + Processes + People). Each pillar = count ÷ (its half-total) × 100." />
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Gauge value={d.overall} size={216} /></div>
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Gauge value={d.overall} size={340} /></div>
         </div>
         {/* pillar progress */}
         <div className="mdx-card">
@@ -67,29 +68,16 @@ export default function ExecOverview({ d }: { d: BoardData }) {
             })}
           </div>
         </div>
-        {/* agents by pillar */}
-        <div className="mdx-card">
-          <Head eyebrow="Portfolio" title="Agents by Pillar" tip="Every agent serves a Service AND a Process (overlap), so both pillars count the same agents. People is a fixed programme figure." />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 14 }}>
-            {d.portfolio.length ? d.portfolio.map(p => (
-              <div key={p.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: `1px solid ${T.inset}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 9, height: 9, borderRadius: 3, background: p.c }} />
-                  <span style={{ font: `500 13px ${BODY_FONT}`, color: T.mut2 }}>{p.name}</span>
-                </div>
-                <span style={{ font: `700 20px ${HEAD_FONT}`, color: T.ink }}><Num v={p.value} /></span>
-              </div>
-            )) : <div style={{ padding: '20px 0', textAlign: 'center' }}><NAtag /></div>}
-          </div>
-        </div>
         {/* top-line impact (green gradient) */}
         <div className="mdx-card mdx-card--dark" style={{ background: `linear-gradient(160deg,${T.greenDeep},${T.green})`, border: '1px solid #0A6A3D', boxShadow: '0 14px 30px -18px rgba(11,122,70,.7)', color: '#EAF6EF' }}>
-          <Head eyebrow="Value" title="Top-Line Impact" tip="Projected annualised benefit once the current agent portfolio is fully in use." tone="dark" />
+          <Head eyebrow="Value" title="Forecasted Top-Line Impact " tip="Projected annualised benefit once the current agent portfolio is fully in use." tone="dark" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 15, marginTop: 20 }}>
             {([
-              { label: 'Target Cost Saving', val: d.costSaving ?? null, icon: 'bi-currency-dirham' },
-              { label: 'Target Time Saving', val: d.timeSaving == null ? null : `${d.timeSaving} hrs` },
-              { label: 'Target Productivity', val: d.avgProductivity ?? null },
+                            { label: 'Productivity', val: d.avgProductivity ?? null },
+                                          { label: 'Time Saving', val: d.timeSaving == null ? null : `${d.timeSaving} hrs` },
+
+
+              { label: 'Cost Saving', val: d.costSaving ?? null, icon: 'bi-currency-dirham' },
             ] as { label: string; val: string | null; icon?: string }[]).map(im => (
               <div key={im.label} style={{ borderBottom: '1px solid rgba(255,255,255,.12)', paddingBottom: 13 }}>
                 <div style={{ font: `800 26px ${HEAD_FONT}`, color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -107,30 +95,28 @@ export default function ExecOverview({ d }: { d: BoardData }) {
       <div className="gHero">
         <div className="mdx-card">
           <Head eyebrow="" title="Progress Trend by Month" tip="Pillar %s using each month's cumulative counts (Services ÷ half-total, Processes ÷ 325). The current month also includes People (fixed 100) so it matches the Transformation Progress gauge; past months average Services + Processes only." />
-          <div style={{ marginTop: 8 }}><TrendArea data={d.progressByMonth ?? []} unit="Progress %" /></div>
+          <div style={{ marginTop: 8 }}><TrendArea data={d.progressByMonth ?? []} unit="Progress %" labelSuffix="%" /></div>
         </div>
-        <div className="mdx-card">
-          <Head eyebrow="Organisation" title="Active Agents by Division" tip="Agents grouped by the division of their linked service." />
-          {d.byDivision.length
-            ? <ReachDonut data={d.byDivision.map(([name, value]) => ({ name, value }))} total={d.byDivision.reduce((s, [, v]) => s + v, 0)} unit="Agents" />
-            : <div style={{ padding: '20px 0', textAlign: 'center' }}><NAtag /></div>}
-        </div>
-        <div className="mdx-card">
-          <Head eyebrow="" title="Agents Inventory" tip="Total agents; In Build (service not yet live) vs. In Use (linked service has an actual go-live date)." />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
-            {[
-              { label: 'Total Agents', val: '3721', bg: T.bgGreen, fg: T.green },
-              { label: 'In Build', val: '3721', bg: T.bgBlue, fg: T.blue },
-              { label: 'In Use',val: d.invLive, bg: T.bgSlate, fg: T.slate },
-            ].map(iv => (
-              <div key={iv.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ minWidth: 44, height: 44, flex: '0 0 auto', padding: '0 14px', borderRadius: 12, background: iv.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 18px ${HEAD_FONT}`, color: iv.fg, whiteSpace: 'nowrap' }}><Num v={iv.val} /></div>
-                <div>
-                  <div style={{ font: `600 13px ${BODY_FONT}`, color: T.ink }}>{iv.label}</div>
-                  <div style={{ font: `500 11px/1.3 ${BODY_FONT}`, color: T.mut3, marginTop: 3 }}></div>
+        <div className="mdx-card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <Head eyebrow="Portfolio" title="Agents by Pillars" tip="Every agent serves a Service AND a Process (overlap), so both pillars count the same agents. People is a fixed programme figure." />
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, marginTop: 14 }}>
+            {d.portfolio.length ? d.portfolio.map(p => (
+              <div key={p.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: `1px solid ${T.inset}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ width: 9, height: 9, borderRadius: 3, background: p.c }} />
+                  <span style={{ font: `700 13px ${BODY_FONT}`, color: T.ink }}>{p.name}</span>
                 </div>
+                <span style={{ font: `700 20px ${HEAD_FONT}`, color: T.ink }}><Num v={p.value} /></span>
               </div>
-            ))}
+            )) : <div style={{ padding: '20px 0', textAlign: 'center' }}><NAtag /></div>}
+          </div>
+        </div>
+        <div className="mdx-card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <Head eyebrow="Organisation" title="Active Agents by Division" tip="Agents grouped by the division of their linked service." />
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center' }}>
+            {d.byDivision.length
+              ? <ReachDonut data={d.byDivision.map(([name, value]) => ({ name, value }))} total={d.byDivision.reduce((s, [, v]) => s + v, 0)} unit="Agents" />
+              : <div style={{ flex: 1, textAlign: 'center' }}><NAtag /></div>}
           </div>
         </div>
       </div>
@@ -141,25 +127,26 @@ export default function ExecOverview({ d }: { d: BoardData }) {
           { label: 'Total Services', value: d.customer.noServices },
           { label: 'Fully Agentic', value: d.customer.fullyAgentic },
           { label: 'Partially Agentic', value: d.customer.partiallyAgentic },
-          { label: 'Agents', value: d.customer.agents },
-          { label: 'Productivity Gain', value: d.customer.avgProductivity },
-          { label: 'Annual Transactions', value: d.customer.interactions },
+          { label: 'Agents', value: '3' },
+          { label: 'Customer Satisfaction Score', value: '95%'},
         ]} />
         <PillarCard name="Processes" color={PILLAR.Processes} pct={pillarPct(1)} stats={[
           { label: 'Total Processes', value: d.processes.noProcess },
           { label: 'Fully Agentic', value: d.processes.fullyAgentic },
-          { label: 'Partially Agentic', value: d.processes.partiallyAgentic },
-          { label: 'Agents', value: d.processes.aiAgents },
-          { label: 'Productivity Gain', value: d.processes.avgProductivity },
+          { label: 'Partially Agentic', value: '6/300'},
+          { label: 'Agents', value:'12' },
           { label: 'Annual Transactions', value: d.processes.interactions },
         ]} />
         <PillarCard name="People" color={PILLAR.People} pct={pillarPct(2)} stats={[
-          { label: 'Total Employees', value: d.people.adoption },
-          { label: 'Leadership Adoption', value: d.people.leadership },
-          { label: 'People Trained', value: d.people.trained },
-          { label: 'Training Hours Delivered', value: d.people.hours },
-          { label: 'Workshops / Trainings', value: d.people.workshops },
-          { label: 'Certifications Earned', value: d.people.certs },
+          { label: 'Total Employees Trained', value: d.people.adoption },
+          { label: 'Total Training Hours', value: d.people.hours },
+                    { label: 'Agentic Trainings Sessions', value: d.people.workshops },
+
+
+          { label: 'Agents', value:'1225' },
+                                                  { label: 'Enterprise AI Adoption', value:'98%'},
+
+
         ]} />
       </div>
 
@@ -167,7 +154,7 @@ export default function ExecOverview({ d }: { d: BoardData }) {
       <div className="mdx-card" style={{ padding: '22px 26px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 14, marginBottom: 6 }}>
           <div>
-            <div style={{ font: `600 16px/1.25 ${HEAD_FONT}`, color: T.ink, marginTop: 6 }}>Agentic AI Portfolio Growth</div>
+            <div style={{ font: `600 16px/1.25 ${HEAD_FONT}`, color: '#222222', marginTop: 6, textTransform: 'uppercase' }}>Agentic AI Portfolio Growth</div>
           </div>
         </div>
         <PortfolioBars data={d.portfolioGrowth ?? []} />

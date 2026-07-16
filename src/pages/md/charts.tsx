@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Cell, PieChart, Pie,
+  Tooltip, Cell, PieChart, Pie, LabelList,
 } from 'recharts'
 import { T, HEAD_FONT, BODY_FONT, PILLAR } from './tokens'
 import { Num } from './CountUp'
@@ -17,10 +17,10 @@ const TT_LABEL: CSSProperties = { color: 'rgba(255,255,255,0.6)', fontSize: 11, 
 const TT_ITEM: CSSProperties = { color: '#fff', fontWeight: 600 }
 const AXIS = { fontSize: 11, fill: T.mut } as const
 const GRID = 'rgba(16,32,26,0.06)'
-const PAL = [T.green, T.blue, T.amber, T.slate, T.greenPillar, '#7FB39F']
+const PAL = [T.green, T.blue, T.amber, T.slate, T.greenPillar, '#7C3AED', '#0EA5A3', '#EF6F53', '#12B76A', '#C026A6', '#0C4A2E', '#D97706', '#3B82F6']
 
 /* ── half-circle speedometer gauge — arc + number sweep in together ── */
-export function Gauge({ value, caption = 'COMPLETE', size = 178 }: { value: number | null; caption?: string; size?: number }) {
+export function Gauge({ value, caption = 'Progress Towards 50%', size = 178 }: { value: number | null; caption?: string; size?: number }) {
   const R = 82, cx = 100, cy = 110, sw = 20
   const [shown, setShown] = useState(0)
   const raf = useRef(0)
@@ -43,32 +43,35 @@ export function Gauge({ value, caption = 'COMPLETE', size = 178 }: { value: numb
   const track = `M${pt(0)} A${R} ${R} 0 0 1 ${pt(1)}`
   const fill = `M${pt(0)} A${R} ${R} 0 0 1 ${pt(frac)}`
   return (
-    <svg viewBox="0 0 200 132" style={{ width: '100%', maxWidth: size, display: 'block' }}>
+    <svg viewBox="0 0 200 166" style={{ width: '100%', maxWidth: size, display: 'block' }}>
       <title>{value != null ? `Transformation progress: ${value}%` : 'No data'}</title>
       <path d={track} fill="none" stroke={T.track} strokeWidth={sw} strokeLinecap="round" />
       {value != null && frac > 0.002 && (
         <path d={fill} fill="none" stroke="url(#gaugeGrad)" strokeWidth={sw} strokeLinecap="round" />
       )}
       <defs><linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={T.greenBright} /><stop offset="1" stopColor={T.green} /></linearGradient></defs>
-      <text x={cx} y={cy - 22} textAnchor="middle" style={{ font: `800 40px ${HEAD_FONT}`, fill: T.green }}>{value != null ? `${Math.round(shown)}%` : 'NA'}</text>
-      <text x={cx} y={cy + 2} textAnchor="middle" style={{ font: `600 12px ${BODY_FONT}`, fill: T.mut, letterSpacing: '.06em' }}>{caption}</text>
+      <text x={cx} y={cy - 8} textAnchor="middle" style={{ font: `800 40px ${HEAD_FONT}`, fill: T.green }}>{value != null ? `${Math.round(shown)}%` : 'NA'}</text>
+      <text x={cx} y={cy + 50} textAnchor="middle" style={{ font: `700 11px ${BODY_FONT}`, fill: T.mut, letterSpacing: '.08em' }}>{caption.toUpperCase()}</text>
     </svg>
   )
 }
 
 /* ── smooth green area (progress / delivery trend) ───────── */
-export function TrendArea({ data, unit = 'Value', height = 200 }: { data: Datum[]; unit?: string; height?: number }) {
+export function TrendArea({ data, unit = 'Value', height = 200, labelSuffix = '' }: { data: Datum[]; unit?: string; height?: number; labelSuffix?: string }) {
   if (!data.length) return <NaBox note="No dated data" />
   const step = Math.max(0, Math.ceil(data.length / 8) - 1)
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <AreaChart data={data} margin={{ top: 14, right: 14, left: -6, bottom: 4 }}>
+      <AreaChart data={data} margin={{ top: 26, right: 16, left: -6, bottom: 4 }}>
         <defs><linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={T.greenBright} stopOpacity={0.28} /><stop offset="1" stopColor={T.greenBright} stopOpacity={0} /></linearGradient></defs>
         <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-        <XAxis dataKey="name" tick={AXIS} axisLine={false} tickLine={false} interval={step} />
+        <XAxis dataKey="name" tick={AXIS} axisLine={false} tickLine={false} interval={step} padding={{ left: 18, right: 22 }} />
         <YAxis tick={AXIS} axisLine={false} tickLine={false} allowDecimals={false} width={34} />
         <Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} />
-        <Area type="monotone" dataKey="value" name={unit} stroke={T.green} strokeWidth={3} fill="url(#trendArea)" dot={{ r: 3, fill: '#fff', stroke: T.green, strokeWidth: 2 }} activeDot={{ r: 5 }} />
+        <Area type="monotone" dataKey="value" name={unit} stroke={T.green} strokeWidth={3} fill="url(#trendArea)" dot={{ r: 3, fill: '#fff', stroke: T.green, strokeWidth: 2 }} activeDot={{ r: 5 }}>
+          {/* always-visible value labels so the progress reads without hovering */}
+          <LabelList dataKey="value" position="top" offset={10} formatter={(v) => `${v}${labelSuffix}`} style={{ font: `700 11px ${HEAD_FONT}`, fill: T.green }} />
+        </Area>
       </AreaChart>
     </ResponsiveContainer>
   )
@@ -117,33 +120,53 @@ export function PortfolioBars({ data }: { data: { month: string; customer: numbe
 export function ReachDonut({ data, total, unit = 'Participants' }: { data: Datum[]; total: number | null; unit?: string }) {
   if (!data.length) return <NaBox note="No participation data" />
   const d = data.map((x, i) => ({ ...x, fill: PAL[i % PAL.length] }))
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 14, flexWrap: 'wrap' }}>
-      <div style={{ position: 'relative', width: 150, height: 150, flex: '0 0 150px' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie data={d} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={48} outerRadius={72} paddingAngle={2} stroke="#fff" strokeWidth={2}>
-              {d.map((s, i) => <Cell key={i} fill={s.fill} />)}
-            </Pie>
-            <Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} />
-          </PieChart>
-        </ResponsiveContainer>
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-          <div style={{ font: `800 24px ${HEAD_FONT}`, color: T.ink }}><Num v={total} /></div>
-          <div style={{ font: `600 9px ${BODY_FONT}`, color: T.mut3, letterSpacing: '.04em', textTransform: 'uppercase' }}>{unit}</div>
-        </div>
+  // Many categories → wider donut + a two-column legend beside it; few → the
+  // classic donut + single-column legend. Legend values are right-aligned within
+  // each column so all the numbers line up.
+  const many = d.length > 6
+  const size = many ? 182 : 158
+  const donut = (
+    <div style={{ position: 'relative', width: size, height: size, flex: `0 0 ${size}px` }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie data={d} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={size * 0.34} outerRadius={size * 0.5} paddingAngle={2} stroke="#fff" strokeWidth={2}>
+            {d.map((s, i) => <Cell key={i} fill={s.fill} />)}
+          </Pie>
+          <Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} />
+        </PieChart>
+      </ResponsiveContainer>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+        <div style={{ font: `800 28px ${HEAD_FONT}`, color: T.ink }}><Num v={total} /></div>
+        <div style={{ font: `600 9px ${BODY_FONT}`, color: T.mut3, letterSpacing: '.04em', textTransform: 'uppercase' }}>{unit}</div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, flex: 1, minWidth: 160 }}>
-        {d.map(s => (
-          <div key={s.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ width: 9, height: 9, borderRadius: 3, background: s.fill }} />
-              <span style={{ font: `500 12.5px ${BODY_FONT}`, color: T.mut2 }}>{s.name}</span>
-            </div>
-            <span style={{ font: `700 14px ${HEAD_FONT}`, color: T.ink }}>{s.value.toLocaleString('en-US')}</span>
+    </div>
+  )
+  const legend = (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: many ? 'repeat(2, minmax(0, 1fr))' : '1fr',
+      columnGap: 28,
+      rowGap: 11,
+      flex: many ? '1 1 300px' : '1 1 170px',
+      minWidth: many ? 260 : 160,
+      maxWidth: many ? 380 : 240,
+      alignContent: 'center',
+    }}>
+      {d.map(s => (
+        <div key={s.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+            <span style={{ width: 9, height: 9, borderRadius: 3, background: s.fill, flex: '0 0 auto' }} />
+            <span style={{ font: `500 12.5px ${BODY_FONT}`, color: T.mut2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
           </div>
-        ))}
-      </div>
+          <span style={{ font: `700 14px ${HEAD_FONT}`, color: T.ink, flex: '0 0 auto', fontVariantNumeric: 'tabular-nums' }}>{s.value.toLocaleString('en-US')}</span>
+        </div>
+      ))}
+    </div>
+  )
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: many ? 28 : 24, width: '100%', height: '100%', minHeight: 190, marginTop: 8, flexWrap: 'wrap' }}>
+      {donut}
+      {legend}
     </div>
   )
 }

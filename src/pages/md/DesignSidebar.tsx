@@ -5,7 +5,7 @@ import { useCurrentUser } from '../../hooks/useCurrentUser'
 import Icon from '../../components/Icon'
 import type { BoardSectionId } from './Board'
 import coeRing from '../../assets/coe-ring-white.png'
-import dewaLogo from '../../assets/dewa-logo-white.webp'
+import dewaLogo from '../../assets/dewa-logo-white.png'
 
 const NAV: { id: BoardSectionId; icon: string; label: string }[] = [
   { id: 'overview', icon: 'bi-speedometer2', label: 'Overview' },
