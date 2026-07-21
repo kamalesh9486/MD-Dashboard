@@ -1,231 +1,185 @@
-# DEWA COE AI Intelligence Platform — Claude Code Directives
+# DEWA Agentic AI — MD Dashboard — Claude Code Directives
 
-> Coding rules for this project. Always follow these. Full architecture: `coearchitecture.md`. Design rules: `design.md`.
+> Coding rules for this project. Always follow these.
+> Full functional/calculation reference: `docs/ARCHITECTURE.md`. Design rules: `docs/design.md`.
 
 ---
 
 ## Session Start — Mandatory First Action
 
-**At the beginning of every new session, before doing anything else, read `coearchitecture.md`.**
+**At the beginning of every new session, before doing anything else, read `docs/ARCHITECTURE.md`.**
 
-This file is the single source of truth for what the platform does, which pages exist, what data each page uses, and what components are available. Do not guess at existing architecture — read it first. If a user asks about a page, component, or feature and you have not yet read the file this session, read it before answering.
-
----
-
-## Auto-Dispatch Rule — Check Before Every Response
-
-Before responding to any prompt, silently evaluate every entry in both tables below. If a match is found, invoke it **in the same turn** — never defer to a follow-up.
-
-### Subagents
-
-| Subagent | When to spawn |
-|---|---|
-| **Explore** | Open-ended codebase searches, unknown file locations, cross-file pattern analysis, "where is X defined" — spawn instead of manual grep across 3+ locations |
-| **Plan** | Any task touching ≥ 3 files, architectural decisions, new features, significant refactors — enter plan mode before writing a single line of code |
-| **frontend-engineer** | Complex UI implementation requiring responsive design, accessibility, component libraries, or performance optimisation |
-| **general-purpose** | Multi-step research tasks, anything requiring web search + code search combined, or tasks too broad for a single focused agent |
-| **claude-code-guide** | Questions about Claude Code CLI features, hooks, MCP servers, slash commands, settings, IDE integrations, or the Anthropic API/SDK |
-| **prompt-enhancer** | User's request is vague, ambiguous, or poorly structured — enhance before acting on it |
-
-### Skills (slash commands)
-
-| Skill | When to invoke |
-|---|---|
-| **`/dewa-coe-platform`** | Any UI work, new page/tab, KPI card, chart, filter, Dataverse fetch, or design-system question in this project |
-| **`/owasp-security`** | Any auth, input handling, API endpoint, token storage, or permission logic |
-| **`/simplify`** | After completing any implementation task — review and clean up the diff |
-| **`/review`** | User asks for a code or PR review |
-| **`/security-review`** | User asks to audit the current branch for vulnerabilities |
-| **`/claude-api`** | Code imports `anthropic` / `@anthropic-ai/sdk`, or task involves the Claude API, prompt caching, tool use, or model configuration |
-| **`/update-config`** | User wants to change Claude Code settings, add permissions, configure hooks, or set env vars |
-| **`/keybindings-help`** | User wants to customise keyboard shortcuts or rebind keys |
-| **`/fewer-permission-prompts`** | User is seeing too many permission prompts during a session |
-| **`/schedule`** | User wants to schedule a recurring or one-time automated task |
-
-**Hard rule:** If anything in either table matches the request, invoke it immediately — do not silently skip it. Multiple matches → invoke all that apply, in parallel where possible.
+It is the single source of truth for what the dashboard shows, every KPI's exact calculation,
+which Dataverse tables feed it, and the fixed business-logic values. Do not guess at existing
+behaviour — read it first. If the numbers or KPI logic are involved, also invoke the
+`md-dashboard-kpis` skill.
 
 ---
 
-## Project Snapshot
+## What This App Is
 
-**Stack:** React 19 + TypeScript (strict) + Vite 7  
-**Data:** Microsoft Dataverse via Power Apps SDK (`@microsoft/power-apps`)  
-**Charts:** Recharts 3 — no other chart library  
-**Icons:** Bootstrap Icons via `<Icon name="bi-*" />` — no other icon system  
-**Styling:** Custom CSS in per-page `.css` files — no Tailwind, no CSS-in-JS  
-**Active tabs:** `executive-summary` · `division-analytics` · `programs` · `events` · `people-skills` · `technology-stack` · `discovery-catalog` · `ai-incident` · `ai-command-center` · `al-hasbah` (sub-tabs: `ah-leadership` · `ah-kpi-performance` · `ah-kpi-repository` · `ah-agent-repository` · `ah-use-case-repository` · `ah-health`)
+A **single-page dashboard** (React 19 + TypeScript strict + Vite 7, Microsoft Power Apps code app)
+tracking DEWA's agentic-AI transformation against a **50% mandate**. It opens straight into the
+dashboard shell — there is no launch screen and no multi-page router. `src/dashboard/Board.tsx`
+holds four internal views selected by local state: **Executive Overview · People · Services · Processes**.
+
+> This app was slimmed down from an earlier 13-page "COE Platform." Docs describing that old app
+> live in `docs/legacy/` and **do not** reflect the current code — ignore them for current work.
+
+**Stack:** React 19 + TypeScript (strict) + Vite 7
+**Data:** Microsoft Dataverse via Power Apps SDK (`@microsoft/power-apps`)
+**Charts:** Recharts 3 — no other chart library
+**Icons:** Bootstrap Icons via `<Icon name="bi-*" />` — no other icon system
+**Styling:** Plain CSS (`src/styles/md-dashboard.css`) + inline design tokens (`src/dashboard/lib/tokens.ts`) — no Tailwind, no CSS-in-JS
+**Environment ID:** `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`
 
 ---
 
+## Project Structure
 
-
-## Navigation
-
-**There is no React Router.** Do not add it. Navigation is tab state in `Layout.tsx`:
-
-```tsx
-const [activeTab, setActiveTab] = useState<TabId>('executive-summary')
+```
+src/
+  main.tsx                  entry — mounts <App>, imports styles/index.css
+  App.tsx                   renders <Layout>
+  components/               shared, app-wide
+    Layout.tsx              thin mount → <ErrorBoundary><MdDashboard/></ErrorBoundary>
+    Icon.tsx                Bootstrap Icons as embedded SVG paths (no font load)
+    ErrorBoundary.tsx
+  hooks/
+    useCurrentUser.ts       { name, role, email, loading } — 6s local-dev fallback
+  generated/                Dataverse models + services (AUTO-GENERATED — never hand-edit)
+  dashboard/                the MD Dashboard feature
+    MdDashboard.tsx         fetches Dataverse tables, computes BoardData/PeopleData
+    Board.tsx               shell: banner + tab bar, routes the 4 views
+    ExecOverview.tsx        Executive Overview view
+    PeopleView.tsx          People view
+    DesignSidebar.tsx       icon rail (nav mirrors the board tabs)
+    CountUp.tsx             animated count-up number
+    Charts.tsx              all Recharts renderers
+    Primitives.tsx          NA tag, info chip, card head, progress bar
+    lib/                    pure logic + data (no JSX)
+      compute.ts            computeMetrics() + peopleFromEvents() — SINGLE SOURCE of every number
+      peopleAnalytics.ts    People-tab analytics from cr978_coe_events
+      boardTypes.ts         BoardData type + colour tokens
+      tokens.ts             design tokens (T, PILLAR, fonts)
+  styles/
+    index.css               global
+    md-dashboard.css        dashboard styles
 ```
 
-To add a new page: add a `TabId`, add a nav item in `Sidebar.tsx`, add a `case` in `Layout.tsx`'s `renderPage()`, create `src/pages/YourPage.tsx` + `src/your-page.css`.
+**Where things live:** numbers/calculations → `src/dashboard/lib/compute.ts`. Layout/panels →
+`src/dashboard/Board.tsx` + the view files. Chart rendering → `src/dashboard/Charts.tsx`.
+Never put calculation logic in a JSX component — it belongs in `lib/`.
 
 ---
 
 ## Dataverse Services
 
-Auto-generated services live in `src/generated/`. Never hand-write model or service code. Pattern:
+Auto-generated services live in `src/generated/`. **Never hand-write model or service code** — to
+add a table, re-run the Power Apps code generation tool. Tables the dashboard uses:
+
+| Table (logical) | Role |
+|---|---|
+| `mdview_mdservices` | 1 row = 1 service — feeds most KPIs |
+| `mdview_mdagents` | 1 row = 1 agent (joined to a service by Initiative Title) |
+| `mdview_mdl3processes` | L3 processes |
+| `cr978_coe_events` | training events → People tab |
+| `cr978_coe_divisions` | division-name lookup |
+| `cr978_coe_persons` | signed-in user (via `useCurrentUser`) |
+
+Fetch pattern — call `getAll()` in `useEffect` on mount, store in local `useState`. No global store.
+Outside a deployed Power Apps runtime, calls return `[]` and every KPI renders **NA** — never fabricate.
 
 ```ts
-// Fetch on mount, store in local useState — no global store
 useEffect(() => {
-  Cr978_coe_programsService.getAll().then(res => setData(res.data ?? []))
+  Mdview_mdservicesesService.getAll().then(res => setServices(res.data ?? []))
 }, [])
 ```
 
-FK columns are GUIDs. Resolve to names with a Map:
-
-```ts
-const divisionMap = new Map(divisionsRes.data.map(d => [d.id, d.name]))
-const name = divisionMap.get(record._cr978_coe_division_value) ?? 'Unknown'
-```
-
-Dataverse table prefix: `cr978_coe_*`. Environment ID: `07da6342-8cc4-e81c-95fa-9ce24e7c2f46`.
+FK columns are GUIDs — resolve to names with a `Map` (see `docs/ARCHITECTURE.md`).
 
 ---
 
 ## Icons — Bootstrap Icons Only
 
-**Never use emoji** anywhere in the codebase. Use the `<Icon>` component exclusively.
+**Never use emoji** anywhere. Use the `<Icon>` component exclusively.
 
 ```tsx
-// WRONG
-<span>🤖</span>
-{ icon: '📊' }
-
-// CORRECT
-<Icon name="bi-robot" />
-{ icon: 'bi-bar-chart-line-fill' }
+<Icon name="bi-robot" />          // CORRECT
+<span>🤖</span>                    // WRONG
 ```
 
-**Currency/finance contexts:** always use `bi-currency-dirham`. Never `bi-currency-dollar` or any other currency icon.
+**Currency/finance contexts:** always `bi-currency-dirham`. Never `bi-currency-dollar`.
 
 ---
 
 ## Typography — Dubai Font
 
-Always use the full font stack. Never use monospace, Roboto, Arial, or any other family.
+Always use the full stack. Never monospace, Roboto, or Arial.
 
 ```css
 font-family: 'Dubai', 'Segoe UI', system-ui, sans-serif;
 ```
 
-```tsx
-fontFamily: "'Dubai', 'Segoe UI', system-ui, sans-serif"
-```
-
-CSS variables are already set in `src/index.css`: `--sans`, `--heading`, `--mono` all point to this stack.
+Font tokens live in `src/dashboard/lib/tokens.ts` (`HEAD_FONT`, `BODY_FONT`).
 
 ---
 
-## Styling Rules
+## Styling & Colours
 
-- Each page has its own CSS file in `src/`. Import it at the top of the component: `import '../page-name.css'`
-- All cards need the 3px `linear-gradient(90deg, #007560, #ca8a04)` top accent bar via `::before`
-- Page `h1` headings use gradient text: `background: linear-gradient(90deg, #007560, #004937); -webkit-background-clip: text; -webkit-text-fill-color: transparent`
-- Background: `#edf2f0` — never `#fff` on the page shell
-- Primary text: `#1c1c1e` — never `#000`
-- Sidebar accent/active colour: `#ca8a04` (DEWA gold) — not green
-- See `design.md` for the full colour palette, spacing, animation keyframes, and component patterns
+- Primary green `#007560`, gold `#ca8a04`, teal `#004937`.
+- Page background is a cool neutral — never pure white (`#fff`). Primary text `#1c1c1e` — never pure black (`#000`).
+- Design tokens object `T` in `src/dashboard/lib/tokens.ts`; dashboard CSS in `src/styles/md-dashboard.css`.
+- No dark mode (not implemented).
+- See `docs/design.md` for the full palette, spacing, and component patterns.
 
 ---
 
 ## Charts (Recharts)
 
-- Always wrap in `<ResponsiveContainer width="100%">`
-- Bar colour: `#007560` (green), secondary: `#ca8a04` (gold), tertiary: `#004937` (teal)
-- Rounded bar tops: `radius={[8, 8, 0, 0]}`
-- Custom tooltip: `background: rgba(28,28,30,0.93)`, white text
-- Grid lines: `rgba(0,117,96,0.07)`
-- Do not introduce Recharts alternatives (Chart.js, D3, Victory, etc.)
+- Always wrap in `<ResponsiveContainer width="100%">`.
+- Bar green `#007560`, gold `#ca8a04`, teal `#004937`. Rounded bar tops `radius={[8,8,0,0]}`.
+- Do not introduce Recharts alternatives (Chart.js, D3, Victory, etc.).
 
-### Tooltip text visibility — mandatory rule
+### Tooltip text visibility — mandatory
 
-All tooltips use a near-black background (`rgba(28,28,30,0.93)`). Recharts does **not** inherit text colour from `contentStyle` — it renders label text in `#666` and item text in the series colour by default. On a dark background those colours are invisible. Every `<Tooltip>` must explicitly set:
-
-```tsx
-// Shared constants (define once per file)
-const TT_STYLE = {
-  background: 'rgba(28,28,30,0.93)', border: 'none',
-  borderRadius: 9, padding: '8px 14px',
-  boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
-  fontSize: 12, color: '#fff',           // ← base colour safeguard
-}
-const TT_LABEL = { color: 'rgba(255,255,255,0.6)', fontSize: 11, marginBottom: 4 }
-const TT_ITEM  = { color: '#fff', fontWeight: 600 }
-
-// Usage — always include all three props
-<Tooltip contentStyle={TT_STYLE} labelStyle={TT_LABEL} itemStyle={TT_ITEM} />
-```
-
-When using a fully custom `content={<MyTooltip />}` component, set explicit colours inline inside the component instead (the `labelStyle`/`itemStyle` props are ignored in that case). See `AICommandCenter.tsx`, `AIIncident.tsx`, and `Finance.tsx` for the custom-component pattern.
-
----
-
-## Component Rules
-
-- **No modals for new features** — use slide-in panels if a detail overlay is needed
-- **No React Router** — tab state only
-- **No global state manager** — each page owns its data via local `useState`
-- **`<Icon>`** is the only way to render icons — 149 Bootstrap Icons are embedded as SVG paths, no external font load needed
-- **`useCurrentUser()`** returns `{ name, role, email, loading }` — has 6s local-dev fallback to `{ name: "User", role: "Member" }`
-- **`CopilotDataContext`** provides shared agent/copilot data fetched at app launch — consume with `useCopilotData()`
-
----
-
-## Data: Live vs. Static
-
-Pages that call Dataverse: People–Adoption, Programs, Events, Discovery Catalog, AI Incidents, AI Command Center.  
-Pages with static/hardcoded data: Executive Summary, Division Analytics, People–Certifications/Skills/Performance, Technology Stack, Strategic Roadmap.  
-Finance is hybrid (division names live, budget figures from `FINANCE_SEED` array — no Finance table in Dataverse yet).
-
-When adding live data to a currently-static page, fetch in `useEffect` on mount and replace the hardcoded array.
+Tooltips use a near-black background — Recharts does **not** inherit text colour from `contentStyle`.
+Every `<Tooltip>` must explicitly set white text via `contentStyle` + `labelStyle` + `itemStyle`
+(or set colours inline when using a custom `content={}` component). See `src/dashboard/Charts.tsx`.
 
 ---
 
 ## TypeScript
 
-`strict: true`, `noUnusedLocals: true`, `noUnusedParameters: true`. Fix all type errors — do not use `any` as a shortcut.
-
-Adding a new Dataverse table: re-run the Power Apps code generation tool. Do not hand-write types in `src/generated/`.
+`strict: true`, `noUnusedLocals: true`, `noUnusedParameters: true`. Fix all type errors — never use
+`any` as a shortcut. Path alias `@` → `./src` (imports are currently relative).
 
 ---
 
 ## Build Commands
 
 ```bash
-npm run dev      # local dev on http://localhost:3000
+npm run dev      # pac code run + vite on http://localhost:3000
 npm run build    # tsc -b && vite build → ./dist
-npm run lint     # ESLint check
-npm run preview  # preview ./dist locally
-
-
+npm run lint     # ESLint
+npm run preview  # preview ./dist
 ```
 
-Don't Push directly to `main` — create a feature branch, push, and open a PR for review.
-Don't push the application to power apps without user approval
+Don't push directly to `main` — create a feature branch, push, and open a PR for review.
+Don't push the application to Power Apps without user approval.
+
 ---
 
 ## What NOT To Do
 
 - No emoji anywhere
-- No React Router
-- No global state manager (Redux, Zustand, etc.)
+- No React Router / multi-page routing (the app is one page; views switch via `Board.tsx` state)
+- No global state manager (Redux, Zustand, etc.) — each area owns its data via local `useState`
 - No Tailwind or CSS-in-JS
 - No chart libraries other than Recharts
 - No icon libraries other than Bootstrap Icons via `<Icon>`
 - No `bi-currency-dollar` — use `bi-currency-dirham`
-- No pure white (`#fff`) page shell backgrounds — use `#edf2f0`
-- No pure black (`#000`) text — use `#1c1c1e`
+- No pure white (`#fff`) page background; no pure black (`#000`) text
 - No hand-written Dataverse model/service code — use `src/generated/`
-- Do not add Finance or Strategic Roadmap back to the sidebar (hidden intentionally)
-- Do not add dark mode (not implemented in this project)
+- Don't fabricate KPI values — missing data renders **NA** (except the fixed business constants documented in `docs/ARCHITECTURE.md §4`)
+- Don't treat `docs/legacy/` as current — it describes the old 13-page COE app

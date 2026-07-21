@@ -1,4 +1,4 @@
-import MdDashboard from '../pages/MdDashboard'
+import MdDashboard from '../dashboard/MdDashboard'
 import { ErrorBoundary } from './ErrorBoundary'
 
 /* The MD Dashboard owns its full shell now (slim rail + header banner + tabs,

@@ -1,0 +1,40 @@
+Section,KPI (as shown in UI),What it measures,Formula / Calculation,Source table(s),Source column(s),Type,Notes
+DEFINITIONS,TOT,Total services (denominator),"Count of de-duplicated, record-active rows in the services table",mdview_mdservices,"statecode (<>1), mdview_initiativereferencenumber / mdview_initiativetitle (dedupe key)",Live,"Rows with statecode=1 (inactive) are dropped; duplicate imports collapsed by reference no. (fallback title)"
+DEFINITIONS,S,Active services (numerator),"TOT filtered to Business Service State = Active",mdview_mdservices,mdview_servicestate,Live,"Only servicestate='Active' rows count toward numerators"
+DEFINITIONS,P,Processes,"Count of DISTINCT process names among record-active process rows",mdview_mdl3processes,"statecode (<>1), mdview_processname",Live,"Blank names excluded; two rows with same name count once"
+DEFINITIONS,A,Agents,"Count of de-duplicated, record-active agent rows",mdview_mdagents,"statecode (<>1), mdview_agentname + mdview_initiativetitle (dedupe key)",Live,"Used for Agent Inventory; ExecOverview agent tiles are currently fixed"
+DEFINITIONS,TOT_P,Processes total,Fixed business constant = 600 (half = 300),n/a (compute.ts),n/a,Fixed,"50% mandate scale for processes"
+DEFINITIONS,PEOPLE_PILLAR,People pillar %,Fixed = 151,n/a (compute.ts),n/a,Fixed,"No People-pillar data source in the tables yet"
+ROW 1 - Transformation Progress,Transformation Progress (gauge),Overall % towards the Agentic-AI mandate,"ROUND( AVERAGE( ServicesPillar%, ProcessesPillar%, PeoplePillar% ) )",mdview_mdservices + mdview_mdl3processes,"see pillar rows below",Hybrid,"Average of the three pillar %s; People pillar is fixed (151)"
+ROW 1 - Progress by Pillars,Services (%),Services progress vs 50% mandate,"ROUND( S / (TOT/2) * 100 )",mdview_mdservices,"mdview_servicestate, statecode",Live,"Scale label under bar = ROUND(TOT/2)"
+ROW 1 - Progress by Pillars,Processes (%),Processes progress vs 50% mandate,"ROUND( P / (TOT_P/2) * 100 )  [TOT_P=600 -> /300]",mdview_mdl3processes,mdview_processname,Hybrid,"Scale label under bar = 300 (fixed)"
+ROW 1 - Progress by Pillars,People (%),People pillar progress,151 (fixed),n/a (compute.ts),n/a,Fixed,"Scale label under bar = 4000 (fixed)"
+ROW 1 - Forecasted Top-Line Impact,Productivity,Average productivity gain across services,"ROUND( AVERAGE( per service where value>0: if value<=1.5 then value*100 else value ) )",mdview_mdservices,mdview_productivitygainpercentage,Live,"Values <=1.5 treated as a 0-1 ratio and scaled x100"
+ROW 1 - Forecasted Top-Line Impact,Time Saving (hrs),Average time saved per service,"magnitudeFormat( AVERAGE( mdview_timesaveddescription where value>0 ) )",mdview_mdservices,mdview_timesaveddescription,Live,"Formatted K/M/B; shown with ' hrs' suffix"
+ROW 1 - Forecasted Top-Line Impact,Cost Saving,Total forecast annual cost saving,"AED magnitudeFormat( SUM( mdview_targetcostsaving where value>=1000 ) )",mdview_mdservices,mdview_targetcostsaving,Live,"Values <1000 are time-reduction ratios and are EXCLUDED"
+ROW 2 - Progress Trend by Month,Monthly progress %,Cumulative transformation % per month,"per month: ROUND( AVERAGE( cumS/(TOT/2)*100, cumP/(TOT_P/2)*100, 151*(peopleCum/peopleRef) ) )",mdview_mdservices + mdview_mdl3processes,"mdview_actualgolivedate / mdview_plannedcompletiondate / mdview_submissiondate (services); mdview_golivedateformatted / mdview_golivedate / mdview_plannedgolivedate (processes)",Hybrid,"Services bucketed by go-live (then planned, then submission) date; processes by go-live date; People ramps via fixed PEOPLE_CUM (base 4324); axis starts March of latest data year"
+ROW 2 - Agents by Pillars,Services,Agents serving the Services pillar,3 (fixed),n/a (compute.ts),n/a,Fixed,"Data-driven version (=A) kept commented in compute.ts"
+ROW 2 - Agents by Pillars,Processes,Agents serving the Processes pillar,12 (fixed),n/a (compute.ts),n/a,Fixed,
+ROW 2 - Agents by Pillars,People,Agents created by / for People,"1,225 active of 3,714 created (both fixed)",n/a (compute.ts),n/a,Fixed,"value=1225 (active), total=3714 (created)"
+ROW 2 - Active Agents by Division,Donut centre total,Total active agents mapped to a division,"SUM(byDivision list) = 1,240 (fixed)",n/a (compute.ts),n/a,Fixed,"Fixed 13-division list; data-driven agent->service(initiative title)->division logic kept commented in compute.ts"
+ROW 3 - Services card,Header %,Services pillar %,"ROUND( S / (TOT/2) * 100 )",mdview_mdservices,"mdview_servicestate, statecode",Live,"Same as Progress-by-Pillars Services"
+ROW 3 - Services card,Total Services,Active services vs half-total,"S & '/' & ROUND(TOT/2)",mdview_mdservices,"mdview_servicestate, statecode",Live,
+ROW 3 - Services card,Fully Agentic,Services fully agentic vs half-total,"COUNT(services where eligibility contains 'full') & '/' & ROUND(TOT/2)",mdview_mdservices,mdview_eligibility,Live,
+ROW 3 - Services card,Partially Agentic,Services partially agentic vs half-total,"COUNT(services where eligibility contains 'partial') & '/' & ROUND(TOT/2)",mdview_mdservices,mdview_eligibility,Live,
+ROW 3 - Services card,Active Agents,Agents on the Services pillar,3 (fixed),n/a (UI),n/a,Fixed,"Hardcoded in ExecOverview.tsx"
+ROW 3 - Services card,Customer Satisfaction Score,CSAT for agentic services,95% (fixed),n/a (UI),n/a,Fixed,"Hardcoded in ExecOverview.tsx"
+ROW 3 - Processes card,Header %,Processes pillar %,"ROUND( P / (TOT_P/2) * 100 )",mdview_mdl3processes,mdview_processname,Hybrid,
+ROW 3 - Processes card,Total Processes,Distinct processes vs half-total,"P & '/300'",mdview_mdl3processes,mdview_processname,Hybrid,
+ROW 3 - Processes card,Fully Agentic,Distinct related-processes among Full services,"COUNT(DISTINCT mdview_relatedprocess where service eligibility contains 'full') & '/300'",mdview_mdservices,"mdview_eligibility, mdview_relatedprocess",Live,
+ROW 3 - Processes card,Partially Agentic,(hardcoded),6/300 (fixed),n/a (UI),n/a,Fixed,"Hardcoded in ExecOverview.tsx (overrides computed value)"
+ROW 3 - Processes card,Active Agents,Agents on the Processes pillar,12 (fixed),n/a (UI),n/a,Fixed,"Hardcoded in ExecOverview.tsx"
+ROW 3 - Processes card,Annual Transactions,Total annual volume across services,"num( SUM( mdview_annualvolume ) )",mdview_mdservices,mdview_annualvolume,Live,
+ROW 3 - People card,Header %,People pillar %,151 (fixed),n/a (compute.ts),n/a,Fixed,
+ROW 3 - People card,Total Employees Trained,Employees trained vs target,"6041/4000 (fixed)",n/a (compute.ts),n/a,Fixed,"peopleFromEvents adoption field is a fixed string"
+ROW 3 - People card,Total Training Hours,Training hours delivered,"SUM( eventDurationHours * cr978_coe_nofattendees )",cr978_coe_events,"cr978_coe_eventduration, cr978_coe_nofattendees",Live,
+ROW 3 - People card,Agentic Training Sessions,Number of training events,"COUNT( event rows )",cr978_coe_events,(row count),Live,
+ROW 3 - People card,Active Agents,Agents on the People pillar,1225 (fixed),n/a (UI),n/a,Fixed,"Hardcoded in ExecOverview.tsx"
+ROW 3 - People card,Enterprise AI Adoption,Adoption rate,98% (fixed),n/a (UI),n/a,Fixed,"Hardcoded in ExecOverview.tsx"
+ROW 4 - Agentic AI Portfolio Growth,Services (bar),Cumulative services by month,"running cumulative count of dated services up to each month",mdview_mdservices,"mdview_actualgolivedate / mdview_plannedcompletiondate / mdview_submissiondate",Live,"Final (current) month = MAX(cumulative, S)"
+ROW 4 - Agentic AI Portfolio Growth,Processes (bar),Cumulative distinct processes by month,"running cumulative count of dated distinct processes up to each month",mdview_mdl3processes,"mdview_golivedateformatted / mdview_golivedate / mdview_plannedgolivedate",Live,"Final month = MAX(cumulative, P)"
+ROW 4 - Agentic AI Portfolio Growth,People (bar),Training events per month,"COUNT of training events in that 'Mon YY' month (eventCountByMonth)",cr978_coe_events,event date,Live,"Merged in by MdDashboard.tsx after computeMetrics"

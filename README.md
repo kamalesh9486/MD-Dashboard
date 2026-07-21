@@ -1,75 +1,54 @@
-# React + TypeScript + Vite
+# DEWA Agentic AI — MD Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A single-page dashboard tracking DEWA's agentic-AI transformation against a **50% mandate**.
+Built as a Microsoft Power Apps code app (React 19 + TypeScript + Vite 7), reading live data from
+Microsoft Dataverse and rendering executive KPIs, portfolio growth, and people/training analytics.
 
-It is preconfigured to work with Power Apps Code Apps.
+The app opens straight into the dashboard shell — a sidebar rail, a mandate banner, and a tab bar
+with four views: **Executive Overview · People · Services · Processes**.
 
-Currently, two official plugins are available:
+## Tech stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19 + TypeScript** (strict) on **Vite 7**
+- **Microsoft Power Apps SDK** (`@microsoft/power-apps`) → Dataverse
+- **Recharts 3** for all charts
+- **Bootstrap Icons** via an embedded `<Icon>` component (no font load)
 
-## React Compiler
+## Getting started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev      # pac code run + Vite on http://localhost:3000
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Outside a deployed Power Apps runtime the Dataverse SDK returns no data, so KPIs render as **NA**
+(by design — the dashboard never fabricates numbers). Layout and charts still render.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build    # tsc -b && vite build → ./dist
+npm run lint     # ESLint
+npm run preview  # preview ./dist locally
 ```
+
+## Project layout
+
+```
+src/
+  components/   shared UI (Layout, Icon, ErrorBoundary)
+  hooks/        useCurrentUser
+  generated/    Dataverse models + services (auto-generated — do not hand-edit)
+  dashboard/    the MD Dashboard feature (MdDashboard + views + lib/ calculations)
+  styles/       global + dashboard CSS
+docs/           ARCHITECTURE.md, design.md, and reference docs
+```
+
+## Documentation
+
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — every section, exact KPI calculation, data sources, and fixed business values. Start here.
+- **[docs/design.md](docs/design.md)** — design system (colours, fonts, components).
+- **[CLAUDE.md](CLAUDE.md)** — coding directives for this repo.
+- `docs/legacy/` — docs for the earlier 13-page "COE Platform"; **not** current.
+
+## Contributing
+
+Don't push directly to `main` — branch, push, and open a PR. Don't publish to Power Apps without approval.
